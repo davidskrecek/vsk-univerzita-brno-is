@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -10,4 +5,204 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+model Sport {
+  id                       Int         @id @default(autoincrement())
+  name                     String      @unique @db.VarChar(100)
+  isCompetitive            Boolean     @default(true) @map("is_competitive")
+  description              String?     @db.Text
+  headOfficialPersonnelId  Int?        @map("head_official_personnel_id")
+  headOfficial             Personnel?  @relation("SportHeadOfficial", fields: [headOfficialPersonnelId], references: [id])
+
+  personnel  Personnel[]   @relation("SportMembers")
+  posts      Post[]
+  events     Event[]
+  editors    Editor[]
+
+  @@map("sport")
+}
+
+model Personnel {
+  id        Int      @id @default(autoincrement())
+  sportId   Int?     @map("sport_id")
+  firstName String   @map("first_name") @db.VarChar(100)
+  lastName  String   @map("last_name") @db.VarChar(100)
+  email     String   @unique @db.VarChar(255)
+  phone     String?  @db.VarChar(30)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  sport   Sport?   @relation("SportMembers", fields: [sportId], references: [id])
+  trainer Trainer?
+  official Official?
+  editor  Editor?
+
+  authoredPosts          Post[]         @relation("PostAuthor")
+  authoredEvents         Event[]        @relation("EventAuthor")
+  partnerOrdersRequested PartnerOrder[] @relation("OrderRequester")
+  partnerOrdersNotified  PartnerOrder[] @relation("OrderNotified")
+  invitationsReceived    AccountInvitation[] @relation("InvitationPersonnel")
+  invitationsCreated     AccountInvitation[] @relation("InvitationCreatedBy")
+  auditLogs              AuditLog[]
+
+  leadsClub Sport[] @relation("SportHeadOfficial")
+
+  @@map("personnel")
+}
+
+model Trainer {
+  personnelId Int      @id @map("personnel_id")
+  category    String?  @db.VarChar(100)
+
+  personnel Personnel @relation(fields: [personnelId], references: [id])
+
+  @@map("trainer")
+}
+
+model Official {
+  personnelId Int    @id @map("personnel_id")
+  position    String @db.VarChar(100)
+
+  personnel Personnel @relation(fields: [personnelId], references: [id])
+
+  @@map("official")
+}
+
+model EditorRole {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(50)
+  permissions Json     @default("{}")
+
+  editors Editor[]
+
+  @@map("editor_role")
+}
+
+model Editor {
+  personnelId          Int       @id @map("personnel_id")
+  passwordHash         String    @map("password_hash") @db.VarChar(255)
+  editorRoleId         Int       @map("editor_role_id")
+  managedSportId       Int?      @map("managed_sport_id")
+  lastLoginAt          DateTime? @map("last_login_at")
+  failedLoginAttempts  Int       @default(0) @map("failed_login_attempts")
+  lockedUntil          DateTime? @map("locked_until")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime? @updatedAt @map("updated_at")
+
+  personnel    Personnel  @relation(fields: [personnelId], references: [id])
+  editorRole   EditorRole @relation(fields: [editorRoleId], references: [id])
+  managedSport Sport?     @relation(fields: [managedSportId], references: [id])
+
+  @@map("editor")
+}
+
+model Post {
+  id                 Int       @id @default(autoincrement())
+  authorPersonnelId  Int       @map("author_personnel_id")
+  sportId            Int       @map("sport_id")
+  title              String    @db.VarChar(255)
+  excerpt            String?   @db.Text
+  content            String    @db.Text
+  imageUrl           String?   @map("image_url") @db.VarChar(1024)
+  isPublished        Boolean   @default(true) @map("is_published")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime? @updatedAt @map("updated_at")
+  publishedAt        DateTime? @map("published_at")
+
+  author Personnel   @relation("PostAuthor", fields: [authorPersonnelId], references: [id])
+  sport  Sport      @relation(fields: [sportId], references: [id])
+
+  media PostMedia[]
+
+  @@index([sportId, createdAt(sort: Desc)], name: "ix_post_sport_created")
+  @@index([isPublished, publishedAt(sort: Desc)], name: "ix_post_published")
+  @@map("post")
+}
+
+model PostMedia {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @map("post_id")
+  mediaUrl  String   @map("media_url") @db.VarChar(1024)
+  mediaType String   @map("media_type") @db.VarChar(20)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_media")
+}
+
+model Event {
+  id                Int       @id @default(autoincrement())
+  authorPersonnelId Int       @map("author_personnel_id")
+  sportId           Int       @map("sport_id")
+  title             String    @db.VarChar(255)
+  description       String?   @db.Text
+  startTime         DateTime  @map("start_time")
+  endTime           DateTime? @map("end_time")
+  location          String?   @db.VarChar(255)
+  eventType         String?   @map("event_type") @db.VarChar(50)
+  ticketUrl         String?   @map("ticket_url") @db.VarChar(1024)
+  mapUrl            String?   @map("map_url") @db.VarChar(1024)
+  isPublic          Boolean   @default(true) @map("is_public")
+  isCancelled       Boolean   @default(false) @map("is_cancelled")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime? @updatedAt @map("updated_at")
+
+  author Personnel @relation("EventAuthor", fields: [authorPersonnelId], references: [id])
+  sport  Sport     @relation(fields: [sportId], references: [id])
+
+  @@index([sportId, startTime], name: "ix_event_sport_start")
+  @@index([isPublic, startTime], name: "ix_event_public_start")
+  @@map("event")
+}
+
+model PartnerOrder {
+  id                        Int       @id @default(autoincrement())
+  requesterPersonnelId      Int       @map("requester_personnel_id")
+  partnerName               String    @map("partner_name") @db.VarChar(255)
+  email                     String    @db.VarChar(255)
+  details                   String    @db.Text
+  status                    String    @default("submitted") @db.VarChar(30)
+  notifiedOfficialPersonnelId Int?    @map("notified_official_personnel_id")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime? @updatedAt @map("updated_at")
+
+  requester         Personnel  @relation("OrderRequester", fields: [requesterPersonnelId], references: [id])
+  notifiedOfficial  Personnel? @relation("OrderNotified", fields: [notifiedOfficialPersonnelId], references: [id])
+
+  @@index([status, createdAt(sort: Desc)], name: "ix_partner_order_status_created")
+  @@map("partner_order")
+}
+
+model AccountInvitation {
+  id                   Int       @id @default(autoincrement())
+  personnelId          Int       @map("personnel_id")
+  tokenHash            String    @unique @map("token_hash") @db.VarChar(255)
+  expiresAt            DateTime  @map("expires_at")
+  usedAt               DateTime? @map("used_at")
+  createdByPersonnelId Int?      @map("created_by_personnel_id")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  personnel  Personnel  @relation("InvitationPersonnel", fields: [personnelId], references: [id])
+  createdBy  Personnel? @relation("InvitationCreatedBy", fields: [createdByPersonnelId], references: [id])
+
+  @@index([personnelId, expiresAt], name: "ix_account_invitation_personnel_expires")
+  @@map("account_invitation")
+}
+
+model AuditLog {
+  id                Int      @id @default(autoincrement())
+  actorPersonnelId  Int      @map("actor_personnel_id")
+  entityType        String   @map("entity_type") @db.VarChar(50)
+  entityId          Int      @map("entity_id")
+  action            String   @db.VarChar(30)
+  payload           Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  actor Personnel @relation(fields: [actorPersonnelId], references: [id])
+
+  @@map("audit_log")
 }
