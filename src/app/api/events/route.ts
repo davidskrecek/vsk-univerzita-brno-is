@@ -9,11 +9,14 @@ export async function GET(req: NextRequest) {
     const to = searchParams.get("to");
     const sportId = searchParams.get("sportId");
 
+    const startTime: { gte?: Date; lte?: Date } = {};
+    if (from) startTime.gte = new Date(from);
+    if (to) startTime.lte = new Date(to);
+
     const where = {
       isPublic: true,
       isCancelled: false,
-      ...(from && { startTime: { gte: new Date(from) } }),
-      ...(to && { startTime: { lte: new Date(to) } }),
+      ...(Object.keys(startTime).length > 0 && { startTime }),
       ...(sportId && { sportId: parseInt(sportId) }),
     };
 
