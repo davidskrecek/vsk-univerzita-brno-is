@@ -8,6 +8,7 @@ import { AuthError } from "@/lib/session";
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     partnerOrder: { create: vi.fn(), findMany: vi.fn() },
+    personnel: { findUnique: vi.fn() },
   },
 }));
 
@@ -26,6 +27,7 @@ beforeEach(() => vi.clearAllMocks());
 describe("POST /api/partner-orders", () => {
   it("creates an order and returns 201", async () => {
     const order = { id: 1, partnerName: "Nutrend", email: "a@b.cz", details: "order", status: "submitted" };
+    (prisma.personnel.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 1, isActive: true });
     (prisma.partnerOrder.create as ReturnType<typeof vi.fn>).mockResolvedValue(order);
 
     const res = await POST(
@@ -37,9 +39,19 @@ describe("POST /api/partner-orders", () => {
     expect(body.partnerName).toBe("Nutrend");
   });
 
-  it("returns 500 on invalid body", async () => {
+  it("returns 400 on invalid body", async () => {
     const res = await POST(makePostRequest({ partnerName: "" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for invalid requesterPersonnelId", async () => {
+    (prisma.personnel.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+
+    const res = await POST(
+      makePostRequest({ partnerName: "Nutrend", email: "a@b.cz", details: "order", requesterPersonnelId: 999 }),
+    );
+
+    expect(res.status).toBe(400);
   });
 });
 

@@ -23,10 +23,13 @@ export async function POST(req: NextRequest) {
     const body = schema.parse(await req.json());
     requireSportScope(session, body.sportId);
 
+    const isPublished = body.isPublished ?? true;
+
     const post = await prisma.post.create({
       data: {
         ...body,
-        publishedAt: body.publishedAt ? new Date(body.publishedAt) : body.isPublished ? new Date() : null,
+        isPublished,
+        publishedAt: body.publishedAt ? new Date(body.publishedAt) : isPublished ? new Date() : null,
         authorPersonnelId: session.user.personnelId,
       },
     });

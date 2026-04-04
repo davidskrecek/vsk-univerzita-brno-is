@@ -1,10 +1,9 @@
 import { z } from "zod";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError, ok } from "@/lib/api";
 import { getRequiredSession } from "@/lib/session";
 import { requireRole, requireSportScope } from "@/lib/rbac";
-import { NextResponse } from "next/server";
 
 const schema = z.object({
   title: z.string().min(1).max(255).optional(),
@@ -25,14 +24,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     requireRole(session, "superadmin", "sport_manager");
 
     const { id } = await params;
-    const existing = await prisma.event.findUnique({ where: { id: parseInt(id) } });
+    const eventId = Number(id);
+    if (!Number.isInteger(eventId) || eventId <= 0) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+
+    const existing = await prisma.event.findUnique({ where: { id: eventId } });
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     requireSportScope(session, existing.sportId);
 
     const body = schema.parse(await req.json());
     const updated = await prisma.event.update({
-      where: { id: parseInt(id) },
+      where: { id: eventId },
       data: {
         ...body,
         startTime: body.startTime ? new Date(body.startTime) : undefined,

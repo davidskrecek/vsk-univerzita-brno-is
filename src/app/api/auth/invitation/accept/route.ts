@@ -2,6 +2,7 @@ import { z } from "zod";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { apiError, ok } from "@/lib/api";
 
 const schema = z.object({
@@ -12,9 +13,10 @@ const schema = z.object({
 export async function POST(req: Request) {
   try {
     const body = schema.parse(await req.json());
+    const tokenHash = crypto.createHash("sha256").update(body.token).digest("hex");
 
     const invitation = await prisma.accountInvitation.findUnique({
-      where: { tokenHash: body.token },
+      where: { tokenHash },
     });
 
     if (!invitation || invitation.usedAt || invitation.expiresAt < new Date()) {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError, ok } from "@/lib/api";
 import { getRequiredSession } from "@/lib/session";
@@ -15,10 +15,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     requireRole(session, "superadmin");
 
     const { id } = await params;
+    const orderId = Number(id);
+    if (!Number.isInteger(orderId) || orderId <= 0) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+
     const { status } = statusSchema.parse(await req.json());
 
+    const existing = await prisma.partnerOrder.findUnique({ where: { id: orderId }, select: { id: true } });
+    if (!existing) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
     const order = await prisma.partnerOrder.update({
-      where: { id: parseInt(id) },
+      where: { id: orderId },
       data: { status },
     });
 
