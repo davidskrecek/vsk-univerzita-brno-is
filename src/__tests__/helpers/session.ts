@@ -6,7 +6,7 @@ export const mockSuperadminSession: AppSession = {
     name: "Adam Novák",
     personnelId: 1,
     role: "superadmin",
-    managedSportId: null,
+    managedSportIds: [],
   },
 };
 
@@ -16,6 +16,6 @@ export const mockSportManagerSession: AppSession = {
     name: "Petr Dvořák",
     personnelId: 2,
     role: "sport_manager",
-    managedSportId: 1,
+    managedSportIds: [1],
   },
 };

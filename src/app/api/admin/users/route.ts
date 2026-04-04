@@ -14,7 +14,7 @@ const schema = z.object({
   phone: z.string().max(30).optional(),
   sportId: z.number().int().positive().optional(),
   editorRoleId: z.number().int().positive(),
-  managedSportId: z.number().int().positive().optional(),
+  managedSportIds: z.array(z.number().int().positive()).optional().default([]),
   isTrainer: z.boolean().optional(),
   trainerCategory: z.string().max(100).optional(),
   isOfficial: z.boolean().optional(),
@@ -49,7 +49,9 @@ export async function POST(req: NextRequest) {
           personnelId: p.id,
           passwordHash: placeholderHash,
           editorRoleId: body.editorRoleId,
-          managedSportId: body.managedSportId,
+          managedSports: {
+            create: body.managedSportIds.map((sportId) => ({ sportId })),
+          },
         },
       });
 

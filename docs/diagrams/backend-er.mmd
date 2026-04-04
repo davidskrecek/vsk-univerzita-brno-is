@@ -1,0 +1,73 @@
+erDiagram
+  SPORT ||--o{ PERSONNEL : "belongs to"
+
+  PERSONNEL ||--o| TRAINER : "is a"
+  PERSONNEL ||--o| OFFICIAL : "is a"
+  PERSONNEL |o--o| EDITOR : "can be promoted to"
+
+  EDITOR ||--o{ EDITOR_MANAGED_SPORT : "has scopes"
+  SPORT ||--o{ EDITOR_MANAGED_SPORT : "is manageable by"
+
+  PERSONNEL ||--o{ POST : "authors"
+  PERSONNEL ||--o{ EVENT : "manages"
+  SPORT ||--o{ POST : "categorizes"
+  SPORT ||--o{ EVENT : "schedules"
+
+  PERSONNEL {
+    int id PK
+    int sport_id FK "NULL = club management"
+    string first_name
+    string last_name
+    string email
+    string phone
+    bool is_active
+  }
+
+  TRAINER {
+    int personnel_id PK, FK
+    string category
+  }
+
+  OFFICIAL {
+    int personnel_id PK, FK
+    string position
+  }
+
+  EDITOR {
+    int personnel_id PK, FK
+    string password_hash
+    int editor_role_id FK
+  }
+
+  EDITOR_MANAGED_SPORT {
+    int editor_personnel_id PK, FK
+    int sport_id PK, FK
+  }
+
+  EDITOR_ROLE {
+    int id PK
+    string name
+    json permissions
+  }
+
+  SPORT {
+    int id PK
+    string name
+    bool is_competitive
+  }
+
+  POST {
+    int id PK
+    int author_personnel_id FK
+    int sport_id FK
+    string title
+    datetime created_at
+  }
+
+  EVENT {
+    int id PK
+    int author_personnel_id FK
+    int sport_id FK
+    string title
+    datetime start_time
+  }

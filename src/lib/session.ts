@@ -1,5 +1,3 @@
-import { NextApiRequest } from "next";
-import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -9,7 +7,7 @@ export type AppSession = {
     name?: string | null;
     personnelId: number;
     role: string;
-    managedSportId: number | null;
+    managedSportIds: number[];
   };
 };
 

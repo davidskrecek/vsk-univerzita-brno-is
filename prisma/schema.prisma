@@ -18,7 +18,7 @@ model Sport {
   personnel  Personnel[]   @relation("SportMembers")
   posts      Post[]
   events     Event[]
-  editors    Editor[]
+  managedByEditors EditorManagedSport[]
 
   @@map("sport")
 }
@@ -84,7 +84,6 @@ model Editor {
   personnelId          Int       @id @map("personnel_id")
   passwordHash         String    @map("password_hash") @db.VarChar(255)
   editorRoleId         Int       @map("editor_role_id")
-  managedSportId       Int?      @map("managed_sport_id")
   lastLoginAt          DateTime? @map("last_login_at")
   failedLoginAttempts  Int       @default(0) @map("failed_login_attempts")
   lockedUntil          DateTime? @map("locked_until")
@@ -93,9 +92,21 @@ model Editor {
 
   personnel    Personnel  @relation(fields: [personnelId], references: [id])
   editorRole   EditorRole @relation(fields: [editorRoleId], references: [id])
-  managedSport Sport?     @relation(fields: [managedSportId], references: [id])
+  managedSports EditorManagedSport[]
 
   @@map("editor")
+}
+
+model EditorManagedSport {
+  editorPersonnelId Int   @map("editor_personnel_id")
+  sportId           Int   @map("sport_id")
+
+  editor Editor @relation(fields: [editorPersonnelId], references: [personnelId])
+  sport  Sport  @relation(fields: [sportId], references: [id])
+
+  @@id([editorPersonnelId, sportId])
+  @@index([sportId], name: "ix_editor_managed_sport_sport")
+  @@map("editor_managed_sport")
 }
 
 model Post {

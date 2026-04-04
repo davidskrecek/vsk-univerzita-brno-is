@@ -8,13 +8,13 @@ declare module "next-auth" {
       image?: string | null;
       personnelId: number;
       role: string;
-      managedSportId: number | null;
+      managedSportIds: number[];
     };
   }
 
   interface User {
     role: string;
-    managedSportId: number | null;
+    managedSportIds: number[];
   }
 }
 
@@ -22,6 +22,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     personnelId: number;
     role: string;
-    managedSportId: number | null;
+    managedSportIds: number[];
   }
 }
