@@ -17,7 +17,11 @@ export const authOptions: AuthOptions = {
 
         const editor = await prisma.editor.findFirst({
           where: { personnel: { email: credentials.email } },
-          include: { personnel: true, editorRole: true },
+          include: {
+            personnel: true,
+            editorRole: true,
+            managedSports: { select: { sportId: true } },
+          },
         });
 
         if (!editor) return null;
@@ -48,7 +52,7 @@ export const authOptions: AuthOptions = {
           email: editor.personnel.email,
           name: `${editor.personnel.firstName} ${editor.personnel.lastName}`,
           role: editor.editorRole.name,
-          managedSportId: editor.managedSportId ?? null,
+          managedSportIds: editor.managedSports.map((managedSport) => managedSport.sportId),
         };
       },
     }),
@@ -58,14 +62,14 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.personnelId = Number(user.id);
         token.role = (user as { role: string }).role;
-        token.managedSportId = (user as { managedSportId: number | null }).managedSportId;
+        token.managedSportIds = (user as { managedSportIds: number[] }).managedSportIds;
       }
       return token;
     },
     async session({ session, token }) {
       session.user.personnelId = token.personnelId as number;
       session.user.role = token.role as string;
-      session.user.managedSportId = token.managedSportId as number | null;
+      session.user.managedSportIds = token.managedSportIds as number[];
       return session;
     },
   },

@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { apiError, ok } from "@/lib/api";
 import { getRequiredSession } from "@/lib/session";
 import { requireRole } from "@/lib/rbac";
-import { NextResponse } from "next/server";
 
 const statusSchema = z.object({
   status: z.enum(["submitted", "processing", "completed", "rejected"]),

@@ -54,7 +54,6 @@ async function main() {
       personnelId: adminPersonnel.id,
       passwordHash: adminHash,
       editorRoleId: superadmin.id,
-      managedSportId: null,
     },
   });
 
@@ -85,7 +84,9 @@ async function main() {
       personnelId: trainerPersonnel.id,
       passwordHash: trainerHash,
       editorRoleId: sportManager.id,
-      managedSportId: atletika.id,
+      managedSports: {
+        create: [{ sportId: atletika.id }],
+      },
     },
   });
 

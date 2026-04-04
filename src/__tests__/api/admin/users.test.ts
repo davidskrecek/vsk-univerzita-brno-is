@@ -21,7 +21,7 @@ const validUser = {
   lastName: "Nováková",
   email: "jana@vsk.cz",
   editorRoleId: 2,
-  managedSportId: 1,
+  managedSportIds: [1],
 };
 
 function makeRequest(body: object) {

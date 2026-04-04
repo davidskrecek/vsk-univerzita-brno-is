@@ -144,7 +144,7 @@ Allowed statuses: `submitted`, `processing`, `completed`, `rejected`.
 
 ## Admin
 
-All admin routes require a session. `sport_manager` role is scoped to their assigned sport — requests with a mismatched `sportId` return 403.
+All admin routes require a session. `sport_manager` role is scoped to their assigned sports — requests with a mismatched `sportId` return 403.
 
 ### POST /api/admin/posts
 **Auth: superadmin | sport_manager**
@@ -215,7 +215,7 @@ Creates personnel, editor account, and invitation token in one transaction. Retu
   "phone": "+420 600 000 000",
   "sportId": 1,
   "editorRoleId": 2,
-  "managedSportId": 1,
+  "managedSportIds": [1, 2],
   "isTrainer": true,
   "trainerCategory": "II. třída",
   "isOfficial": false
@@ -257,3 +257,87 @@ Creates personnel, editor account, and invitation token in one transaction. Retu
   "headOfficialPersonnelId": 2
 }
 ```
+
+---
+
+## Data model (Mermaid ER)
+
+```mermaid
+erDiagram
+  SPORT ||--o{ PERSONNEL : "belongs to"
+
+  PERSONNEL ||--o| TRAINER : "is a"
+  PERSONNEL ||--o| OFFICIAL : "is a"
+  PERSONNEL |o--o| EDITOR : "can be promoted to"
+
+  EDITOR ||--o{ EDITOR_MANAGED_SPORT : "has scopes"
+  SPORT ||--o{ EDITOR_MANAGED_SPORT : "is manageable by"
+
+  PERSONNEL ||--o{ POST : "authors"
+  PERSONNEL ||--o{ EVENT : "manages"
+  SPORT ||--o{ POST : "categorizes"
+  SPORT ||--o{ EVENT : "schedules"
+
+  PERSONNEL {
+    int id PK
+    int sport_id FK "NULL = club management"
+    string first_name
+    string last_name
+    string email
+    string phone
+    bool is_active
+  }
+
+  TRAINER {
+    int personnel_id PK, FK
+    string category
+  }
+
+  OFFICIAL {
+    int personnel_id PK, FK
+    string position
+  }
+
+  EDITOR {
+    int personnel_id PK, FK
+    string password_hash
+    int editor_role_id FK
+  }
+
+  EDITOR_MANAGED_SPORT {
+    int editor_personnel_id PK, FK
+    int sport_id PK, FK
+  }
+
+  EDITOR_ROLE {
+    int id PK
+    string name
+    json permissions
+  }
+
+  SPORT {
+    int id PK
+    string name
+    bool is_competitive
+  }
+
+  POST {
+    int id PK
+    int author_personnel_id FK
+    int sport_id FK
+    string title
+    datetime created_at
+  }
+
+  EVENT {
+    int id PK
+    int author_personnel_id FK
+    int sport_id FK
+    string title
+    datetime start_time
+  }
+```
+
+Rendered image:
+
+![Backend data model ER diagram](docs/diagrams/backend-er.svg)

@@ -54,7 +54,6 @@ CREATE TABLE "editor" (
     "personnel_id" INTEGER NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
     "editor_role_id" INTEGER NOT NULL,
-    "managed_sport_id" INTEGER,
     "last_login_at" TIMESTAMP(3),
     "failed_login_attempts" INTEGER NOT NULL DEFAULT 0,
     "locked_until" TIMESTAMP(3),
@@ -62,6 +61,14 @@ CREATE TABLE "editor" (
     "updated_at" TIMESTAMP(3),
 
     CONSTRAINT "editor_pkey" PRIMARY KEY ("personnel_id")
+);
+
+-- CreateTable
+CREATE TABLE "editor_managed_sport" (
+    "editor_personnel_id" INTEGER NOT NULL,
+    "sport_id" INTEGER NOT NULL,
+
+    CONSTRAINT "editor_managed_sport_pkey" PRIMARY KEY ("editor_personnel_id","sport_id")
 );
 
 -- CreateTable
@@ -165,6 +172,9 @@ CREATE UNIQUE INDEX "personnel_email_key" ON "personnel"("email");
 CREATE UNIQUE INDEX "editor_role_name_key" ON "editor_role"("name");
 
 -- CreateIndex
+CREATE INDEX "ix_editor_managed_sport_sport" ON "editor_managed_sport"("sport_id");
+
+-- CreateIndex
 CREATE INDEX "ix_post_sport_created" ON "post"("sport_id", "created_at" DESC);
 
 -- CreateIndex
@@ -204,7 +214,10 @@ ALTER TABLE "editor" ADD CONSTRAINT "editor_personnel_id_fkey" FOREIGN KEY ("per
 ALTER TABLE "editor" ADD CONSTRAINT "editor_editor_role_id_fkey" FOREIGN KEY ("editor_role_id") REFERENCES "editor_role"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "editor" ADD CONSTRAINT "editor_managed_sport_id_fkey" FOREIGN KEY ("managed_sport_id") REFERENCES "sport"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "editor_managed_sport" ADD CONSTRAINT "editor_managed_sport_editor_personnel_id_fkey" FOREIGN KEY ("editor_personnel_id") REFERENCES "editor"("personnel_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "editor_managed_sport" ADD CONSTRAINT "editor_managed_sport_sport_id_fkey" FOREIGN KEY ("sport_id") REFERENCES "sport"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "post" ADD CONSTRAINT "post_author_personnel_id_fkey" FOREIGN KEY ("author_personnel_id") REFERENCES "personnel"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
