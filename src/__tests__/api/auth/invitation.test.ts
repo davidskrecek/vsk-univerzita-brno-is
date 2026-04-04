@@ -25,7 +25,7 @@ beforeEach(() => vi.clearAllMocks());
 describe("POST /api/auth/invitation/accept", () => {
   it("returns 400 for missing token", async () => {
     const res = await POST(makeRequest({ password: "Newpass1!" }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 
   it("returns 400 for expired invitation", async () => {

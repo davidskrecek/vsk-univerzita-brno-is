@@ -6,9 +6,14 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = req.nextUrl;
     const search = searchParams.get("search") ?? "";
-    const sportId = searchParams.get("sportId");
-    const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
-    const limit = Math.min(50, parseInt(searchParams.get("limit") ?? "10"));
+    const sportIdParam = searchParams.get("sportId");
+    const pageParam = Number(searchParams.get("page") ?? "1");
+    const limitParam = Number(searchParams.get("limit") ?? "10");
+
+    const page = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
+    const limit = Number.isInteger(limitParam) && limitParam > 0 ? Math.min(50, limitParam) : 10;
+    const sportId = Number(sportIdParam);
+    const hasValidSportId = Number.isInteger(sportId) && sportId > 0;
 
     const where = {
       isPublished: true,
@@ -18,7 +23,7 @@ export async function GET(req: NextRequest) {
           { excerpt: { contains: search, mode: "insensitive" as const } },
         ],
       }),
-      ...(sportId && { sportId: parseInt(sportId) }),
+      ...(hasValidSportId && { sportId }),
     };
 
     const [total, posts] = await prisma.$transaction([

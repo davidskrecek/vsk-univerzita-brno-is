@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError, ok } from "@/lib/api";
 import { getRequiredSession } from "@/lib/session";
@@ -15,6 +15,16 @@ const createSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = createSchema.parse(await req.json());
+
+    const requester = await prisma.personnel.findUnique({
+      where: { id: body.requesterPersonnelId },
+      select: { id: true, isActive: true },
+    });
+
+    if (!requester || !requester.isActive) {
+      return NextResponse.json({ error: "Invalid requesterPersonnelId" }, { status: 400 });
+    }
+
     const order = await prisma.partnerOrder.create({ data: body });
     return ok(order, 201);
   } catch (e) {
