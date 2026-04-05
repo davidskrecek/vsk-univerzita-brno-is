@@ -1,26 +1,148 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* 2. Colors: Athletic Editorial */
+  --color-primary: #acc7ff;
+  --color-primary-container: #3c4758;
+  --color-on-primary: #002f64;
+
+  --color-secondary: #ffdb9d;
+  --color-secondary-container: #5d4000;
+  --color-on-secondary: #422c00;
+
+  /* Surface Hierarchy */
+  --color-surface-lowest: #0e0e0e;
+  --color-surface: #131313;
+  --color-surface-container-low: #1c1b1b;
+  --color-surface-container: #201f1f;
+  --color-surface-container-high: #2a2a2a;
+  --color-surface-container-highest: #353535;
+  --color-surface-bright: #393939;
+  --color-surface-variant: rgba(57, 57, 57, 0.7);
+
+  /* Typography Colors */
+  --color-on-surface: #e5e2e1;
+  --color-on-surface-variant: #c4c6cf;
+  --color-outline-variant: rgba(84, 67, 58, 0.15);
+
+  /* 3. Typography */
+  --font-display: var(--font-lexend), sans-serif;
+  --font-sans: var(--font-work-sans), sans-serif;
+
+  /* 4. Elevation & Depth */
+  --radius-md: 0.75rem;
+  --radius-default: var(--radius-md);
+  --shadow-ambient: 0 32px 64px -16px rgba(172, 199, 255, 0.06);
+
+  /* 5. Semantic Spacing & Sizing */
+  --spacing-section: 2.5rem;
+  --spacing-list-gap: 1.5rem;
+  --spacing-editorial: 2.5rem;
+  
+  /* Component Heights */
+  --size-navbar-h: 5rem;          /* 80px - Reduced from 100px */
+  --size-banner-h: 3.25rem;       /* 52px */
+
+  /* Custom Utilities */
+  --tracking-display: -0.02em;
+  --tracking-wider: 0.05em;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* Base Styles */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --spacing-section: 2.5rem;
+    --spacing-list-gap: 1.0rem;
+    --spacing-editorial: 2.5rem;
+  }
+
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Scrollbar Design: Athletic Editorial */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface-lowest);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-surface-container-high);
+    border: 2px solid var(--color-surface-lowest);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: var(--tracking-display);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 5. Specialized Athletic Components */
+@layer components {
+  .glass-overlay {
+    background-color: var(--color-surface-variant);
+    backdrop-filter: blur(20px);
+  }
+
+  .stack-page {
+    @apply flex flex-col;
+    gap: var(--spacing-editorial);
+    padding-block: var(--spacing-editorial);
+  }
+
+  .stack-section {
+    @apply flex flex-col;
+    gap: var(--spacing-editorial);
+  }
+
+  .stack-list {
+    @apply flex flex-col;
+    gap: var(--spacing-list-gap);
+  }
+
+  .card-surface {
+    @apply bg-surface-container-low p-6 rounded-md hover:bg-surface-container transition-all duration-300 border-l-2 border-primary/20 hover:border-primary cursor-pointer;
+  }
+
+  .tile-surface {
+    @apply bg-surface-container-low px-6 py-4 rounded-md font-display font-bold text-sm border border-outline-variant/10 transition-all duration-300 hover:bg-surface-container;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-on-primary font-bold py-3 px-8 rounded-md transition-all hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply bg-surface-container-highest text-primary font-bold py-3 px-8 rounded-md transition-all hover:bg-surface-bright;
+  }
+
+  .btn-tertiary {
+    @apply text-on-surface font-medium py-2 px-4 transition-colors hover:bg-primary/10;
+  }
+
+  .stat-block-number {
+    @apply font-display text-secondary text-5xl leading-none;
+  }
+
+  .stat-block-label {
+    @apply text-on-surface-variant text-xs font-bold uppercase tracking-wider;
+  }
 }
