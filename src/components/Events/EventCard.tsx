@@ -54,7 +54,13 @@ export const EventCard = ({ id, day, month, category, title, location, href }: E
       </div>
 
       {/* Action: Refactored Calendar Dropdown */}
-      <div className="flex-shrink-0" onClick={(e) => e.preventDefault()}>
+      <div
+        className="flex-shrink-0"
+        onClickCapture={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
         <CalendarExport 
           title={title}
           location={location}
