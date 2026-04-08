@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
 import { CalendarEvent } from '@/types/events';
 
@@ -19,8 +19,31 @@ const DAYS = ['PO', 'ÚT', 'ST', 'ČT', 'PÁ', 'SO', 'NE'];
 
 export const Calendar = ({ events }: CalendarProps) => {
   const searchParams = useSearchParams();
-  // Use Nov 2024 as starting point to match the image
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 10, 1));
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const initializedFromEvents = useRef(false);
+
+  useEffect(() => {
+    if (initializedFromEvents.current || events.length === 0) {
+      return;
+    }
+
+    let firstEventDate: Date | null = null;
+    for (const event of events) {
+      const parsed = new Date(event.date);
+      if (Number.isNaN(parsed.getTime())) {
+        continue;
+      }
+
+      if (!firstEventDate || parsed < firstEventDate) {
+        firstEventDate = parsed;
+      }
+    }
+
+    if (firstEventDate) {
+      setCurrentDate(new Date(firstEventDate.getFullYear(), firstEventDate.getMonth(), 1));
+      initializedFromEvents.current = true;
+    }
+  }, [events]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
