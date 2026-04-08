@@ -16,6 +16,10 @@ const schema = z.object({
   ticketUrl: z.string().url().optional(),
   mapUrl: z.string().url().optional(),
   isPublic: z.boolean().optional(),
+  links: z.array(z.object({
+    url: z.string().url(),
+    alias: z.string().max(255).optional(),
+  })).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -29,6 +33,7 @@ export async function POST(req: NextRequest) {
     const event = await prisma.event.create({
       data: {
         ...body,
+        links: body.links ? { create: body.links } : undefined,
         startTime: new Date(body.startTime),
         endTime: body.endTime ? new Date(body.endTime) : null,
         authorPersonnelId: session.user.personnelId,

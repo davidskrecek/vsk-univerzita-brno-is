@@ -27,6 +27,7 @@ const validPost = {
   title: "New post",
   content: "Content",
   isPublished: true,
+  links: [{ url: "https://example.com", alias: "Example" }],
 };
 
 beforeEach(() => vi.clearAllMocks());

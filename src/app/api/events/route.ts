@@ -52,6 +52,7 @@ export async function GET(req: NextRequest) {
         isPublic: true,
         isCancelled: true,
         sport: { select: { id: true, name: true } },
+        links: { select: { url: true, alias: true } },
       },
       orderBy: { startTime: "asc" },
     });

@@ -8,41 +8,39 @@ datasource db {
 }
 
 model Sport {
-  id                       Int         @id @default(autoincrement())
-  name                     String      @unique @db.VarChar(100)
-  isCompetitive            Boolean     @default(true) @map("is_competitive")
-  description              String?     @db.Text
-  headOfficialPersonnelId  Int?        @map("head_official_personnel_id")
-  headOfficial             Personnel?  @relation("SportHeadOfficial", fields: [headOfficialPersonnelId], references: [id])
+  id                      Int        @id @default(autoincrement())
+  name                    String     @unique @db.VarChar(100)
+  isCompetitive           Boolean    @default(true) @map("is_competitive")
+  description             String?    @db.Text
+  headOfficialPersonnelId Int?       @map("head_official_personnel_id")
+  headOfficial            Personnel? @relation("SportHeadOfficial", fields: [headOfficialPersonnelId], references: [id])
 
-  personnel  Personnel[]   @relation("SportMembers")
-  posts      Post[]
-  events     Event[]
+  personnel        Personnel[]          @relation("SportMembers")
+  posts            Post[]
+  events           Event[]
   managedByEditors EditorManagedSport[]
 
   @@map("sport")
 }
 
 model Personnel {
-  id        Int      @id @default(autoincrement())
-  sportId   Int?     @map("sport_id")
-  firstName String   @map("first_name") @db.VarChar(100)
-  lastName  String   @map("last_name") @db.VarChar(100)
-  email     String   @unique @db.VarChar(255)
-  phone     String?  @db.VarChar(30)
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
+  id        Int       @id @default(autoincrement())
+  sportId   Int?      @map("sport_id")
+  firstName String    @map("first_name") @db.VarChar(100)
+  lastName  String    @map("last_name") @db.VarChar(100)
+  email     String    @unique @db.VarChar(255)
+  phone     String?   @db.VarChar(30)
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime? @updatedAt @map("updated_at")
 
-  sport   Sport?   @relation("SportMembers", fields: [sportId], references: [id])
-  trainer Trainer?
+  sport    Sport?    @relation("SportMembers", fields: [sportId], references: [id])
+  trainer  Trainer?
   official Official?
-  editor  Editor?
+  editor   Editor?
 
-  authoredPosts          Post[]         @relation("PostAuthor")
-  authoredEvents         Event[]        @relation("EventAuthor")
-  partnerOrdersRequested PartnerOrder[] @relation("OrderRequester")
-  partnerOrdersNotified  PartnerOrder[] @relation("OrderNotified")
+  authoredPosts          Post[]              @relation("PostAuthor")
+  authoredEvents         Event[]             @relation("EventAuthor")
   invitationsReceived    AccountInvitation[] @relation("InvitationPersonnel")
   invitationsCreated     AccountInvitation[] @relation("InvitationCreatedBy")
   auditLogs              AuditLog[]
@@ -53,8 +51,8 @@ model Personnel {
 }
 
 model Trainer {
-  personnelId Int      @id @map("personnel_id")
-  category    String?  @db.VarChar(100)
+  personnelId Int     @id @map("personnel_id")
+  category    String? @db.VarChar(100)
 
   personnel Personnel @relation(fields: [personnelId], references: [id])
 
@@ -71,9 +69,9 @@ model Official {
 }
 
 model EditorRole {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique @db.VarChar(50)
-  permissions Json     @default("{}")
+  id          Int    @id @default(autoincrement())
+  name        String @unique @db.VarChar(50)
+  permissions Json   @default("{}")
 
   editors Editor[]
 
@@ -81,25 +79,25 @@ model EditorRole {
 }
 
 model Editor {
-  personnelId          Int       @id @map("personnel_id")
-  passwordHash         String    @map("password_hash") @db.VarChar(255)
-  editorRoleId         Int       @map("editor_role_id")
-  lastLoginAt          DateTime? @map("last_login_at")
-  failedLoginAttempts  Int       @default(0) @map("failed_login_attempts")
-  lockedUntil          DateTime? @map("locked_until")
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime? @updatedAt @map("updated_at")
+  personnelId         Int       @id @map("personnel_id")
+  passwordHash        String    @map("password_hash") @db.VarChar(255)
+  editorRoleId        Int       @map("editor_role_id")
+  lastLoginAt         DateTime? @map("last_login_at")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime? @updatedAt @map("updated_at")
 
-  personnel    Personnel  @relation(fields: [personnelId], references: [id])
-  editorRole   EditorRole @relation(fields: [editorRoleId], references: [id])
+  personnel     Personnel            @relation(fields: [personnelId], references: [id])
+  editorRole    EditorRole           @relation(fields: [editorRoleId], references: [id])
   managedSports EditorManagedSport[]
 
   @@map("editor")
 }
 
 model EditorManagedSport {
-  editorPersonnelId Int   @map("editor_personnel_id")
-  sportId           Int   @map("sport_id")
+  editorPersonnelId Int @map("editor_personnel_id")
+  sportId           Int @map("sport_id")
 
   editor Editor @relation(fields: [editorPersonnelId], references: [personnelId])
   sport  Sport  @relation(fields: [sportId], references: [id])
@@ -110,21 +108,22 @@ model EditorManagedSport {
 }
 
 model Post {
-  id                 Int       @id @default(autoincrement())
-  authorPersonnelId  Int       @map("author_personnel_id")
-  sportId            Int       @map("sport_id")
-  title              String    @db.VarChar(255)
-  excerpt            String?   @db.Text
-  content            String    @db.Text
-  imageUrl           String?   @map("image_url") @db.VarChar(1024)
-  isPublished        Boolean   @default(true) @map("is_published")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime? @updatedAt @map("updated_at")
-  publishedAt        DateTime? @map("published_at")
+  id                Int       @id @default(autoincrement())
+  authorPersonnelId Int       @map("author_personnel_id")
+  sportId           Int       @map("sport_id")
+  title             String    @db.VarChar(255)
+  excerpt           String?   @db.Text
+  content           String    @db.Text
+  imageUrl          String?   @map("image_url") @db.VarChar(1024)
+  isPublished       Boolean   @default(true) @map("is_published")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime? @updatedAt @map("updated_at")
+  publishedAt       DateTime? @map("published_at")
 
-  author Personnel   @relation("PostAuthor", fields: [authorPersonnelId], references: [id])
-  sport  Sport      @relation(fields: [sportId], references: [id])
+  author Personnel @relation("PostAuthor", fields: [authorPersonnelId], references: [id])
+  sport  Sport     @relation(fields: [sportId], references: [id])
 
+  links Link[]
   media PostMedia[]
 
   @@index([sportId, createdAt(sort: Desc)], name: "ix_post_sport_created")
@@ -165,28 +164,13 @@ model Event {
   author Personnel @relation("EventAuthor", fields: [authorPersonnelId], references: [id])
   sport  Sport     @relation(fields: [sportId], references: [id])
 
+  links Link[]
+
   @@index([sportId, startTime], name: "ix_event_sport_start")
   @@index([isPublic, startTime], name: "ix_event_public_start")
   @@map("event")
 }
 
-model PartnerOrder {
-  id                        Int       @id @default(autoincrement())
-  requesterPersonnelId      Int       @map("requester_personnel_id")
-  partnerName               String    @map("partner_name") @db.VarChar(255)
-  email                     String    @db.VarChar(255)
-  details                   String    @db.Text
-  status                    String    @default("submitted") @db.VarChar(30)
-  notifiedOfficialPersonnelId Int?    @map("notified_official_personnel_id")
-  createdAt                 DateTime  @default(now()) @map("created_at")
-  updatedAt                 DateTime? @updatedAt @map("updated_at")
-
-  requester         Personnel  @relation("OrderRequester", fields: [requesterPersonnelId], references: [id])
-  notifiedOfficial  Personnel? @relation("OrderNotified", fields: [notifiedOfficialPersonnelId], references: [id])
-
-  @@index([status, createdAt(sort: Desc)], name: "ix_partner_order_status_created")
-  @@map("partner_order")
-}
 
 model AccountInvitation {
   id                   Int       @id @default(autoincrement())
@@ -197,21 +181,21 @@ model AccountInvitation {
   createdByPersonnelId Int?      @map("created_by_personnel_id")
   createdAt            DateTime  @default(now()) @map("created_at")
 
-  personnel  Personnel  @relation("InvitationPersonnel", fields: [personnelId], references: [id])
-  createdBy  Personnel? @relation("InvitationCreatedBy", fields: [createdByPersonnelId], references: [id])
+  personnel Personnel  @relation("InvitationPersonnel", fields: [personnelId], references: [id])
+  createdBy Personnel? @relation("InvitationCreatedBy", fields: [createdByPersonnelId], references: [id])
 
   @@index([personnelId, expiresAt], name: "ix_account_invitation_personnel_expires")
   @@map("account_invitation")
 }
 
 model AuditLog {
-  id                Int      @id @default(autoincrement())
-  actorPersonnelId  Int      @map("actor_personnel_id")
-  entityType        String   @map("entity_type") @db.VarChar(50)
-  entityId          Int      @map("entity_id")
-  action            String   @db.VarChar(30)
-  payload           Json?
-  createdAt         DateTime @default(now()) @map("created_at")
+  id               Int      @id @default(autoincrement())
+  actorPersonnelId Int      @map("actor_personnel_id")
+  entityType       String   @map("entity_type") @db.VarChar(50)
+  entityId         Int      @map("entity_id")
+  action           String   @db.VarChar(30)
+  payload          Json?
+  createdAt        DateTime @default(now()) @map("created_at")
 
   actor Personnel @relation(fields: [actorPersonnelId], references: [id])
 
@@ -224,4 +208,20 @@ model OrderLock {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("order_locks")
+}
+
+model Link {
+  id        Int      @id @default(autoincrement())
+  url       String   @db.VarChar(1024)
+  alias     String?  @db.VarChar(255)
+  postId    Int?     @map("post_id")
+  eventId   Int?     @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post  Post?  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  event Event? @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([postId], name: "ix_link_post")
+  @@index([eventId], name: "ix_link_event")
+  @@map("link")
 }
