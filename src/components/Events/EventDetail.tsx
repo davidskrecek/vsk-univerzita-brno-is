@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect } from 'react';
 import { IoClose, IoLocationOutline } from 'react-icons/io5';
 import dynamic from 'next/dynamic';
 import CalendarExport from '../Common/CalendarExport';
+import Modal from '@/components/Overlay/Modal';
 
 // Import LeafletMap dynamically to avoid SSR issues
 const LeafletMap = dynamic(() => import('./LeafletMap'), { 
@@ -31,14 +31,6 @@ export const EventDetail = ({
   description, 
   onClose 
 }: EventDetailProps) => {
-  // Prevent scrolling on the body when modal is open
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, []);
-
   // Format date to: 14. Prosince 2024
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -50,26 +42,18 @@ export const EventDetail = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
-      {/* BACKDROP */}
-      <div 
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300" 
-        onClick={onClose}
-      />
-      
-      {/* MODAL CONTENT */}
-      <div 
-        onClick={(e) => e.stopPropagation()}
-        className="relative max-w-2xl w-full bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col animate-in zoom-in-95 duration-300"
-      >
+    <Modal
+      onClose={onClose}
+      contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col animate-in zoom-in-95 duration-300"
+    >
         {/* MAP / IMAGE HEADER */}
-        <div className="relative h-64 bg-surface-container-high overflow-hidden flex-shrink-0">
+        <div className="relative h-48 sm:h-56 md:h-64 bg-surface-container-high overflow-hidden flex-shrink-0">
           {/* Leaflet Map Component */}
           {location ? (
             <div className="absolute inset-0 bg-[#1a1a1a]">
               <LeafletMap location={location} />
               {/* Overlay for aesthetic and interaction control */}
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 to-transparent z-10"></div>
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/25 to-transparent z-10"></div>
             </div>
           ) : (
             <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
@@ -110,14 +94,14 @@ export const EventDetail = ({
         </div>
 
         {/* CONTENT */}
-        <div className="p-10 flex flex-col items-center text-center space-y-8">
+        <div className="p-6 sm:p-8 md:p-10 flex flex-col items-center text-center space-y-6 sm:space-y-8">
           {/* Category Badge */}
-          <div className="px-4 py-1 bg-primary/10 border border-primary/20 rounded-full text-[10px] font-display font-bold text-primary uppercase tracking-widest">
+          <div className="meta-badge">
             {sport}
           </div>
 
           {/* Title */}
-          <h2 className="text-4xl font-display font-bold text-on-surface tracking-display leading-tight uppercase">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-on-surface tracking-display leading-tight uppercase">
             {title}
           </h2>
 
@@ -154,12 +138,13 @@ export const EventDetail = ({
               title={title}
               location={location || ''}
               description={description}
+              date={date}
+              time={time}
               className="mx-auto"
             />
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

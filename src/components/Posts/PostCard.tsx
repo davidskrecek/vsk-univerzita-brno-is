@@ -1,37 +1,38 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface PostCardProps {
   category: string;
   title: string;
   description: string;
   href: string;
+  imageUrl?: string | null;
 }
 
-export const PostCard = ({ category, title, description, href }: PostCardProps) => {
+export const PostCard = ({ category, title, description, href, imageUrl }: PostCardProps) => {
   return (
-    <Link href={href} className="card-surface flex items-center gap-6 no-underline">
-      {/* Small Placeholder Image */}
-      <div className="w-20 aspect-square bg-surface-container-high rounded-md flex-shrink-0 relative overflow-hidden transition-colors group-hover:bg-surface-bright">
-        <div className="absolute inset-0 flex items-center justify-center text-on-surface/5 opacity-10 font-display font-bold text-xl">
-          VSK
+    <Link
+      href={href}
+      className="card-surface group flex flex-row items-center justify-between gap-4 sm:gap-8 no-underline"
+    >
+      {imageUrl ? (
+        <div className="w-16 sm:w-20 aspect-square bg-surface-container-high rounded-md flex-shrink-0 relative overflow-hidden transition-colors group-hover:bg-surface-bright">
+          {/* API image hookup prepared; hidden entirely when no image */}
+          <Image src={imageUrl} alt={title} fill className="object-cover" sizes="5rem" />
         </div>
-      </div>
-      
-      {/* Content */}
+      ) : null}
+
       <div className="flex flex-col justify-center flex-grow min-w-0">
-        <span className="text-[9px] font-display font-bold text-primary/60 uppercase tracking-[0.2em] mb-1">
+        <span className="meta-badge mb-2 w-fit">
           {category}
         </span>
-        <h3 className="text-lg font-display font-bold text-on-surface group-hover:text-primary transition-colors leading-tight mb-1 truncate">
+        <h3 className="text-lg font-display font-bold text-on-surface group-hover:text-primary transition-colors leading-tight mb-1 line-clamp-2 sm:line-clamp-1">
           {title}
         </h3>
-        <p className="text-xs text-on-surface/40 font-sans line-clamp-1 leading-relaxed">
+        <p className="text-xs text-on-surface/40 font-sans line-clamp-2 sm:line-clamp-1 leading-relaxed">
           {description}
         </p>
       </div>
-
-      {/* Optional: Add a subtle arrow or indicator to match EventCard's action space if needed, 
-          but keeping it clean for now to match the "editorial" feel */}
     </Link>
   );
 };

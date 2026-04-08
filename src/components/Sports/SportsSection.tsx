@@ -15,7 +15,7 @@ export const SportsSection = ({ title, sports, className = "" }: SportsSectionPr
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {sports.map((sport) => (
           <SportTile key={sport} name={sport} />
         ))}

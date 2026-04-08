@@ -22,7 +22,7 @@ export const AppButton = ({
     type = 'button',
     disabled = false,
 }: AppButtonProps) => {
-    const baseStyles = "inline-flex items-center justify-center font-bold transition-all duration-300 rounded-md disabled:opacity-50 disabled:pointer-events-none";
+    const baseStyles = "inline-flex items-center justify-center font-bold transition-all duration-300 rounded-md cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed";
     
     const variants = {
         primary: "bg-primary text-on-primary py-3 px-8 hover:scale-[1.02] active:scale-[0.98] shadow-ambient/5",

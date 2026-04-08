@@ -10,19 +10,19 @@ export default function Home() {
       category: "ATLETIKA",
       title: "Vítězství na akademickém mistrovství v běhu",
       description: "Naši běžci ovládli finálový závod v Praze a domů přivážejí celkem pět zlatých medailí v různých kategoriích.",
-      href: "/posts/1"
+      href: "/posts?postId=1"
     },
     {
       category: "BASKETBAL",
       title: "Basketbalisté postoupili do univerzitní ligy",
       description: "Po napínavém souboji s Technickou univerzitou si náš tým vybojoval postup do nejvyšší národní divize.",
-      href: "/posts/2"
+      href: "/posts?postId=2"
     },
     {
       category: "VOLEJBAL",
       title: "Otevřený nábor do ženského volejbalového týmu",
       description: "Hledáme nové posily pro nadcházející sezónu. Přijďte ukázat své dovednosti na trénink příští úterý.",
-      href: "/posts/3"
+      href: "/posts?postId=3"
     }
   ];
 
@@ -32,24 +32,21 @@ export default function Home() {
       month: "ŘÍJ",
       category: "HOKEJ",
       title: "Univerzitní hokejová bitva",
-      location: "Winning Group Arena, Brno",
-      href: "/events/1"
+      location: "Winning Group Arena, Brno"
     },
     {
       day: "22",
       month: "ŘÍJ",
       category: "PLAVÁNÍ",
       title: "Plavecké závody o pohár rektora",
-      location: "Bazén Lužánky",
-      href: "/events/2"
+      location: "Bazén Lužánky"
     },
     {
       day: "05",
       month: "LIS",
       category: "OSTATNÍ",
       title: "Workshop: Sportovní psychologie",
-      location: "Aula FSpS MU",
-      href: "/events/3"
+      location: "Aula FSpS MU"
     }
   ];
 
@@ -57,12 +54,14 @@ export default function Home() {
     <div className="flex flex-col space-y-(--spacing-section) pt-(--spacing-list-gap) pb-0">
       
       {/* BANNER SECTION */}
-      <Banner 
-        title="Staň se součástí elity"
-        subtitle="Hledáme talentované sportovce i nadšence."
-        buttonText="Přidej se k nám!"
-        href="/join"
-      />
+      <div className="hidden md:block">
+        <Banner 
+          title="Staň se součástí elity"
+          subtitle="Hledáme talentované sportovce i nadšence."
+          buttonText="Přidej se k nám!"
+          href="/join"
+        />
+      </div>
 
       {/* POSTS SECTION */}
       <section className="stack-section">

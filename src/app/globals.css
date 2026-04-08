@@ -47,6 +47,10 @@
   /* Custom Utilities */
   --tracking-display: -0.02em;
   --tracking-wider: 0.05em;
+
+  /* Reusable micro-typography */
+  --text-2xs: 0.5625rem;      /* 9px */
+  --text-caption: 0.625rem;   /* 10px */
 }
 
 /* Base Styles */
@@ -69,9 +73,17 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
   /* Custom Scrollbar Design: Athletic Editorial */
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 0.625rem;
   }
 
   ::-webkit-scrollbar-track {
@@ -80,8 +92,8 @@
 
   ::-webkit-scrollbar-thumb {
     background: var(--color-surface-container-high);
-    border: 2px solid var(--color-surface-lowest);
-    border-radius: 10px;
+    border: 0.125rem solid var(--color-surface-lowest);
+    border-radius: 0.625rem;
     transition: background 0.3s ease;
   }
 
@@ -144,5 +156,24 @@
 
   .stat-block-label {
     @apply text-on-surface-variant text-xs font-bold uppercase tracking-wider;
+  }
+
+  .meta-badge {
+    @apply inline-flex items-center rounded-full bg-secondary text-on-secondary font-display font-bold uppercase tracking-wider;
+    font-size: var(--text-2xs);
+    line-height: 1;
+    padding: 0.1875rem 0.625rem;
+  }
+
+  .meta-eyebrow {
+    @apply font-display font-bold uppercase text-primary/60;
+    font-size: var(--text-2xs);
+    letter-spacing: 0.2em;
+  }
+
+  .meta-caption {
+    @apply font-display font-bold uppercase text-on-surface/45;
+    font-size: var(--text-caption);
+    letter-spacing: 0.2em;
   }
 }

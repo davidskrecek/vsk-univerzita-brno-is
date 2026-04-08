@@ -11,10 +11,10 @@ const SPONSORS = [
 
 export const Footer = () => {
   return (
-    <footer className="w-full bg-surface-lowest pt-16 pb-8 text-on-surface/60">
-      <div className="container mx-auto px-6 flex flex-col items-center">
+    <footer className="w-full bg-surface-lowest pt-12 sm:pt-16 pb-8 text-on-surface/60">
+      <div className="container mx-auto px-4 sm:px-6 flex flex-col items-center">
         {/* Sponsors Logos Section */}
-        <div className="flex flex-wrap justify-center items-center gap-12 mb-12">
+        <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 mb-10 sm:mb-12">
           {SPONSORS.map((sponsor) => (
             <div 
               key={sponsor.name} 
@@ -31,7 +31,7 @@ export const Footer = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="flex gap-8 text-sm font-medium mb-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 text-sm font-medium mb-6">
           <AppLink href="/privacy">
             Zásady ochrany osobních údajů
           </AppLink>

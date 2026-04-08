@@ -5,10 +5,12 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import SectionHeader from "@/components/Common/SectionHeader";
 import ViewToggle from "@/components/Common/ViewToggle";
 import { EventCard } from "@/components/Events/EventCard";
-import { Calendar, CalendarEvent } from "@/components/Events/Calendar/Calendar";
+import { Calendar } from "@/components/Events/Calendar/Calendar";
+import { CalendarEvent } from "@/types/events";
 
 import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import EmptyState from "@/components/Common/EmptyState";
+import EventDetail from "@/components/Events/EventDetail";
 
 const MOCK_EVENTS: CalendarEvent[] = [
   {
@@ -86,6 +88,7 @@ function EventsContent() {
   const router = useRouter();
   
   const viewMode = (searchParams.get('view') as ViewMode) || 'calendar';
+  const eventId = searchParams.get('eventId');
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
 
   const setViewMode = (mode: ViewMode) => {
@@ -109,17 +112,49 @@ function EventsContent() {
     ? MOCK_EVENTS.filter(event => event.sport === selectedSport)
     : MOCK_EVENTS;
 
+  const activeEvent = eventId ? MOCK_EVENTS.find((e) => e.id === eventId) : null;
+  const closeEventDetail = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('eventId');
+    const query = params.toString();
+    router.push(query ? `?${query}` : '/events', { scroll: false });
+  };
+
+  const listContent = (
+    <div className="stack-list">
+      {filteredEvents.length > 0 ? (
+        filteredEvents
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+          .map(event => (
+          <EventCard 
+            key={event.id}
+            id={event.id}
+            day={String(new Date(event.date).getDate())}
+            month={getCzechMonth(event.date)}
+            category={event.sport}
+            title={event.title}
+            location={event.location || 'Bude upřesněno'}
+          />
+        ))
+      ) : (
+        <EmptyState message="Pro vybraný sport nebyly nalezeny žádné akce." />
+      )}
+    </div>
+  );
+
   return (
     <div className="stack-page">
       <SectionHeader 
         title="Kalendář akcí" 
         as="h1" 
         rightContent={
-          <ViewToggle 
-            options={toggleOptions} 
-            activeId={viewMode} 
-            onChange={setViewMode} 
-          />
+          <div className="hidden md:block">
+            <ViewToggle 
+              options={toggleOptions} 
+              activeId={viewMode} 
+              onChange={setViewMode} 
+            />
+          </div>
         }
       />
 
@@ -130,32 +165,20 @@ function EventsContent() {
         onSportChange={setSelectedSport} 
       />
 
-      <div className="min-h-[600px]">
-        {viewMode === 'calendar' ? (
-          <Calendar events={filteredEvents} />
-        ) : (
-          <div className="stack-list">
-            {filteredEvents.length > 0 ? (
-              filteredEvents
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                .map(event => (
-                <EventCard 
-                  key={event.id}
-                  id={event.id}
-                  day={String(new Date(event.date).getDate())}
-                  month={getCzechMonth(event.date)}
-                  category={event.sport}
-                  title={event.title}
-                  location={event.location || 'Bude upřesněno'}
-                  href={`/events/${event.id}`}
-                />
-              ))
-            ) : (
-              <EmptyState message="Pro vybraný sport nebyly nalezeny žádné akce." />
-            )}
-          </div>
-        )}
+      <div className="min-h-[420px] md:min-h-[600px]">
+        <div className="md:hidden">{listContent}</div>
+        <div className="hidden md:block">
+          {viewMode === 'calendar' ? <Calendar events={filteredEvents} /> : listContent}
+        </div>
       </div>
+
+      {activeEvent && (
+        <EventDetail
+          key={activeEvent.id}
+          {...activeEvent}
+          onClose={closeEventDetail}
+        />
+      )}
     </div>
   );
 }
