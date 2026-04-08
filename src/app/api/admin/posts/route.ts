@@ -13,6 +13,10 @@ const schema = z.object({
   imageUrl: z.string().url().optional(),
   isPublished: z.boolean().optional(),
   publishedAt: z.string().datetime().optional(),
+  links: z.array(z.object({
+    url: z.string().url(),
+    alias: z.string().max(255).optional(),
+  })).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -28,6 +32,7 @@ export async function POST(req: NextRequest) {
     const post = await prisma.post.create({
       data: {
         ...body,
+        links: body.links ? { create: body.links } : undefined,
         isPublished,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : isPublished ? new Date() : null,
         authorPersonnelId: session.user.personnelId,

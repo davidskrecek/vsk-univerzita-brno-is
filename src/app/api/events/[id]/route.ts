@@ -15,6 +15,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
       include: {
         sport: { select: { id: true, name: true } },
         author: { select: { id: true, firstName: true, lastName: true } },
+        links: { select: { url: true, alias: true } },
       },
     });
     if (!event) return NextResponse.json({ error: "Not found" }, { status: 404 });

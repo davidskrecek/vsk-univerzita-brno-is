@@ -19,6 +19,7 @@ const validEvent = {
   title: "Match day",
   startTime: "2026-05-10T09:00:00.000Z",
   location: "Brno stadium",
+  links: [{ url: "https://vskuniverzitabrno.cz", alias: "VSK Brno" }],
 };
 
 function makeRequest(body: object, url = "http://localhost:3000/api/admin/events") {

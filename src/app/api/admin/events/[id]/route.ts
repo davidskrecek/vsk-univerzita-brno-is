@@ -16,6 +16,10 @@ const schema = z.object({
   mapUrl: z.string().url().optional().nullable(),
   isPublic: z.boolean().optional(),
   isCancelled: z.boolean().optional(),
+  links: z.array(z.object({
+    url: z.string().url(),
+    alias: z.string().max(255).optional(),
+  })).optional(),
 });
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -39,6 +43,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       where: { id: eventId },
       data: {
         ...body,
+        links: body.links ? { deleteMany: {}, create: body.links } : undefined,
         startTime: body.startTime ? new Date(body.startTime) : undefined,
         endTime: body.endTime ? new Date(body.endTime) : body.endTime,
       },

@@ -106,41 +106,7 @@ Personnel directory (active only).
 
 ---
 
-## Partner Orders
 
-### POST /api/partner-orders
-Submit a partner order. No auth required.
-
-**Body:**
-```json
-{
-  "partnerName": "Nutrend",
-  "email": "partner@example.com",
-  "details": "Order details...",
-  "requesterPersonnelId": 1
-}
-```
-
----
-
-### GET /api/partner-orders
-**Auth: superadmin**
-
-Returns all orders ordered by creation date.
-
----
-
-### PATCH /api/partner-orders/:id/status
-**Auth: superadmin**
-
-**Body:**
-```json
-{ "status": "processing" }
-```
-
-Allowed statuses: `submitted`, `processing`, `completed`, `rejected`.
-
----
 
 ## Admin
 
@@ -278,6 +244,9 @@ erDiagram
   SPORT ||--o{ POST : "categorizes"
   SPORT ||--o{ EVENT : "schedules"
 
+  POST ||--o{ LINK : "has"
+  EVENT ||--o{ LINK : "has"
+
   PERSONNEL {
     int id PK
     int sport_id FK "NULL = club management"
@@ -335,6 +304,15 @@ erDiagram
     int sport_id FK
     string title
     datetime start_time
+  }
+
+  LINK {
+    int id PK
+    string url
+    string alias
+    int post_id FK
+    int event_id FK
+    datetime created_at
   }
 ```
 
