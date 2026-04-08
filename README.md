@@ -11,15 +11,13 @@ docker compose up -d
 
 ### 2. Configure environment
 
+create .env file in project root with following variables with docker compose defaults:
 ```bash
-cp .env.example .env
-# Edit .env and set DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL
+DATABASE_URL="postgresql://username:password@localhost:5432/default_database"
+NEXTAUTH_SECRET="your_secret"
+NEXTAUTH_URL="http://localhost:3000"
 ```
 
-The Docker Compose defaults give:
-```
-DATABASE_URL="postgresql://username:password@localhost:5432/default_database"
-```
 
 ### 3. Install dependencies
 
@@ -31,6 +29,7 @@ npm install
 
 ```bash
 npx prisma migrate deploy
+npx prisma generate
 npx tsx prisma/seed.ts
 ```
 
