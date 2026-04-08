@@ -11,7 +11,7 @@ docker compose up -d
 
 ### 2. Configure environment
 
-create .env file in project root with following variables with docker compose defaults:
+Create a .env file in the project root with the following variables using the Docker Compose defaults:
 ```bash
 DATABASE_URL="postgresql://username:password@localhost:5432/default_database"
 NEXTAUTH_SECRET="your_secret"
