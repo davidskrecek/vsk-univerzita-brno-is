@@ -52,10 +52,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col space-y-(--spacing-section) pt-(--spacing-list-gap) pb-0">
-      
+
       {/* BANNER SECTION */}
       <div className="hidden md:block">
-        <Banner 
+        <Banner
           title="Staň se součástí elity"
           subtitle="Hledáme talentované sportovce i nadšence."
           buttonText="Přidej se k nám!"
@@ -65,7 +65,7 @@ export default function Home() {
 
       {/* POSTS SECTION */}
       <section className="stack-section">
-        <SectionHeader 
+        <SectionHeader
           title="Nejnovější příspěvky"
           rightContent={
             <AppLink href="/posts" className="text-[10px] font-display font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors no-underline">
@@ -83,7 +83,7 @@ export default function Home() {
 
       {/* EVENTS SECTION */}
       <section className="stack-section">
-        <SectionHeader 
+        <SectionHeader
           title="Nejbližší akce"
           rightContent={
             <AppLink href="/events" className="text-[10px] font-display font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors no-underline">
@@ -94,10 +94,10 @@ export default function Home() {
 
         <div className="stack-list">
           {upcomingEvents.map((event, index) => (
-            <EventCard 
-              key={index} 
+            <EventCard
+              key={index}
               id={String(index + 1)}
-              {...event} 
+              {...event}
             />
           ))}
         </div>
@@ -110,7 +110,7 @@ export default function Home() {
           <div className="stat-block-label">Aktivních sportů</div>
           <p className="mt-4 text-on-surface/40 text-sm font-sans">Široká škála sportovních disciplín pro každého studenta.</p>
         </div>
-        
+
         <div className="bg-surface-container-low p-8 rounded-md group hover:bg-surface-container transition-colors">
           <div className="stat-block-number">150+</div>
           <div className="stat-block-label">Členů klubu</div>
