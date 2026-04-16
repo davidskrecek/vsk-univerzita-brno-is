@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseApiDataOptions<TResponse, TData> {
   url: string | null;
@@ -26,6 +26,11 @@ export const useApiData = <TResponse, TData = TResponse>({
   const [loading, setLoading] = useState<boolean>(Boolean(url));
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const mapDataRef = useRef(mapData);
+  const requestInitRef = useRef(requestInit);
+
+  mapDataRef.current = mapData;
+  requestInitRef.current = requestInit;
 
   const refetch = useCallback(() => {
     setReloadKey((previous) => previous + 1);
@@ -47,9 +52,11 @@ export const useApiData = <TResponse, TData = TResponse>({
         setLoading(true);
         setError(null);
 
+        const effectiveRequestInit = requestInitRef.current;
+
         const response = await fetch(url, {
-          cache: "no-store",
-          ...requestInit,
+          ...effectiveRequestInit,
+          cache: effectiveRequestInit?.cache ?? "force-cache",
           signal: controller.signal,
         });
 
@@ -58,7 +65,9 @@ export const useApiData = <TResponse, TData = TResponse>({
         }
 
         const payload = (await response.json()) as TResponse;
-        const mapped = mapData ? mapData(payload) : (payload as unknown as TData);
+        const mapped = mapDataRef.current
+          ? mapDataRef.current(payload)
+          : (payload as unknown as TData);
 
         if (active) {
           setData(mapped);
@@ -83,7 +92,7 @@ export const useApiData = <TResponse, TData = TResponse>({
       active = false;
       controller.abort();
     };
-  }, [url, errorMessage, mapData, requestInit, reloadKey]);
+  }, [url, errorMessage, reloadKey]);
 
   return { data, loading, error, refetch };
 };

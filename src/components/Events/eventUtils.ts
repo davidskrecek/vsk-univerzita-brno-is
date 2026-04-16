@@ -21,17 +21,41 @@ export interface UiEvent extends CalendarEvent {
   startTimeIso: string;
 }
 
+const PRAGUE_TIME_ZONE = "Europe/Prague";
+
+const pragueDatePartsFormatter = new Intl.DateTimeFormat("en-GB", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: PRAGUE_TIME_ZONE,
+});
+
+const pragueTimeFormatter = new Intl.DateTimeFormat("cs-CZ", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: PRAGUE_TIME_ZONE,
+});
+
+const getPragueDateKey = (date: Date): string => {
+  const parts = pragueDatePartsFormatter.formatToParts(date);
+  const day = parts.find((part) => part.type === "day")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  const year = parts.find((part) => part.type === "year")?.value;
+
+  if (!day || !month || !year) {
+    return date.toISOString().slice(0, 10);
+  }
+
+  return `${year}-${month}-${day}`;
+};
+
 export const mapEventApiItemToUiEvent = (event: EventApiItem): UiEvent => {
   const start = new Date(event.startTime);
   return {
     id: String(event.id),
     title: event.title,
-    date: start.toISOString().slice(0, 10),
-    time: start.toLocaleTimeString("cs-CZ", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "Europe/Prague",
-    }),
+    date: getPragueDateKey(start),
+    time: pragueTimeFormatter.format(start),
     location: event.location ?? undefined,
     sport: event.sport.name,
     description: event.description ?? undefined,
