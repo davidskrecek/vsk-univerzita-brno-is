@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
           createdAt: true,
           sport: { select: { id: true, name: true } },
           author: { select: { id: true, firstName: true, lastName: true } },
+          links: { select: { url: true, alias: true } },
         },
         orderBy: { publishedAt: "desc" },
         skip: (page - 1) * limit,

@@ -12,6 +12,10 @@ const schema = z.object({
   imageUrl: z.string().url().optional().nullable(),
   isPublished: z.boolean().optional(),
   publishedAt: z.string().datetime().optional().nullable(),
+  links: z.array(z.object({
+    url: z.string().url(),
+    alias: z.string().max(255).optional(),
+  })).optional(),
 });
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -35,10 +39,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       where: { id: postId },
       data: {
         ...body,
+        links: body.links ? { deleteMany: {}, create: body.links } : undefined,
         publishedAt: Object.prototype.hasOwnProperty.call(body, "publishedAt")
           ? body.publishedAt === null
             ? null
-            : new Date(body.publishedAt)
+            : new Date(body.publishedAt!)
           : undefined,
       },
     });

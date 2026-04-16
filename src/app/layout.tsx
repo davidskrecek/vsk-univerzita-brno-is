@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   description: "Informační systém VSK Univerzita Brno",
 };
 
+import { AuthModalProvider } from "@/components/Auth/AuthModalProvider";
+import { AuthModal } from "@/components/Overlay/AuthModal";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,11 +35,14 @@ export default function RootLayout({
     >
       <body className="bg-surface text-on-surface flex flex-col min-h-screen selection:bg-primary/30 selection:text-primary">
         <ToastProvider>
-          <NavBar />
-          <main className="flex-grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
-            {children}
-          </main>
-          <Footer />
+          <AuthModalProvider>
+            <NavBar />
+            <main className="flex-grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
+              {children}
+            </main>
+            <Footer />
+            <AuthModal />
+          </AuthModalProvider>
         </ToastProvider>
       </body>
     </html>

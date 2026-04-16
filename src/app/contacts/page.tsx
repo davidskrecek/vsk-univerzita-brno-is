@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import EmptyState from "@/components/Common/EmptyState";
 import SectionHeader from "@/components/Common/SectionHeader";
 import SportFilter from "@/components/Common/SportFilter/SportFilter";

@@ -35,11 +35,7 @@ export const prisma = {
   editorRole: {
     findMany: vi.fn(),
   },
-  partnerOrder: {
-    create: vi.fn(),
-    findMany: vi.fn(),
-    update: vi.fn(),
-  },
+
   trainer: {
     create: vi.fn(),
   },
