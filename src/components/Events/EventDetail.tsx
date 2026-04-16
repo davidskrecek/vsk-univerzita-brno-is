@@ -33,12 +33,25 @@ export const EventDetail = ({
 }: EventDetailProps) => {
   // Format date to: 14. Prosince 2024
   const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
+    const [yearRaw, monthRaw, dayRaw] = dateStr.split('-');
+    const year = Number(yearRaw);
+    const month = Number(monthRaw);
+    const day = Number(dayRaw);
+
+    if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+      return dateStr;
+    }
+
     const months = [
       'Ledna', 'Února', 'Března', 'Dubna', 'Května', 'Června',
       'Července', 'Srpna', 'Září', 'Října', 'Listopadu', 'Prosince'
     ];
-    return `${d.getDate()}. ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+    if (month < 1 || month > 12) {
+      return dateStr;
+    }
+
+    return `${day}. ${months[month - 1]} ${year}`;
   };
 
   return (
@@ -112,7 +125,7 @@ export const EventDetail = ({
               {time && (
                 <>
                   <span className="opacity-40">—</span>
-                  <span>{time} CET</span>
+                  <span>{time} (Europe/Prague)</span>
                 </>
               )}
             </div>

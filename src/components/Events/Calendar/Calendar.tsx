@@ -17,6 +17,23 @@ const MONTHS = [
 
 const DAYS = ['PO', 'ÚT', 'ST', 'ČT', 'PÁ', 'SO', 'NE'];
 
+const parseDateKey = (dateKey: string): { year: number; month: number; day: number } | null => {
+  const [yearRaw, monthRaw, dayRaw] = dateKey.split('-');
+  const year = Number(yearRaw);
+  const month = Number(monthRaw);
+  const day = Number(dayRaw);
+
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+    return null;
+  }
+
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return null;
+  }
+
+  return { year, month, day };
+};
+
 export const Calendar = ({ events }: CalendarProps) => {
   const searchParams = useSearchParams();
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -27,20 +44,25 @@ export const Calendar = ({ events }: CalendarProps) => {
       return;
     }
 
-    let firstEventDate: Date | null = null;
+    let firstEventDateKey: string | null = null;
     for (const event of events) {
-      const parsed = new Date(event.date);
-      if (Number.isNaN(parsed.getTime())) {
+      const parsed = parseDateKey(event.date);
+      if (!parsed) {
         continue;
       }
 
-      if (!firstEventDate || parsed < firstEventDate) {
-        firstEventDate = parsed;
+      if (!firstEventDateKey || event.date < firstEventDateKey) {
+        firstEventDateKey = event.date;
       }
     }
 
-    if (firstEventDate) {
-      setCurrentDate(new Date(firstEventDate.getFullYear(), firstEventDate.getMonth(), 1));
+    if (firstEventDateKey) {
+      const parsed = parseDateKey(firstEventDateKey);
+      if (!parsed) {
+        return;
+      }
+
+      setCurrentDate(new Date(parsed.year, parsed.month - 1, 1));
       initializedFromEvents.current = true;
     }
   }, [events]);
