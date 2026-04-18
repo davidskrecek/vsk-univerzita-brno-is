@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 
 import { AuthModalProvider } from "@/components/Auth/AuthModalProvider";
 import { AuthModal } from "@/components/Overlay/AuthModal";
+import { AppSessionProvider } from "@/components/Auth/AppSessionProvider";
 
 export default function RootLayout({
   children,
@@ -34,16 +35,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="bg-surface text-on-surface flex flex-col min-h-screen selection:bg-primary/30 selection:text-primary">
-        <ToastProvider>
-          <AuthModalProvider>
-            <NavBar />
-            <main className="flex-grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
-              {children}
-            </main>
-            <Footer />
-            <AuthModal />
-          </AuthModalProvider>
-        </ToastProvider>
+        <AppSessionProvider>
+          <ToastProvider>
+            <AuthModalProvider>
+              <NavBar />
+              <main className="grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
+                {children}
+              </main>
+              <Footer />
+              <AuthModal />
+            </AuthModalProvider>
+          </ToastProvider>
+        </AppSessionProvider>
       </body>
     </html>
   );

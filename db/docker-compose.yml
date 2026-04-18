@@ -10,7 +10,9 @@ services:
   # Note: This may change the commands you are going to use a little bit.
   database:
     # Official Postgres image from DockerHub, pinned for reproducible environments
-    image: "postgres:16"
+    # NOTE: Existing named volume was initialized by PostgreSQL 18 (PG_VERSION=18),
+    # so image major version must match unless data is recreated/migrated.
+    image: "postgres:18"
 
     # By default, a Postgres database is running on the 5432 port.
     # If we want to access the database from our computer (outside the container),

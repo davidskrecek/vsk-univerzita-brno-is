@@ -1,5 +1,13 @@
 import nodemailer from "nodemailer";
 
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST!,
   port: Number(process.env.SMTP_PORT ?? 587),
@@ -35,11 +43,13 @@ export async function sendConfirmationEmail(
 export async function sendChairmanNotification(
   orderData: unknown
 ): Promise<void> {
+  const serialized = JSON.stringify(orderData, null, 2);
+
   await transporter.sendMail({
     from: `"VSK Univerzita Brno" <${process.env.SMTP_FROM!}>`,
     to: process.env.CHAIRMAN_EMAIL!,
     subject: "Nová potvrzená objednávka / New confirmed order",
-    text: JSON.stringify(orderData, null, 2),
-    html: `<pre>${JSON.stringify(orderData, null, 2)}</pre>`,
+    text: serialized,
+    html: `<pre>${escapeHtml(serialized)}</pre>`,
   });
 }
