@@ -5,6 +5,7 @@ import OrderSteps from "@/components/Forms/OrderSteps";
 import PartnerOrderForm from "@/components/Forms/PartnerOrderForm";
 import PartnerGuide from "@/components/Forms/PartnerGuide";
 import { useToast } from "@/hooks/useToast";
+import { submitOrder } from "@/actions/submitOrder";
 
 interface OrderSectionProps {
   partners: Array<{ id: string; name: string }>;
@@ -87,21 +88,12 @@ export const OrderSection = ({ partners }: OrderSectionProps) => {
 
       const detailsWithContact = `${draft.details}\n\nKontaktní osoba: ${draft.fullName}\nTelefon: ${draft.phone}`;
 
-      const response = await fetch("/api/partner-orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          partnerName,
-          email: draft.email,
-          details: detailsWithContact,
-          requesterPersonnelId: requester.id,
-        }),
+      await submitOrder({
+        partnerName,
+        email: draft.email,
+        details: detailsWithContact,
+        requesterPersonnelId: requester.id,
       });
-
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(body?.error ?? `Nepodařilo se odeslat objednávku (${response.status})`);
-      }
 
       toast.success("Objednávka byla odeslána.");
     } catch (e) {
@@ -126,7 +118,7 @@ export const OrderSection = ({ partners }: OrderSectionProps) => {
         <div className="space-y-8">
           <OrderSteps steps={steps} />
           <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-6">
-            <div className="text-[10px] font-display font-bold uppercase tracking-widest text-on-surface/60 mb-2">
+            <div className="text-caption font-display font-bold uppercase tracking-widest text-on-surface/60 mb-2">
               Poznámka
             </div>
             <div className="text-xs font-sans text-on-surface/40 leading-relaxed">

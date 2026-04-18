@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendChairmanNotification } from "@/lib/mailer";
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = request.nextUrl;
   const token = searchParams.get("token");
@@ -16,9 +19,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   let formData: unknown;
 
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+    if (!process.env.JWT_SECRET) {
+      return NextResponse.redirect(new URL("/error", request.url));
+    }
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const { payload } = await jwtVerify(token, secret);
-    orderId = payload.orderId as string;
+
+    if (typeof payload.orderId !== "string" || payload.orderId.length === 0) {
+      return NextResponse.redirect(new URL("/expired", request.url));
+    }
+
+    orderId = payload.orderId;
     formData = payload.formData;
   } catch {
     // Covers expired tokens, invalid signatures, malformed JWTs, etc.
@@ -46,7 +58,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   });
 
   // --- 5. Notify the chairman ---
-  await sendChairmanNotification({ orderId, ...formData as object });
+  const normalizedFormData = isRecord(formData) ? formData : { formData };
+  await sendChairmanNotification({ orderId, ...normalizedFormData });
 
   return NextResponse.redirect(new URL("/success", request.url));
 }

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { signOut, useSession } from 'next-auth/react';
 import AppLink from '@/components/Common/AppLink';
 import { useAuthModal } from '@/components/Auth/AuthModalProvider';
 
@@ -14,6 +15,10 @@ const SPONSORS = [
 
 export const Footer = () => {
   const { openModal } = useAuthModal();
+  const { data: session, status } = useSession();
+
+  const isAuthenticated = status === 'authenticated';
+  const userLabel = session?.user?.email ?? session?.user?.name ?? 'Přihlášený uživatel';
 
   return (
     <footer className="w-full bg-surface-lowest pt-12 sm:pt-16 pb-8 text-on-surface/60">
@@ -41,13 +46,26 @@ export const Footer = () => {
             Zásady ochrany osobních údajů
           </AppLink>
 
-          <button
-            type = "button"
-            onClick={openModal}
-            className="text-on-surface/60 hover:text-primary transition-colors focus:visible"
-          >
-            Přihlášení
-          </button>
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <span className="text-on-surface/55 text-xs sm:text-sm">Přihlášen: {userLabel}</span>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="text-on-surface/60 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-lowest"
+              >
+                Odhlásit se
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={openModal}
+              className="text-on-surface/60 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-lowest"
+            >
+              Přihlášení
+            </button>
+          )}
         </div>
 
         {/* Copyright */}
