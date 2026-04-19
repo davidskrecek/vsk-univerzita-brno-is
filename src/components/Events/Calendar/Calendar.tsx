@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
+import { parseDateKey } from '@/components/Events/eventUtils';
 import { CalendarEvent } from '@/types/events';
 
 interface CalendarProps {
@@ -17,58 +18,41 @@ const MONTHS = [
 
 const DAYS = ['PO', 'ÚT', 'ST', 'ČT', 'PÁ', 'SO', 'NE'];
 
-const parseDateKey = (dateKey: string): { year: number; month: number; day: number } | null => {
-  const [yearRaw, monthRaw, dayRaw] = dateKey.split('-');
-  const year = Number(yearRaw);
-  const month = Number(monthRaw);
-  const day = Number(dayRaw);
+const getEarliestEventMonthStart = (events: CalendarEvent[]): Date | null => {
+  let earliestEvent: {
+    dateKey: string;
+    parsed: NonNullable<ReturnType<typeof parseDateKey>>;
+  } | null = null;
 
-  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+  for (const event of events) {
+    const parsed = parseDateKey(event.date);
+    if (!parsed) {
+      continue;
+    }
+
+    if (!earliestEvent || event.date < earliestEvent.dateKey) {
+      earliestEvent = { dateKey: event.date, parsed };
+    }
+  }
+
+  if (!earliestEvent) {
     return null;
   }
 
-  if (month < 1 || month > 12 || day < 1 || day > 31) {
-    return null;
-  }
-
-  return { year, month, day };
+  return new Date(earliestEvent.parsed.year, earliestEvent.parsed.month - 1, 1);
 };
 
 export const Calendar = ({ events }: CalendarProps) => {
   const searchParams = useSearchParams();
-  const [currentDate, setCurrentDate] = useState(() => new Date());
-  const initializedFromEvents = useRef(false);
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
-  useEffect(() => {
-    if (initializedFromEvents.current || events.length === 0) {
-      return;
-    }
+  const resolvedCurrentDate = useMemo(
+    () => currentDate ?? getEarliestEventMonthStart(events) ?? new Date(),
+    [currentDate, events]
+  );
 
-    let firstEventDateKey: string | null = null;
-    for (const event of events) {
-      const parsed = parseDateKey(event.date);
-      if (!parsed) {
-        continue;
-      }
-
-      if (!firstEventDateKey || event.date < firstEventDateKey) {
-        firstEventDateKey = event.date;
-      }
-    }
-
-    if (firstEventDateKey) {
-      const parsed = parseDateKey(firstEventDateKey);
-      if (!parsed) {
-        return;
-      }
-
-      setCurrentDate(new Date(parsed.year, parsed.month - 1, 1));
-      initializedFromEvents.current = true;
-    }
-  }, [events]);
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
+  const year = resolvedCurrentDate.getFullYear();
+  const month = resolvedCurrentDate.getMonth();
 
   // Helper for month navigation
   const navigateMonth = (direction: number) => {

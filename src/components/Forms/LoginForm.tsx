@@ -81,9 +81,6 @@ export const LoginForm = ({ onSuccess, defaultCallbackUrl }: LoginFormProps) => 
   return (
     <div className="w-full">
       <h1 className="mb-6 text-2xl font-display font-bold text-on-surface">Přihlášení</h1>
-      <p className="mb-4 text-xs text-on-surface/50">
-          Testovací účet: <strong>admin@vsk.cz</strong> / <strong>Admin1234!</strong>
-      </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <LabeledInput label="E-mail" value={email} onChange={setEmail} type="email" autoComplete="email" required />
         <LabeledInput

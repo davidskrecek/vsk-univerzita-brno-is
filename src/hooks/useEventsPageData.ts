@@ -45,7 +45,7 @@ export const useEventsPageData = (): UseEventsPageDataResult => {
     mapData: mapEventsApiResponseToUiEvents,
   });
 
-  const events = data ?? [];
+  const events = useMemo(() => data ?? [], [data]);
 
   const sports = useMemo(() => extractEventSports(events), [events]);
   const filteredEvents = useMemo(() => filterEventsBySport(events, selectedSport), [events, selectedSport]);

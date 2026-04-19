@@ -42,7 +42,7 @@ export const usePostsPageData = (): UsePostsPageDataResult => {
     errorMessage: "Nepodařilo se načíst příspěvky",
   });
 
-  const posts = postsResponse?.data ?? [];
+  const posts = useMemo(() => postsResponse?.data ?? [], [postsResponse]);
 
   const {
     data: postDetail,

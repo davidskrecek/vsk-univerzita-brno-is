@@ -18,7 +18,7 @@ export const useSportsPageData = (): UseSportsPageDataResult => {
     errorMessage: "Nepodařilo se načíst sporty",
   });
 
-  const sports = data ?? [];
+  const sports = useMemo(() => data ?? [], [data]);
   const { competitiveSports, recreationalSports } = useMemo(() => splitSportsByType(sports), [sports]);
 
   return {

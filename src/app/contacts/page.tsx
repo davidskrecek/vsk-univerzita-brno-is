@@ -20,7 +20,7 @@ export default function ContactsPage() {
     errorMessage: "Nepodařilo se načíst kontakty",
     mapData: mapContactsApiResponseToContactApiPeople,
   });
-  const contacts = data ?? [];
+  const contacts = useMemo(() => data ?? [], [data]);
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
 
   const sports = useMemo(() => extractSports(contacts), [contacts]);

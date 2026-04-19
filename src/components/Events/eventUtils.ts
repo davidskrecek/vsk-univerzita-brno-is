@@ -78,7 +78,7 @@ export const sortEventsByStartTime = (events: UiEvent[]): UiEvent[] =>
 export const findEventById = (events: UiEvent[], eventId: string | null): UiEvent | null =>
   eventId ? events.find((event) => event.id === eventId) ?? null : null;
 
-const parseDateKey = (dateStr: string): { year: number; month: number; day: number } | null => {
+export const parseDateKey = (dateStr: string): { year: number; month: number; day: number } | null => {
   const [yearRaw, monthRaw, dayRaw] = dateStr.split("-");
   const year = Number(yearRaw);
   const month = Number(monthRaw);

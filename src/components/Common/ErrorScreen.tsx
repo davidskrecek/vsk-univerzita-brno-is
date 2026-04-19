@@ -1,5 +1,4 @@
 import AppButton from "@/components/Common/AppButton";
-import AppLink from "@/components/Common/AppLink";
 
 interface ErrorScreenProps {
   code: string;
