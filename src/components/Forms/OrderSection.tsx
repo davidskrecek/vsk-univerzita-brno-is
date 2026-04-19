@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import OrderSteps from "@/components/Forms/OrderSteps";
 import PartnerOrderForm from "@/components/Forms/PartnerOrderForm";
 import PartnerGuide from "@/components/Forms/PartnerGuide";
+import { useToast } from "@/hooks/useToast";
 
 interface OrderSectionProps {
   partners: Array<{ id: string; name: string }>;
@@ -11,6 +12,10 @@ interface OrderSectionProps {
 
 export const OrderSection = ({ partners }: OrderSectionProps) => {
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const toast = useToast();
+
+  const partnersById = useMemo(() => new Map(partners.map((partner) => [partner.id, partner.name])), [partners]);
 
   const guides = useMemo<Record<string, string>>(
     () => ({
@@ -46,6 +51,66 @@ export const OrderSection = ({ partners }: OrderSectionProps) => {
     []
   );
 
+  const handleSubmit = async (draft: {
+    partnerId: string;
+    fullName: string;
+    phone: string;
+    email: string;
+    details: string;
+  }) => {
+    const partnerName = partnersById.get(draft.partnerId);
+    if (!partnerName) {
+      toast.error("Vybraný partner nebyl nalezen.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const contactsResponse = await fetch(`/api/contacts?search=${encodeURIComponent(draft.email)}`, {
+        cache: "no-store",
+      });
+
+      if (!contactsResponse.ok) {
+        throw new Error(`Nepodařilo se ověřit kontakt (${contactsResponse.status})`);
+      }
+
+      const contacts = (await contactsResponse.json()) as Array<{ id: number; email: string }>;
+      const requester = contacts.find(
+        (person) => person.email.trim().toLowerCase() === draft.email.trim().toLowerCase()
+      );
+
+      if (!requester) {
+        toast.warning("Kontakt s tímto e-mailem nebyl v adresáři nalezen.");
+        return;
+      }
+
+      const detailsWithContact = `${draft.details}\n\nKontaktní osoba: ${draft.fullName}\nTelefon: ${draft.phone}`;
+
+      const response = await fetch("/api/partner-orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          partnerName,
+          email: draft.email,
+          details: detailsWithContact,
+          requesterPersonnelId: requester.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? `Nepodařilo se odeslat objednávku (${response.status})`);
+      }
+
+      toast.success("Objednávka byla odeslána.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Objednávku se nepodařilo odeslat.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section className="space-y-6 sm:space-y-8">
       <div className="border-l-4 border-primary pl-6 space-y-3">
@@ -71,7 +136,12 @@ export const OrderSection = ({ partners }: OrderSectionProps) => {
         </div>
 
         <div className="lg:col-span-2 space-y-8">
-          <PartnerOrderForm partners={partners} onPartnerChange={setSelectedPartner} />
+          <PartnerOrderForm
+            partners={partners}
+            onPartnerChange={setSelectedPartner}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
           <PartnerGuide partner={selectedPartner} guides={guides} />
         </div>
       </div>

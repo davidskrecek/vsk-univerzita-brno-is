@@ -10,6 +10,7 @@ import LabeledTextarea from "@/components/Common/LabeledTextarea";
 
 interface PartnerOrderFormProps {
   partners: Array<{ id: string; name: string }>;
+  isSubmitting?: boolean;
   initialValues?: {
     partnerId?: string | null;
     fullName?: string;
@@ -29,7 +30,13 @@ const getPartnerInitials = (name: string) =>
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
 
-export const PartnerOrderForm = ({ partners, initialValues, onPartnerChange, onSubmit }: PartnerOrderFormProps) => {
+export const PartnerOrderForm = ({
+  partners,
+  isSubmitting = false,
+  initialValues,
+  onPartnerChange,
+  onSubmit,
+}: PartnerOrderFormProps) => {
   const [partnerId, setPartnerId] = useState<string | null>(initialValues?.partnerId ?? null);
   const [fullName, setFullName] = useState(initialValues?.fullName ?? "");
   const [phone, setPhone] = useState(initialValues?.phone ?? "");
@@ -42,7 +49,7 @@ export const PartnerOrderForm = ({ partners, initialValues, onPartnerChange, onS
     onPartnerChange?.(next);
   };
 
-  const submitDisabled = !partnerId || !fullName || !phone || !email || !details;
+  const submitDisabled = isSubmitting || !partnerId || !fullName || !phone || !email || !details;
   const partnerLabel = partnerId ? partners.find((p) => p.id === partnerId)?.name ?? null : null;
 
   return (
@@ -121,7 +128,7 @@ export const PartnerOrderForm = ({ partners, initialValues, onPartnerChange, onS
           onSubmit?.({ partnerId, fullName, phone, email, details });
         }}
       >
-        Odeslat objednávku
+        {isSubmitting ? "Odesílání..." : "Odeslat objednávku"}
       </AppButton>
     </div>
   );

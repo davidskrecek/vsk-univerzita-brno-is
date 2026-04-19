@@ -1,30 +1,33 @@
+"use client";
+
+import EmptyState from "@/components/Common/EmptyState";
 import SectionHeader from "@/components/Common/SectionHeader";
 import SportsSection from "@/components/Sports/SportsSection";
-
-const COMPETITIVE_SPORTS = [
-  "Volejbal",
-  "Basketbal",
-  "Házená",
-  "Futsal",
-  "Tenis",
-  "Vzpírání",
-  "Plavání",
-  "Atletika",
-  "Veslování",
-  "Judo"
-];
-
-const RECREATIONAL_SPORTS = ["Jóga", "Turistika", "Lyžování", "Rekreační plavání", "Cyklistika"];
+import { useSportsPageData } from "@/hooks/useSportsPageData";
 
 export default function SportsPage() {
+  const { loading, error, sports, competitiveSports, recreationalSports } = useSportsPageData();
+
   return (
     <div className="stack-page">
       <SectionHeader title="Sporty" as="h1" className="mb-4" />
 
-      <div className="space-y-14">
-        <SportsSection title="Soutěžní oddíly" sports={COMPETITIVE_SPORTS} />
-        <SportsSection title="Nesoutěžní oddíly" sports={RECREATIONAL_SPORTS} />
-      </div>
+      {loading ? (
+        <p className="text-sm font-sans text-on-surface/60">Načítání sportů...</p>
+      ) : error ? (
+        <EmptyState message={error} />
+      ) : sports.length === 0 ? (
+        <EmptyState message="Zatím nejsou dostupné žádné sporty." />
+      ) : (
+        <div className="space-y-14">
+          {competitiveSports.length > 0 ? (
+            <SportsSection title="Soutěžní oddíly" sports={competitiveSports} />
+          ) : null}
+          {recreationalSports.length > 0 ? (
+            <SportsSection title="Nesoutěžní oddíly" sports={recreationalSports} />
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

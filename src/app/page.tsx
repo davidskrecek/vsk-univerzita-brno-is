@@ -110,7 +110,6 @@ export default function Home() {
           <div className="stat-block-label">Aktivních sportů</div>
           <p className="mt-4 text-on-surface/40 text-sm font-sans">Široká škála sportovních disciplín pro každého studenta.</p>
         </div>
-
         <div className="bg-surface-container-low p-8 rounded-md group hover:bg-surface-container transition-colors">
           <div className="stat-block-number">150+</div>
           <div className="stat-block-label">Členů klubu</div>

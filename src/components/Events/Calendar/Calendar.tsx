@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
+import { parseDateKey } from '@/components/Events/eventUtils';
 import { CalendarEvent } from '@/types/events';
 
 interface CalendarProps {
@@ -17,13 +18,41 @@ const MONTHS = [
 
 const DAYS = ['PO', 'ÚT', 'ST', 'ČT', 'PÁ', 'SO', 'NE'];
 
+const getEarliestEventMonthStart = (events: CalendarEvent[]): Date | null => {
+  let earliestEvent: {
+    dateKey: string;
+    parsed: NonNullable<ReturnType<typeof parseDateKey>>;
+  } | null = null;
+
+  for (const event of events) {
+    const parsed = parseDateKey(event.date);
+    if (!parsed) {
+      continue;
+    }
+
+    if (!earliestEvent || event.date < earliestEvent.dateKey) {
+      earliestEvent = { dateKey: event.date, parsed };
+    }
+  }
+
+  if (!earliestEvent) {
+    return null;
+  }
+
+  return new Date(earliestEvent.parsed.year, earliestEvent.parsed.month - 1, 1);
+};
+
 export const Calendar = ({ events }: CalendarProps) => {
   const searchParams = useSearchParams();
-  // Use Nov 2024 as starting point to match the image
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 10, 1));
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
+  const resolvedCurrentDate = useMemo(
+    () => currentDate ?? getEarliestEventMonthStart(events) ?? new Date(),
+    [currentDate, events]
+  );
+
+  const year = resolvedCurrentDate.getFullYear();
+  const month = resolvedCurrentDate.getMonth();
 
   // Helper for month navigation
   const navigateMonth = (direction: number) => {

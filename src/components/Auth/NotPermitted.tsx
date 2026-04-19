@@ -6,7 +6,7 @@ interface NotPermittedProps {
 
 export const NotPermitted = ({ requiredRole }: NotPermittedProps) => {
   const description = requiredRole
-    ? `Tato stránka vyžaduje roli „${requiredRole}". Nemáte dostatečná oprávnění pro zobrazení tohoto obsahu.`
+    ? `Tato stránka vyžaduje roli „${requiredRole}“. Nemáte dostatečná oprávnění pro zobrazení tohoto obsahu.`
     : "Nemáte dostatečná oprávnění pro zobrazení tohoto obsahu.";
 
   return (

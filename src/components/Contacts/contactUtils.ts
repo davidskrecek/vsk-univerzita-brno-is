@@ -1,5 +1,23 @@
 import { ContactApiPerson, ContactPerson, ContactSectionData } from "@/types/contacts";
 
+export interface ContactApiResponseItem {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  sport: {
+    id: number;
+    name: string;
+  } | null;
+  trainer: {
+    category: string | null;
+  } | null;
+  official: {
+    position: string;
+  } | null;
+}
+
 const GROUP_TITLES: Record<string, string> = {
   management: "Vedení klubu",
   coaches: "Trenéři",
@@ -22,6 +40,42 @@ const inferGroupFromRole = (role: string) => {
 
   return "other";
 };
+
+const mapContactRole = (person: ContactApiResponseItem) => {
+  if (person.trainer) {
+    return person.trainer.category ? `Trenér (${person.trainer.category})` : "Trenér";
+  }
+
+  if (person.official?.position) {
+    return person.official.position;
+  }
+
+  return "Člen klubu";
+};
+
+const mapContactRoleGroup = (person: ContactApiResponseItem) => {
+  if (person.trainer) return "coaches";
+  if (person.official) return "management";
+  return "other";
+};
+
+export const mapContactApiResponseToContactApiPerson = (
+  person: ContactApiResponseItem
+): ContactApiPerson => ({
+  id: person.id,
+  firstName: person.firstName,
+  lastName: person.lastName,
+  role: mapContactRole(person),
+  roleGroup: mapContactRoleGroup(person),
+  sportName: person.sport?.name ?? null,
+  email: person.email,
+  phone: person.phone,
+  isActive: true,
+});
+
+export const mapContactsApiResponseToContactApiPeople = (
+  payload: ContactApiResponseItem[]
+): ContactApiPerson[] => payload.map(mapContactApiResponseToContactApiPerson);
 
 export const toContactPerson = (person: ContactApiPerson): ContactPerson => ({
   id: String(person.id),

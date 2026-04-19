@@ -42,8 +42,9 @@ export const Footer = () => {
           </AppLink>
 
           <button
+            type = "button"
             onClick={openModal}
-            className="text-on-surface/60 hover:text-primary transition-colors focus:outline-none"
+            className="text-on-surface/60 hover:text-primary transition-colors focus:visible"
           >
             Přihlášení
           </button>
