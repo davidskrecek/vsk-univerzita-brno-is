@@ -18,7 +18,14 @@ export const EventCard = ({ id, day, month, category, title, location, isInline 
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
 
-  if (!params.get('view')) params.set('view', 'list');
+  if (params.get('view')) {
+    if (!isInline) {
+      params.set('view', 'list');
+    } else {
+      params.delete('view');
+    }
+  }
+
   params.set('eventId', id);
 
   const detailHref = isInline
@@ -60,7 +67,6 @@ export const EventCard = ({ id, day, month, category, title, location, isInline 
         </div>
       </Link>
 
-      {/* Action: Refactored Calendar Dropdown - Now physically outside Link */}
       <div
         data-export-trigger="true"
         className="flex-shrink-0 self-center max-[450px]:hidden pr-6"
