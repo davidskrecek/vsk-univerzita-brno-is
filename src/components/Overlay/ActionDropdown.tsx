@@ -35,7 +35,10 @@ export const ActionDropdown = ({
 
   return (
     <DropdownMenu.Root modal={false}>
-      <DropdownMenu.Trigger asChild onClick={(e) => e.stopPropagation()}>
+      <DropdownMenu.Trigger asChild onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}>
         {trigger}
       </DropdownMenu.Trigger>
 

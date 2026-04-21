@@ -7,10 +7,10 @@ import AppLink from '@/components/Common/AppLink';
 import { useAuthModal } from '@/components/Auth/AuthModalProvider';
 
 const SPONSORS = [
-  { name: 'Jihomoravský kraj', src: '/sponsors/jmk.jpg' },
-  { name: 'Město Brno', src: '/sponsors/mb.jpg' },
-  { name: 'MŠMT', src: '/sponsors/msmt.jpg' },
-  { name: 'Národní sportovní agentura', src: '/sponsors/nsa.png' },
+  { name: 'Jihomoravský kraj', src: '/sponsors/jmk.jpg', href: 'https://www.jmk.cz/' },
+  { name: 'Město Brno', src: '/sponsors/mb.jpg', href: 'https://www.brno.cz/' },
+  { name: 'MŠMT', src: '/sponsors/msmt.jpg', href: 'https://msmt.gov.cz/' },
+  { name: 'Národní sportovní agentura', src: '/sponsors/nsa.png', href: 'https://nsa.gov.cz/' },
 ];
 
 export const Footer = () => {
@@ -26,17 +26,21 @@ export const Footer = () => {
         {/* Sponsors Logos Section */}
         <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-12 mb-10 sm:mb-12">
           {SPONSORS.map((sponsor) => (
-            <div
+            <a
               key={sponsor.name}
-              className="relative h-10 w-28 grayscale opacity-30 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+              href={sponsor.href}
+              target="_blank"
+              rel="noreferrer"
+              className="relative h-10 w-28 grayscale opacity-30 hover:grayscale-0 hover:opacity-100 transition-all duration-500 block"
             >
               <Image
                 src={sponsor.src}
                 alt={sponsor.name}
                 fill
+                sizes="7rem"
                 className="object-contain"
               />
-            </div>
+            </a>
           ))}
         </div>
 

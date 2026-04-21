@@ -30,14 +30,16 @@ export const NavBar = () => {
 
         <div className="flex items-center justify-start">
           <NextLink href="/" className="transition-transform hover:scale-105 active:scale-95">
-            <Image
-              src="/logo.svg"
-              alt="VSK Logo"
-              width={48}
-              height={48}
-              className="object-contain"
-              priority
-            />
+            <div className="relative w-12 h-12">
+              <Image
+                src="/logo.svg"
+                alt="VSK Logo"
+                fill
+                sizes="3rem"
+                className="object-contain"
+                priority
+              />
+            </div>
           </NextLink>
         </div>
 
@@ -71,11 +73,10 @@ export const NavBar = () => {
                   {navLinks.map((link) => (
                     <DropdownMenu.Item
                       key={link.href}
-                      className={`flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-md outline-none transition-colors cursor-pointer uppercase tracking-wider ${
-                        isActive(link.href)
+                      className={`flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-md outline-none transition-colors cursor-pointer uppercase tracking-wider ${isActive(link.href)
                           ? 'text-primary bg-primary/10'
                           : 'text-on-surface/80 hover:text-primary hover:bg-primary/10'
-                      }`}
+                        }`}
                       onSelect={() => {
                         router.push(link.href);
                       }}

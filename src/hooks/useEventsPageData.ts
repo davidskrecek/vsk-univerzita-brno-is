@@ -65,7 +65,8 @@ export const useEventsPageData = (): UseEventsPageDataResult => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("eventId");
     const query = params.toString();
-    router.push(query ? `?${query}` : "/events", { scroll: false });
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/events';
+    router.push(query ? `?${query}` : currentPath, { scroll: false });
   }, [router, searchParams]);
 
   return {
