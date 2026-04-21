@@ -79,7 +79,8 @@ export const usePostsPageData = (): UsePostsPageDataResult => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("postId");
     const query = params.toString();
-    router.push(query ? `?${query}` : "/posts", { scroll: false });
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/posts';
+    router.push(query ? `?${query}` : currentPath, { scroll: false });
   }, [router, searchParams]);
 
   return {

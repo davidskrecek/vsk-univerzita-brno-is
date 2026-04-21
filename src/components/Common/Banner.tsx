@@ -10,10 +10,10 @@ interface BannerProps {
 
 export const Banner = ({ title, subtitle, buttonText, href }: BannerProps) => {
   return (
-    <div className="w-full bg-secondary rounded-md overflow-hidden relative group shadow-ambient/10 h-(--size-banner-h) flex items-center">
+    <div className="w-full bg-secondary select-none rounded-md overflow-hidden relative group shadow-ambient/10 h-(--size-banner-h) flex items-center">
       {/* Background Soul - subtle darker gradient to keep it premium */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/5 via-transparent to-transparent" />
-      
+
       <div className="relative w-full px-8 flex items-center justify-between gap-6">
         <div className="flex items-baseline gap-4">
           <h2 className="text-lg md:text-xl font-display font-bold text-on-secondary uppercase tracking-tight whitespace-nowrap">
@@ -25,9 +25,9 @@ export const Banner = ({ title, subtitle, buttonText, href }: BannerProps) => {
           </p>
         </div>
 
-        <AppButton 
-          href={href} 
-          variant="secondary" 
+        <AppButton
+          href={href}
+          variant="secondary"
           className="text-[0.625rem] py-1.5 px-4 uppercase tracking-widest whitespace-nowrap bg-on-secondary text-secondary hover:bg-on-secondary/90 border-none"
         >
           {buttonText}
