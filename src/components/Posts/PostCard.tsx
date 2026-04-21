@@ -11,19 +11,20 @@ interface PostCardProps {
   isInline?: boolean;
 }
 
-export const PostCard = ({ 
-  category, 
-  title, 
-  description, 
-  href, 
-  imageUrl, 
+export const PostCard = ({
+  category,
+  title,
+  description,
+  href,
+  imageUrl,
   postId,
-  isInline = false 
+  isInline = false
 }: PostCardProps) => {
   const finalHref = isInline ? `?postId=${postId}` : (href || '#');
   return (
     <Link
       href={finalHref}
+      scroll={false}
       className="card-surface group flex flex-row items-center justify-between gap-4 sm:gap-8 no-underline"
     >
       {imageUrl ? (
