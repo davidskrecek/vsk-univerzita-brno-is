@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "VSK Univerzita Brno",
   description: "Informační systém VSK Univerzita Brno",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 import { AuthModalProvider } from "@/components/Auth/AuthModalProvider";
