@@ -20,7 +20,7 @@ export const NavBar = () => {
     { name: 'SPORTY', href: '/sports' },
     { name: 'KONTAKTY', href: '/contacts' },
     { name: 'FORMULÁŘE', href: '/forms' },
-    { name: 'OSTATNÍ', href: '/others' }
+    { name: 'OSTATNÍ', href: '/other' }
   ];
 
   const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(href));
