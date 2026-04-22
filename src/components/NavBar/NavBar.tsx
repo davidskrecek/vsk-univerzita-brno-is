@@ -20,6 +20,7 @@ export const NavBar = () => {
     { name: 'SPORTY', href: '/sports' },
     { name: 'KONTAKTY', href: '/contacts' },
     { name: 'FORMULÁŘE', href: '/forms' },
+    { name: 'OSTATNÍ', href: '/others' }
   ];
 
   const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(href));
@@ -74,8 +75,8 @@ export const NavBar = () => {
                     <DropdownMenu.Item
                       key={link.href}
                       className={`flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-md outline-none transition-colors cursor-pointer uppercase tracking-wider ${isActive(link.href)
-                          ? 'text-primary bg-primary/10'
-                          : 'text-on-surface/80 hover:text-primary hover:bg-primary/10'
+                        ? 'text-primary bg-primary/10'
+                        : 'text-on-surface/80 hover:text-primary hover:bg-primary/10'
                         }`}
                       onSelect={() => {
                         router.push(link.href);
