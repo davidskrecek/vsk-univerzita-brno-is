@@ -102,57 +102,57 @@ export const Calendar = ({ events }: CalendarProps) => {
       {/* CALENDAR GRID */}
       <div className="overflow-x-auto rounded-sm border border-outline-variant/10">
         <div className="grid grid-cols-7 min-w-[900px]">
-        {/* Day headers */}
-        {DAYS.map(day => (
-          <div key={day} className="py-4 sm:py-6 text-center text-[11px] font-display font-bold text-on-surface/40 tracking-widest border-r border-b border-outline-variant/10 bg-surface-container-low/30 uppercase">
-            {day}
-          </div>
-        ))}
+          {/* Day headers */}
+          {DAYS.map(day => (
+            <div key={day} className="py-4 sm:py-6 text-center text-[11px] font-display font-bold text-on-surface/40 tracking-widest border-r border-b border-outline-variant/10 bg-surface-container-low/30 uppercase">
+              {day}
+            </div>
+          ))}
 
-        {/* Calendar days */}
-        {calendarDays.map((day, idx) => {
-          const dayEvents = day ? getEventsForDay(day) : [];
-          const isWeekend = idx % 7 >= 5;
+          {/* Calendar days */}
+          {calendarDays.map((day, idx) => {
+            const dayEvents = day ? getEventsForDay(day) : [];
+            const isWeekend = idx % 7 >= 5;
 
-          return (
-            <div
-              key={idx}
-              className={`min-h-[110px] sm:min-h-[140px] p-3 sm:p-4 border-r border-b border-outline-variant/10 transition-colors
+            return (
+              <div
+                key={idx}
+                className={`min-h-[110px] sm:min-h-[140px] p-3 sm:p-4 border-r border-b border-outline-variant/10 transition-colors
                 ${!day ? 'bg-surface-container-low/20' : isWeekend ? 'bg-surface-container-low/40' : 'bg-transparent'}
               `}
-            >
-              {day && (
-                <div className="flex flex-col h-full space-y-3">
-                  <span className={`text-lg font-display font-bold ${dayEvents.length > 0 ? 'text-on-surface' : 'text-on-surface/30'}`}>
-                    {day}
-                  </span>
+              >
+                {day && (
+                  <div className="flex flex-col h-full space-y-3">
+                    <span className={`text-lg font-display font-bold ${dayEvents.length > 0 ? 'text-on-surface' : 'text-on-surface/30'}`}>
+                      {day}
+                    </span>
 
-                  <div className="flex-1 space-y-1.5">
-                    {dayEvents.map(event => {
-                      const params = new URLSearchParams(searchParams.toString());
-                      if (!params.get('view')) params.set('view', 'calendar');
-                      params.set('eventId', event.id);
-                      const href = `/events?${params.toString()}`;
+                    <div className="flex-1 space-y-1.5">
+                      {dayEvents.map(event => {
+                        const params = new URLSearchParams(searchParams.toString());
+                        if (!params.get('view')) params.set('view', 'calendar');
+                        params.set('eventId', event.id);
+                        const href = `/events?${params.toString()}`;
 
-                      return (
-                        <Link
-                          key={event.id}
-                          href={href}
-                          scroll={false}
-                          className="block px-2 py-1.5 rounded-md text-[9px] font-display font-bold uppercase tracking-wide border bg-surface-container-high text-on-surface/80 border-outline-variant/10 hover:bg-surface-container transition-all cursor-pointer"
-                        >
-                          <div className="text-[7px] text-primary/60 mb-0.5">{event.sport}</div>
-                          <div className="line-clamp-1">{event.title}</div>
-                        </Link>
-                      );
-                    })}
+                        return (
+                          <Link
+                            key={event.id}
+                            href={href}
+                            scroll={false}
+                            className="block px-2 py-1.5 rounded-md text-[9px] font-display font-bold uppercase tracking-wide border bg-surface-container-high text-on-surface/80 border-outline-variant/10 hover:bg-surface-container transition-all cursor-pointer"
+                          >
+                            <div className="text-[7px] text-primary/60 mb-0.5">{event.sport}</div>
+                            <div className="line-clamp-1">{event.title}</div>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
