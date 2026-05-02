@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { NextRequest } from "next/server";
-import { POST } from "@/app/api/admin/posts/route";
-import { PATCH } from "@/app/api/admin/posts/[id]/route";
+import { createPost, updatePost } from "@/actions/admin/posts";
 import { mockSuperadminSession, mockSportManagerSession } from "@/__tests__/helpers/session";
 import * as sessionModule from "@/lib/session";
 import { AuthError } from "@/lib/session";
@@ -12,14 +10,26 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { prisma } from "@/lib/prisma";
 
-function makeRequest(body: object, method = "POST") {
-  return new NextRequest("http://localhost:3000/api/admin/posts", {
-    method,
-    body: JSON.stringify(body),
-    headers: { "Content-Type": "application/json" },
-  });
+function makeFormData(data: Record<string, unknown>): FormData {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined && value !== null) {
+      if (typeof value === "object" && !Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else if (Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+  }
+  return formData;
 }
 
 const validPost = {
@@ -32,63 +42,54 @@ const validPost = {
 
 beforeEach(() => vi.clearAllMocks());
 
-describe("POST /api/admin/posts", () => {
+describe("createPost", () => {
   it("superadmin can create a post for any sport", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSuperadminSession);
     const created = { id: 1, ...validPost };
     (prisma.post.create as ReturnType<typeof vi.fn>).mockResolvedValue(created);
 
-    const res = await POST(makeRequest(validPost));
-    expect(res.status).toBe(201);
+    const result = await createPost({}, makeFormData(validPost));
+    expect(result.success).toBe(true);
+    expect(result.data?.id).toBe(1);
   });
 
   it("sport_manager can create for their sport", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSportManagerSession);
     (prisma.post.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 2, ...validPost });
 
-    const res = await POST(makeRequest(validPost));
-    expect(res.status).toBe(201);
+    const result = await createPost({}, makeFormData(validPost));
+    expect(result.success).toBe(true);
   });
 
   it("sport_manager is blocked for a different sport", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSportManagerSession);
 
-    const res = await POST(makeRequest({ ...validPost, sportId: 99 }));
-    expect(res.status).toBe(403);
+    const result = await createPost({}, makeFormData({ ...validPost, sportId: 99 }));
+    expect(result.error).toBe("Forbidden: sport scope mismatch");
   });
 
-  it("returns 401 when unauthenticated", async () => {
+  it("returns error when unauthenticated", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockRejectedValue(new AuthError(401, "Unauthorized"));
 
-    const res = await POST(makeRequest(validPost));
-    expect(res.status).toBe(401);
+    const result = await createPost({}, makeFormData(validPost));
+    expect(result.error).toBe("Unauthorized");
   });
 });
 
-describe("PATCH /api/admin/posts/:id", () => {
-  it("returns 404 when post not found", async () => {
+describe("updatePost", () => {
+  it("returns error when post not found", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSuperadminSession);
     (prisma.post.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
-    const req = new NextRequest("http://localhost:3000/api/admin/posts/99", {
-      method: "PATCH",
-      body: JSON.stringify({ title: "Updated" }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const res = await PATCH(req, { params: Promise.resolve({ id: "99" }) });
-    expect(res.status).toBe(404);
+    const result = await updatePost({}, makeFormData({ id: 99, title: "Updated" }));
+    expect(result.error).toBe("Not found");
   });
 
   it("sport_manager blocked from editing another sport's post", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSportManagerSession);
     (prisma.post.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 5, sportId: 99 });
 
-    const req = new NextRequest("http://localhost:3000/api/admin/posts/5", {
-      method: "PATCH",
-      body: JSON.stringify({ title: "Changed" }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const res = await PATCH(req, { params: Promise.resolve({ id: "5" }) });
-    expect(res.status).toBe(403);
+    const result = await updatePost({}, makeFormData({ id: 5, title: "Changed" }));
+    expect(result.error).toBe("Forbidden: sport scope mismatch");
   });
 });

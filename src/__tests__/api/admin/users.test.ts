@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { NextRequest } from "next/server";
-import { POST } from "@/app/api/admin/users/route";
-import { GET } from "@/app/api/admin/users/stats/route";
+import { createUser, getUserStats } from "@/actions/admin/users";
 import { mockSuperadminSession, mockSportManagerSession } from "@/__tests__/helpers/session";
 import * as sessionModule from "@/lib/session";
 import { AuthError } from "@/lib/session";
@@ -14,6 +12,10 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 import { prisma } from "@/lib/prisma";
 
 const validUser = {
@@ -24,17 +26,25 @@ const validUser = {
   managedSportIds: [1],
 };
 
-function makeRequest(body: object) {
-  return new NextRequest("http://localhost:3000/api/admin/users", {
-    method: "POST",
-    body: JSON.stringify(body),
-    headers: { "Content-Type": "application/json" },
-  });
+function makeFormData(data: Record<string, unknown>): FormData {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined && value !== null) {
+      if (typeof value === "object" && !Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else if (Array.isArray(value)) {
+        formData.append(key, JSON.stringify(value));
+      } else {
+        formData.append(key, String(value));
+      }
+    }
+  }
+  return formData;
 }
 
 beforeEach(() => vi.clearAllMocks());
 
-describe("POST /api/admin/users", () => {
+describe("createUser", () => {
   it("superadmin creates user and returns invitation token", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSuperadminSession);
     (prisma.$transaction as ReturnType<typeof vi.fn>).mockImplementation(async (fn: (tx: typeof prisma) => unknown) =>
@@ -47,29 +57,28 @@ describe("POST /api/admin/users", () => {
       } as unknown as typeof prisma),
     );
 
-    const res = await POST(makeRequest(validUser));
-    expect(res.status).toBe(201);
-    const body = await res.json();
-    expect(body).toHaveProperty("invitationToken");
-    expect(typeof body.invitationToken).toBe("string");
+    const result = await createUser({}, makeFormData(validUser));
+    expect(result.success).toBe(true);
+    expect(result.data).toHaveProperty("invitationToken");
+    expect(typeof result.data?.invitationToken).toBe("string");
   });
 
   it("sport_manager cannot create users", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSportManagerSession);
 
-    const res = await POST(makeRequest(validUser));
-    expect(res.status).toBe(403);
+    const result = await createUser({}, makeFormData(validUser));
+    expect(result.error).toBe("Forbidden");
   });
 
-  it("returns 401 when unauthenticated", async () => {
+  it("returns error when unauthenticated", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockRejectedValue(new AuthError(401, "Unauthorized"));
 
-    const res = await POST(makeRequest(validUser));
-    expect(res.status).toBe(401);
+    const result = await createUser({}, makeFormData(validUser));
+    expect(result.error).toBe("Unauthorized");
   });
 });
 
-describe("GET /api/admin/users/stats", () => {
+describe("getUserStats", () => {
   it("returns user counts grouped by role", async () => {
     vi.spyOn(sessionModule, "getRequiredSession").mockResolvedValue(mockSuperadminSession);
     (prisma.$transaction as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -80,10 +89,8 @@ describe("GET /api/admin/users/stats", () => {
       ],
     ]);
 
-    const res = await GET();
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.total).toBe(2);
-    expect(body.byRole).toHaveLength(2);
+    const result = await getUserStats();
+    expect(result.total).toBe(2);
+    expect(result.byRole).toHaveLength(2);
   });
 });

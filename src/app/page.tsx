@@ -1,65 +1,55 @@
-"use client";
-
-import { Suspense } from "react";
 import AppLink from "@/components/Common/AppLink";
 import { Banner } from "@/components/Common/Banner";
 import { PostCard } from "@/components/Posts/PostCard";
 import { EventCard } from "@/components/Events/EventCard";
 import SectionHeader from "@/components/Common/SectionHeader";
-import EventDetail from "@/components/Events/EventDetail";
-import PostDetail from "@/components/Posts/PostDetail";
-import { useEventsPageData } from "@/hooks/useEventsPageData";
-import { usePostsPageData } from "@/hooks/usePostsPageData";
 
-function HomeContent() {
-  const { activeEvent, closeEventDetail } = useEventsPageData();
-  const { activePostDetail, detailLinks, closePostDetail } = usePostsPageData();
+const latestPosts = [
+  {
+    id: "1",
+    category: "ATLETIKA",
+    title: "Vítězství na akademickém mistrovství v běhu",
+    description: "Naši běžci ovládli finálový závod v Praze a domů přivážejí celkem pět zlatých medailí v různých kategoriích.",
+  },
+  {
+    id: "2",
+    category: "BASKETBAL",
+    title: "Basketbalisté postoupili do univerzitní ligy",
+    description: "Po napínavém souboji s Technickou univerzitou si náš tým vybojoval postup do nejvyšší národní divize.",
+  },
+  {
+    id: "3",
+    category: "VOLEJBAL",
+    title: "Otevřený nábor do ženského volejbalového týmu",
+    description: "Hledáme nové posily pro nadcházející sezónu. Přijďte ukázat své dovednosti na trénink příští úterý.",
+  },
+];
 
-  const latestPosts = [
-    {
-      id: "1",
-      category: "ATLETIKA",
-      title: "Vítězství na akademickém mistrovství v běhu",
-      description: "Naši běžci ovládli finálový závod v Praze a domů přivážejí celkem pět zlatých medailí v různých kategoriích.",
-    },
-    {
-      id: "2",
-      category: "BASKETBAL",
-      title: "Basketbalisté postoupili do univerzitní ligy",
-      description: "Po napínavém souboji s Technickou univerzitou si náš tým vybojoval postup do nejvyšší národní divize.",
-    },
-    {
-      id: "3",
-      category: "VOLEJBAL",
-      title: "Otevřený nábor do ženského volejbalového týmu",
-      description: "Hledáme nové posily pro nadcházející sezónu. Přijďte ukázat své dovednosti na trénink příští úterý.",
-    },
-  ];
+const upcomingEvents = [
+  {
+    day: "15",
+    month: "ŘÍJ",
+    category: "HOKEJ",
+    title: "Univerzitní hokejová bitva",
+    location: "Winning Group Arena, Brno"
+  },
+  {
+    day: "22",
+    month: "ŘÍJ",
+    category: "PLAVÁNÍ",
+    title: "Plavecké závody o pohár rektora",
+    location: "Bazén Lužánky"
+  },
+  {
+    day: "05",
+    month: "LIS",
+    category: "OSTATNÍ",
+    title: "Workshop: Sportovní psychologie",
+    location: "Aula FSpS MU"
+  }
+];
 
-  const upcomingEvents = [
-    {
-      day: "15",
-      month: "ŘÍJ",
-      category: "HOKEJ",
-      title: "Univerzitní hokejová bitva",
-      location: "Winning Group Arena, Brno"
-    },
-    {
-      day: "22",
-      month: "ŘÍJ",
-      category: "PLAVÁNÍ",
-      title: "Plavecké závody o pohár rektora",
-      location: "Bazén Lužánky"
-    },
-    {
-      day: "05",
-      month: "LIS",
-      category: "OSTATNÍ",
-      title: "Workshop: Sportovní psychologie",
-      location: "Aula FSpS MU"
-    }
-  ];
-
+export default function Home() {
   return (
     <div className="flex flex-col space-y-(--spacing-section) pt-(--spacing-list-gap) pb-0">
 
@@ -88,8 +78,7 @@ function HomeContent() {
           {latestPosts.map((post) => (
             <PostCard
               key={post.id}
-              postId={post.id}
-              isInline
+              href={`/posts?postId=${post.id}`}
               category={post.category}
               title={post.title}
               description={post.description}
@@ -121,28 +110,6 @@ function HomeContent() {
         </div>
       </section>
 
-      {/* Detail Modals */}
-      {activeEvent && (
-        <EventDetail
-          key={`event-${activeEvent.id}`}
-          {...activeEvent}
-          onClose={closeEventDetail}
-        />
-      )}
-
-      {activePostDetail && (
-        <PostDetail
-          key={`post-${activePostDetail.id}`}
-          title={activePostDetail.title}
-          category={activePostDetail.sport.name}
-          date={activePostDetail.createdAt}
-          content={activePostDetail.content}
-          imageUrl={activePostDetail.imageUrl}
-          links={detailLinks}
-          onClose={closePostDetail}
-        />
-      )}
-
       {/* STATS SECTION */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mx-auto pt-(--spacing-editorial) border-t border-outline-variant/10">
         <div className="bg-surface-container-low p-8 rounded-md group hover:bg-surface-container transition-colors">
@@ -163,13 +130,5 @@ function HomeContent() {
         </div>
       </section>
     </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <Suspense fallback={<div>Načítání...</div>}>
-      <HomeContent />
-    </Suspense>
   );
 }
