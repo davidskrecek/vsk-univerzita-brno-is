@@ -2,25 +2,20 @@
 
 import { useMemo, useState } from "react";
 import EmptyState from "@/components/Common/EmptyState";
-import SectionHeader from "@/components/Common/SectionHeader";
 import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import ContactSection from "@/components/Contacts/ContactSection";
 import {
   buildContactSections,
   extractSports,
-  mapContactApiResponseToContactApiPerson,
-  type ContactApiResponseItem,
+  type ContactItem,
 } from "@/components/Contacts/contactUtils";
 
 interface ContactsContentProps {
-  initialContacts: ContactApiResponseItem[];
+  initialContacts: ContactItem[];
 }
 
 export default function ContactsContent({ initialContacts }: ContactsContentProps) {
-  const contacts = useMemo(
-    () => initialContacts.map(mapContactApiResponseToContactApiPerson),
-    [initialContacts]
-  );
+  const contacts = initialContacts;
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
 
   const sports = useMemo(() => extractSports(contacts), [contacts]);
@@ -36,8 +31,6 @@ export default function ContactsContent({ initialContacts }: ContactsContentProp
 
   return (
     <div className="stack-page">
-      <SectionHeader title="Kontakty" as="h1" />
-
       <SportFilter
         sports={sports}
         selectedSport={selectedSport}

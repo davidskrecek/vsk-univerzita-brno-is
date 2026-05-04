@@ -1,9 +1,8 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EmptyState from "@/components/Common/EmptyState";
-import SectionHeader from "@/components/Common/SectionHeader";
 import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import PostDetail from "@/components/Posts/PostDetail";
 import { PostCard } from "@/components/Posts/PostCard";
@@ -102,8 +101,6 @@ function PostsContentInner({ initialPosts }: PostsContentProps) {
 
   return (
     <div className="stack-page">
-      <SectionHeader title="Příspěvky" as="h1" />
-
       <SportFilter
         sports={sports}
         selectedSport={selectedSport}
@@ -155,9 +152,5 @@ function PostsContentInner({ initialPosts }: PostsContentProps) {
 }
 
 export default function PostsContent({ initialPosts }: PostsContentProps) {
-  return (
-    <Suspense fallback={<div>Načítání...</div>}>
-      <PostsContentInner initialPosts={initialPosts} />
-    </Suspense>
-  );
+  return <PostsContentInner initialPosts={initialPosts} />;
 }

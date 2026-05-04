@@ -3,7 +3,6 @@
 import { Suspense, useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import EmptyState from "@/components/Common/EmptyState";
-import SectionHeader from "@/components/Common/SectionHeader";
 import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import ViewToggle from "@/components/Common/ViewToggle";
 import { Calendar } from "@/components/Events/Calendar/Calendar";
@@ -17,14 +16,13 @@ import {
   findEventById,
   mapEventsApiResponseToUiEvents,
   sortEventsByStartTime,
-  type EventApiItem,
   type UiEvent,
 } from "@/components/Events/eventUtils";
 
 type ViewMode = "calendar" | "list";
 
 interface EventsContentProps {
-  initialEvents: EventApiItem[];
+  initialEvents: UiEvent[];
 }
 
 interface EventsListContentProps {
@@ -63,15 +61,10 @@ function EventsContentInner({ initialEvents }: EventsContentProps) {
   const viewMode: ViewMode = viewModeParam === "list" ? "list" : "calendar";
   const eventId = searchParams.get("eventId");
 
-  const events = useMemo(
-    () => mapEventsApiResponseToUiEvents(initialEvents),
-    [initialEvents]
-  );
-
-  const sports = useMemo(() => extractEventSports(events), [events]);
+  const sports = useMemo(() => extractEventSports(initialEvents), [initialEvents]);
   const filteredEvents = useMemo(
-    () => filterEventsBySport(events, selectedSport),
-    [events, selectedSport]
+    () => filterEventsBySport(initialEvents, selectedSport),
+    [initialEvents, selectedSport]
   );
   const sortedFilteredEvents = useMemo(
     () => sortEventsByStartTime(filteredEvents),
@@ -111,20 +104,6 @@ function EventsContentInner({ initialEvents }: EventsContentProps) {
 
   return (
     <div className="stack-page">
-      <SectionHeader
-        title="Kalendář akcí"
-        as="h1"
-        rightContent={
-          <div className="hidden md:block">
-            <ViewToggle
-              options={toggleOptions}
-              activeId={viewMode}
-              onChange={setViewMode}
-            />
-          </div>
-        }
-      />
-
       <SportFilter
         sports={sports}
         selectedSport={selectedSport}

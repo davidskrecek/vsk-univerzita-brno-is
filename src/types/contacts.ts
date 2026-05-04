@@ -1,4 +1,4 @@
-export interface ContactApiPerson {
+export interface ContactItem {
   id: string | number;
   firstName: string;
   lastName: string;

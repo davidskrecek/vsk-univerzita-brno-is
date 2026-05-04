@@ -1,8 +1,9 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import type { ContactItem } from "@/components/Contacts/contactUtils";
 
-export async function getActiveContacts() {
-  return prisma.personnel.findMany({
+export async function getActiveContacts(): Promise<ContactItem[]> {
+  const contacts = await prisma.personnel.findMany({
     where: { isActive: true },
     select: {
       id: true,
@@ -16,6 +17,24 @@ export async function getActiveContacts() {
     },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
   });
-}
 
-export type Contact = Awaited<ReturnType<typeof getActiveContacts>>[number];
+  return contacts.map((person) => ({
+    id: person.id,
+    firstName: person.firstName,
+    lastName: person.lastName,
+    email: person.email,
+    phone: person.phone,
+    sportName: person.sport?.name ?? null,
+    role: person.trainer
+      ? person.trainer.category
+        ? `Trenér (${person.trainer.category})`
+        : "Trenér"
+      : person.official?.position ?? "Člen klubu",
+    roleGroup: person.trainer
+      ? "coaches"
+      : person.official
+      ? "management"
+      : "other",
+    isActive: true,
+  }));
+}
