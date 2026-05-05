@@ -1,4 +1,4 @@
-import { ContactApiPerson, ContactPerson, ContactSectionData } from "@/types/contacts";
+import { ContactItem, ContactPerson, ContactSectionData } from "@/types/contacts";
 
 export interface ContactApiResponseItem {
   id: number;
@@ -61,7 +61,7 @@ const mapContactRoleGroup = (person: ContactApiResponseItem) => {
 
 export const mapContactApiResponseToContactApiPerson = (
   person: ContactApiResponseItem
-): ContactApiPerson => ({
+): ContactItem => ({
   id: person.id,
   firstName: person.firstName,
   lastName: person.lastName,
@@ -75,9 +75,9 @@ export const mapContactApiResponseToContactApiPerson = (
 
 export const mapContactsApiResponseToContactApiPeople = (
   payload: ContactApiResponseItem[]
-): ContactApiPerson[] => payload.map(mapContactApiResponseToContactApiPerson);
+): ContactItem[] => payload.map(mapContactApiResponseToContactApiPerson);
 
-export const toContactPerson = (person: ContactApiPerson): ContactPerson => ({
+export const toContactPerson = (person: ContactItem): ContactPerson => ({
   id: String(person.id),
   name: `${person.firstName} ${person.lastName}`.trim(),
   role: person.role,
@@ -86,8 +86,8 @@ export const toContactPerson = (person: ContactApiPerson): ContactPerson => ({
   phone: person.phone,
 });
 
-export const buildContactSections = (people: ContactApiPerson[]): ContactSectionData[] => {
-  const grouped = people.reduce<Record<string, ContactApiPerson[]>>((acc, person) => {
+export const buildContactSections = (people: ContactItem[]): ContactSectionData[] => {
+  const grouped = people.reduce<Record<string, ContactItem[]>>((acc, person) => {
     const key = person.roleGroup?.trim().toLowerCase() || inferGroupFromRole(person.role);
     if (!acc[key]) acc[key] = [];
     acc[key].push(person);
@@ -103,7 +103,7 @@ export const buildContactSections = (people: ContactApiPerson[]): ContactSection
     .sort((a, b) => a.title.localeCompare(b.title, "cs"));
 };
 
-export const extractSports = (people: ContactApiPerson[]) =>
+export const extractSports = (people: ContactItem[]) =>
   Array.from(
     new Set(
       people
@@ -111,4 +111,3 @@ export const extractSports = (people: ContactApiPerson[]) =>
         .filter((sport): sport is string => Boolean(sport && sport.trim()))
     )
   ).sort((a, b) => a.localeCompare(b, "cs"));
-
