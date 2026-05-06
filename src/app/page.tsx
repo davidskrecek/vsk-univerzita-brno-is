@@ -3,53 +3,16 @@ import { Banner } from "@/components/Common/Banner";
 import { PostCard } from "@/components/Posts/PostCard";
 import { EventCard } from "@/components/Events/EventCard";
 import SectionHeader from "@/components/Common/SectionHeader";
+import { getPublishedPosts } from "@/lib/queries/posts";
+import { getPublicEvents } from "@/lib/queries/events";
+import { getCzechMonthShort, getEventDayOfMonth } from "@/components/Events/eventUtils";
 
-const latestPosts = [
-  {
-    id: "1",
-    category: "ATLETIKA",
-    title: "Vítězství na akademickém mistrovství v běhu",
-    description: "Naši běžci ovládli finálový závod v Praze a domů přivážejí celkem pět zlatých medailí v různých kategoriích.",
-  },
-  {
-    id: "2",
-    category: "BASKETBAL",
-    title: "Basketbalisté postoupili do univerzitní ligy",
-    description: "Po napínavém souboji s Technickou univerzitou si náš tým vybojoval postup do nejvyšší národní divize.",
-  },
-  {
-    id: "3",
-    category: "VOLEJBAL",
-    title: "Otevřený nábor do ženského volejbalového týmu",
-    description: "Hledáme nové posily pro nadcházející sezónu. Přijďte ukázat své dovednosti na trénink příští úterý.",
-  },
-];
+export default async function Home() {
+  const latestPosts = await getPublishedPosts(3);
+  const upcomingEvents = (await getPublicEvents()).slice(0, 3).sort(
+    (a, b) => new Date(a.startTimeIso).getTime() - new Date(b.startTimeIso).getTime()
+  );
 
-const upcomingEvents = [
-  {
-    day: "15",
-    month: "ŘÍJ",
-    category: "HOKEJ",
-    title: "Univerzitní hokejová bitva",
-    location: "Winning Group Arena, Brno"
-  },
-  {
-    day: "22",
-    month: "ŘÍJ",
-    category: "PLAVÁNÍ",
-    title: "Plavecké závody o pohár rektora",
-    location: "Bazén Lužánky"
-  },
-  {
-    day: "05",
-    month: "LIS",
-    category: "OSTATNÍ",
-    title: "Workshop: Sportovní psychologie",
-    location: "Aula FSpS MU"
-  }
-];
-
-export default function Home() {
   return (
     <div className="flex flex-col space-y-(--spacing-section) pt-(--spacing-list-gap) pb-0">
 
@@ -79,9 +42,10 @@ export default function Home() {
             <PostCard
               key={post.id}
               href={`/posts?postId=${post.id}`}
-              category={post.category}
+              category={post.sport.name.toUpperCase()}
               title={post.title}
-              description={post.description}
+              description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
+              imageUrl={post.imageUrl}
             />
           ))}
         </div>
@@ -99,11 +63,15 @@ export default function Home() {
         />
 
         <div className="stack-list">
-          {upcomingEvents.map((event, index) => (
+          {upcomingEvents.map((event) => (
             <EventCard
-              key={index}
-              id={String(index + 1)}
-              {...event}
+              key={event.id}
+              id={event.id}
+              day={getEventDayOfMonth(event.date)}
+              month={getCzechMonthShort(event.date)}
+              category={event.sport}
+              title={event.title}
+              location={event.location || "Bude upřesněno"}
               isInline
             />
           ))}

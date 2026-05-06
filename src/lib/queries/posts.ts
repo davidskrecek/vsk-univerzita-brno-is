@@ -14,7 +14,7 @@ export async function getPublishedPosts(limit = 50): Promise<PostListItem[]> {
       createdAt: true,
       sport: { select: { id: true, name: true } },
     },
-    orderBy: { publishedAt: "desc" },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
     take: limit,
   });
 
