@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { Modal } from "@/components/Overlay/Modal";
 import SectionActionButton from "@/components/Common/SectionActionButton";
 import PostCreateForm from "@/components/Forms/PostCreateForm";
@@ -10,8 +11,18 @@ interface PostsCreateButtonProps {
 }
 
 export const PostsCreateButton = ({ sports }: PostsCreateButtonProps) => {
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
+
+  const availableSports =
+    session?.user?.role === "superadmin"
+      ? sports
+      : sports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
+
+  if (!availableSports.length) {
+    return null;
+  }
 
   return (
     <>
@@ -24,7 +35,7 @@ export const PostsCreateButton = ({ sports }: PostsCreateButtonProps) => {
       {isOpen ? (
         <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
           <div className="rounded-md border border-outline-variant/10 bg-surface-container-low p-6 shadow-ambient sm:p-8">
-            <PostCreateForm sports={sports} onCancel={handleClose} onSuccess={handleClose} />
+            <PostCreateForm sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
           </div>
         </Modal>
       ) : null}
