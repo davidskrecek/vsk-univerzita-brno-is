@@ -2,22 +2,37 @@
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createPost, uploadPostImage } from "@/actions/admin/posts";
+import { createPost, deletePost, updatePost, uploadPostImage } from "@/actions/admin/posts";
 import AppButton from "@/components/Common/AppButton";
 import LabeledField from "@/components/Common/LabeledField";
 import LabeledInput from "@/components/Common/LabeledInput";
 import LabeledTextarea from "@/components/Common/LabeledTextarea";
 import { useToast } from "@/hooks/useToast";
+import { IoClose } from "react-icons/io5";
 
 interface SportOption {
   id: number;
   name: string;
 }
 
+interface PostFormInitialValues {
+  id?: number;
+  sportId: number;
+  title: string;
+  excerpt?: string | null;
+  content: string;
+  imageUrl?: string | null;
+  publishedAt?: string | null;
+  links?: Array<{ url: string; alias: string | null }>;
+}
+
 interface PostCreateFormProps {
   sports: SportOption[];
+  mode?: "create" | "edit";
+  initialValues?: PostFormInitialValues;
   onSuccess?: () => void;
   onCancel?: () => void;
+  onDeleted?: () => void;
 }
 
 interface PostLinkDraft {
@@ -25,21 +40,36 @@ interface PostLinkDraft {
   alias: string;
 }
 
-const DEFAULT_ERROR = "Příspěvek se nepodařilo vytvořit.";
+const DEFAULT_ERROR = "Příspěvek se nepodařilo uložit.";
 
-export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormProps) => {
+const toDateInputValue = (dateValue?: string | null) => {
+  if (!dateValue) return new Date().toISOString().slice(0, 10);
+  return dateValue.slice(0, 10);
+};
+
+export const PostCreateForm = ({
+  sports,
+  mode = "create",
+  initialValues,
+  onSuccess,
+  onCancel,
+  onDeleted,
+}: PostCreateFormProps) => {
   const router = useRouter();
   const toast = useToast();
+  const isEditing = mode === "edit" && typeof initialValues?.id === "number";
 
-  const [title, setTitle] = useState("");
-  const [sportId, setSportId] = useState("");
-  const [publishedAt, setPublishedAt] = useState(() => new Date().toISOString().slice(0, 10));
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(initialValues?.title ?? "");
+  const [sportId, setSportId] = useState(initialValues?.sportId ? String(initialValues.sportId) : "");
+  const [publishedAt, setPublishedAt] = useState(() => toDateInputValue(initialValues?.publishedAt));
+  const [excerpt, setExcerpt] = useState(initialValues?.excerpt ?? "");
+  const [content, setContent] = useState(initialValues?.content ?? "");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [selectedImageName, setSelectedImageName] = useState<string>("");
-  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
-  const [links, setLinks] = useState<PostLinkDraft[]>([]);
+  const [selectedImageName, setSelectedImageName] = useState<string>(initialValues?.imageUrl ? "Aktuální obrázek" : "");
+  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(initialValues?.imageUrl ?? null);
+  const [links, setLinks] = useState<PostLinkDraft[]>(
+    initialValues?.links?.map((link) => ({ url: link.url, alias: link.alias ?? "" })) ?? []
+  );
   const [loading, setLoading] = useState(false);
 
   const availableSports = useMemo(() => sports, [sports]);
@@ -55,6 +85,17 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
     }
   }, [availableSports, sportId]);
 
+  useEffect(() => {
+    if (selectedImage) {
+      const previewUrl = URL.createObjectURL(selectedImage);
+      setSelectedImagePreview(previewUrl);
+
+      return () => URL.revokeObjectURL(previewUrl);
+    }
+
+    setSelectedImagePreview(initialValues?.imageUrl ?? null);
+  }, [initialValues?.imageUrl, selectedImage]);
+
   const canSubmit = Boolean(sportId && title.trim() && content.trim()) && !loading;
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -62,18 +103,6 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
     setSelectedImage(file);
     setSelectedImageName(file?.name ?? "");
   };
-
-  useEffect(() => {
-    if (!selectedImage) {
-      setSelectedImagePreview(null);
-      return;
-    }
-
-    const previewUrl = URL.createObjectURL(selectedImage);
-    setSelectedImagePreview(previewUrl);
-
-    return () => URL.revokeObjectURL(previewUrl);
-  }, [selectedImage]);
 
   const updateLink = (index: number, field: keyof PostLinkDraft, value: string) => {
     setLinks((currentLinks) =>
@@ -104,6 +133,32 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
     return result.url ?? null;
   };
 
+  const handleDelete = async () => {
+    if (!isEditing || !initialValues?.id) return;
+
+    const confirmed = window.confirm("Opravdu chcete tento příspěvek smazat?");
+    if (!confirmed) return;
+
+    setLoading(true);
+
+    try {
+      const result = await deletePost(initialValues.id);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Příspěvek byl smazán.");
+      onDeleted?.();
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : DEFAULT_ERROR);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -113,6 +168,9 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
     }
 
     const formData = new FormData();
+    if (isEditing && initialValues?.id) {
+      formData.set("id", String(initialValues.id));
+    }
     formData.set("sportId", sportId);
     formData.set("title", title);
     if (excerpt.trim()) {
@@ -151,14 +209,14 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
     setLoading(true);
 
     try {
-      const result = await createPost({}, formData);
+      const result = isEditing ? await updatePost({}, formData) : await createPost({}, formData);
 
       if (result.error) {
         toast.error(result.error ?? DEFAULT_ERROR);
         return;
       }
 
-      toast.success("Příspěvek byl vytvořen.");
+      toast.success(isEditing ? "Příspěvek byl upraven." : "Příspěvek byl vytvořen.");
       onSuccess?.();
       router.refresh();
     } catch (error) {
@@ -169,13 +227,26 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="border-l-4 border-primary pl-6 space-y-3">
+    <form onSubmit={handleSubmit} className="relative space-y-6">
+      {onCancel ? (
+        <button
+          type="button"
+          onClick={onCancel}
+          className="absolute right-0 top-0 z-10 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
+          aria-label="Zavřít formulář"
+        >
+          <IoClose size={20} />
+        </button>
+      ) : null}
+
+      <div className="border-l-4 border-primary pl-6 pr-12 space-y-3">
         <h2 className="text-3xl sm:text-4xl font-display font-bold uppercase tracking-display text-on-surface leading-none">
-          Nový příspěvek
+          {isEditing ? "Upravit příspěvek" : "Nový příspěvek"}
         </h2>
         <p className="text-sm font-sans text-on-surface/40 leading-relaxed max-w-2xl">
-          Vytvořte nový příspěvek pro sekci, kterou spravujete. 
+          {isEditing
+            ? "Upravte příspěvek v rámci sportu, který máte přiřazený."
+            : "Vytvořte nový příspěvek pro sekci, kterou spravujete."}
         </p>
       </div>
 
@@ -234,7 +305,7 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
               />
             </label>
 
-            {selectedImagePreview ? (
+                {selectedImagePreview ? (
               <div className="overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container-low">
                 <img
                   src={selectedImagePreview}
@@ -312,7 +383,21 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
           ) : null}
         </div>
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <div className={`flex flex-col-reverse gap-3 sm:flex-row sm:items-center ${isEditing ? "sm:justify-between" : "sm:justify-center"}`}>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
+            {isEditing ? (
+              <AppButton
+                type="button"
+                variant="tertiary"
+                className="w-full sm:w-auto font-display uppercase tracking-widest text-[11px] py-4 px-8 text-red-500 hover:bg-red-500/10"
+                onClick={handleDelete}
+                disabled={loading}
+              >
+                Smazat příspěvek
+              </AppButton>
+            ) : null}
+          </div>
+
           <AppButton
             type="button"
             variant="tertiary"
@@ -327,7 +412,7 @@ export const PostCreateForm = ({ sports, onSuccess, onCancel }: PostCreateFormPr
             className="w-full sm:w-auto font-display uppercase tracking-widest text-[11px] py-4 px-8"
             disabled={!canSubmit}
           >
-            {loading ? "Publikuji..." : "Publikovat příspěvek"}
+            {loading ? (isEditing ? "Ukládám..." : "Publikuji...") : isEditing ? "Uložit změny" : "Publikovat příspěvek"}
           </AppButton>
         </div>
       </div>
