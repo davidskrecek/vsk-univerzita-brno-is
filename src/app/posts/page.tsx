@@ -11,7 +11,7 @@ export default async function PostsPage() {
   return (
     <div className="stack-page">
       <SectionHeader title="Příspěvky" as="h1" rightContent={<PostsCreateButton sports={sports} />} />
-      <PostsContent initialPosts={posts} />
+      <PostsContent initialPosts={posts} availableSports={sports} />
     </div>
   );
 }

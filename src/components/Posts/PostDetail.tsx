@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { ReactNode } from "react";
 import Modal from "@/components/Overlay/Modal";
 import { IoClose } from "react-icons/io5";
 
@@ -16,10 +17,11 @@ interface PostDetailProps {
   content: string;
   imageUrl?: string | null;
   links?: PostDetailLink[];
+  actions?: ReactNode;
   onClose?: () => void;
 }
 
-export const PostDetail = ({ title, category, date, content, imageUrl, links = [], onClose }: PostDetailProps) => {
+export const PostDetail = ({ title, category, date, content, imageUrl, links = [], actions, onClose }: PostDetailProps) => {
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     const months = [
@@ -126,6 +128,9 @@ export const PostDetail = ({ title, category, date, content, imageUrl, links = [
             )}
           </div>
         </div>
+
+        {actions ? <div className="w-full pt-2 flex justify-center">{actions}</div> : null}
+        
       </div>
     </Modal>
   );

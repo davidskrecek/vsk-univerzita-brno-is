@@ -1,7 +1,7 @@
 "use server";
 
 import { randomUUID } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, writeFile, unlink } from "fs/promises";
 import path from "path";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -230,5 +230,49 @@ export async function uploadPostImage(formData: FormData): Promise<{ url?: strin
     }
     console.error(e);
     return { error: "Obrázek se nepodařilo nahrát." };
+  }
+}
+
+export async function deletePost(postId: number): Promise<{ success?: boolean; error?: string }> {
+  try {
+    const session = await getRequiredSession();
+    requireRole(session, "superadmin", "sport_manager");
+
+    if (!Number.isInteger(postId) || postId <= 0) {
+      return { error: "Neplatné ID příspěvku" };
+    }
+
+    const existing = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, sportId: true, imageUrl: true },
+    });
+
+    if (!existing) {
+      return { error: "Not found" };
+    }
+
+    requireSportScope(session, existing.sportId);
+
+    if (existing.imageUrl?.startsWith("/uploads/post-images/")) {
+      const filePath = path.join(process.cwd(), "public", existing.imageUrl);
+      try {
+        await unlink(filePath);
+      } catch {
+        // Ignore missing files and continue deleting the post record.
+      }
+    }
+
+    await prisma.post.delete({ where: { id: postId } });
+
+    revalidatePath("/admin/posts");
+    revalidatePath("/posts");
+
+    return { success: true };
+  } catch (e) {
+    if (e instanceof AuthError) {
+      return { error: e.message };
+    }
+    console.error(e);
+    return { error: "Nepodařilo se smazat příspěvek." };
   }
 }
