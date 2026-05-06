@@ -1,10 +1,23 @@
 "use server";
 
+import { randomUUID } from "crypto";
+import { mkdir, writeFile } from "fs/promises";
+import path from "path";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession, AuthError } from "@/lib/session";
 import { requireRole, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+
+const MAX_POST_IMAGE_SIZE = 25 * 1024 * 1024;
+const MIME_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/jpg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+  "image/gif": ".gif",
+  "image/avif": ".avif",
+};
 
 export type PostActionState = {
   success?: boolean;
@@ -18,13 +31,13 @@ const createPostSchema = z.object({
   title: z.string().min(1).max(255),
   excerpt: z.string().optional(),
   content: z.string().min(1),
-  imageUrl: z.string().url().optional().or(z.literal("")),
+  imageUrl: z.string().min(1).optional().or(z.literal("")),
   isPublished: z.preprocess((v) => v === "true" || v === true, z.boolean()).optional(),
-  publishedAt: z.string().datetime().optional().or(z.literal("")),
+  publishedAt: z.iso.datetime().optional().or(z.literal("")),
   links: z
     .preprocess(
       (v) => (typeof v === "string" ? JSON.parse(v) : v),
-      z.array(z.object({ url: z.string().url(), alias: z.string().max(255).optional() }))
+      z.array(z.object({ url: z.url(), alias: z.string().max(255).optional() }))
     )
     .optional(),
 });
@@ -34,13 +47,13 @@ const updatePostSchema = z.object({
   title: z.string().min(1).max(255).optional(),
   excerpt: z.string().optional(),
   content: z.string().min(1).optional(),
-  imageUrl: z.string().url().optional().nullable().or(z.literal("")),
+  imageUrl: z.string().min(1).optional().nullable().or(z.literal("")),
   isPublished: z.preprocess((v) => v === "true" || v === true, z.boolean()).optional(),
-  publishedAt: z.string().datetime().optional().nullable().or(z.literal("")),
+  publishedAt: z.iso.datetime().optional().nullable().or(z.literal("")),
   links: z
     .preprocess(
       (v) => (typeof v === "string" ? JSON.parse(v) : v),
-      z.array(z.object({ url: z.string().url(), alias: z.string().max(255).optional() }))
+      z.array(z.object({ url: z.url(), alias: z.string().max(255).optional() }))
     )
     .optional(),
 });
@@ -178,5 +191,44 @@ export async function updatePost(
     }
     console.error(e);
     return { error: "Failed to update post" };
+  }
+}
+
+export async function uploadPostImage(formData: FormData): Promise<{ url?: string; error?: string }> {
+  try {
+    const session = await getRequiredSession();
+    requireRole(session, "superadmin", "sport_manager");
+
+    const file = formData.get("image");
+
+    if (!(file instanceof File)) {
+      return { error: "Soubor nebyl nalezen." };
+    }
+
+    if (!file.type.startsWith("image/")) {
+      return { error: "Nahrát lze pouze obrázek." };
+    }
+
+    if (file.size > MAX_POST_IMAGE_SIZE) {
+      return { error: "Obrázek je příliš velký. Zkuste menší soubor." };
+    }
+
+    const originalExtension = path.extname(file.name).toLowerCase();
+    const extension = MIME_EXTENSIONS[file.type] ?? (originalExtension || ".png");
+    const filename = `${randomUUID()}${extension}`;
+    const uploadsDir = path.join(process.cwd(), "public", "uploads", "post-images");
+    const filePath = path.join(uploadsDir, filename);
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    await mkdir(uploadsDir, { recursive: true });
+    await writeFile(filePath, buffer);
+
+    return { url: `/uploads/post-images/${filename}` };
+  } catch (e) {
+    if (e instanceof AuthError) {
+      return { error: e.message };
+    }
+    console.error(e);
+    return { error: "Obrázek se nepodařilo nahrát." };
   }
 }

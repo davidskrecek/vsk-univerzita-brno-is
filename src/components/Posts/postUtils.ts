@@ -36,6 +36,7 @@ export interface PostDetailResponse {
     name: string;
   };
   media: PostMediaItem[];
+  links: Array<{ url: string; alias: string | null }>;
 }
 
 export interface PostDetailLinkItem {
@@ -43,21 +44,14 @@ export interface PostDetailLinkItem {
   href: string;
 }
 
-const mediaLabel = (media: PostMediaItem, index: number) => {
-  if (media.mediaType.toLowerCase() === "image") {
-    return `Obrázek ${index + 1}`;
-  }
-  return `Médium ${index + 1}`;
-};
-
 export const mapPostDetailLinks = (postDetail: PostDetailResponse | null): PostDetailLinkItem[] => {
   if (!postDetail) {
     return [];
   }
 
-  return postDetail.media.map((media, index) => ({
-    label: mediaLabel(media, index),
-    href: media.mediaUrl,
+  return postDetail.links.map((link, index) => ({
+    label: link.alias?.trim() || `Odkaz ${index + 1}`,
+    href: link.url,
   }));
 };
 

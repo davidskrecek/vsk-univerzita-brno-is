@@ -71,16 +71,7 @@ function PostsContentInner({ initialPosts }: PostsContentProps) {
 
   const detailLinks = useMemo(() => {
     if (!activePostDetail) return [];
-    return mapPostDetailLinks({
-      id: activePostDetail.id,
-      title: activePostDetail.title,
-      content: activePostDetail.content,
-      imageUrl: activePostDetail.imageUrl,
-      publishedAt: activePostDetail.publishedAt,
-      createdAt: activePostDetail.createdAt,
-      sport: activePostDetail.sport,
-      media: activePostDetail.media,
-    });
+    return mapPostDetailLinks(activePostDetail);
   }, [activePostDetail]);
 
   const getPostHref = useCallback(

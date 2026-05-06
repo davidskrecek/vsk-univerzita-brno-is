@@ -7,6 +7,7 @@ export async function getPublicEvents(): Promise<UiEvent[]> {
     where: {
       isPublic: true,
       isCancelled: false,
+      startTime: { gte: new Date() },
     },
     select: {
       id: true,

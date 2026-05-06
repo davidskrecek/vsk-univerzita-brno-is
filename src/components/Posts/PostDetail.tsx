@@ -110,9 +110,9 @@ export const PostDetail = ({ title, category, date, content, imageUrl, links = [
         <div className="pt-4 w-full border-t border-outline-variant/5">
           <div className="flex flex-wrap items-center justify-center gap-3">
             {links.length > 0 ? (
-              links.map((l) => (
+              links.map((l, i) => (
                 <a
-                  key={l.href}
+                  key={`${l.href}-${i}`}
                   href={l.href}
                   target="_blank"
                   rel="noreferrer"
