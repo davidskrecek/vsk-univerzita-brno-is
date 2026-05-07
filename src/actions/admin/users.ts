@@ -88,9 +88,17 @@ export async function createUser(
 
       await tx.editor.create({
         data: {
-          personnelId: p.id,
+          personnel: {
+            connect: {
+              id: p.id,
+            }
+          },
           passwordHash: placeholderHash,
-          editorRoleId: body.editorRoleId,
+          editorRole: {
+            connect: {
+              id: body.editorRoleId ?? 123,
+            }
+          },
           managedSports: {
             create: body.managedSportIds.map((sportId) => ({ sportId })),
           },
@@ -121,6 +129,8 @@ export async function createUser(
 
     return { success: true, data: { personnelId: personnel.id, invitationToken: token } };
   } catch (e) {
+    console.log(e);
+
     if (e instanceof z.ZodError) {
       return {
         error: "Validation failed",
@@ -130,7 +140,6 @@ export async function createUser(
     if (e instanceof AuthError) {
       return { error: e.message };
     }
-    console.error(e);
     return { error: "Failed to create user" };
   }
 }
