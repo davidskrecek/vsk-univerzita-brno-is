@@ -317,13 +317,13 @@ export const PostCreateForm = ({
           </div>
         </LabeledField>
 
-        <LabeledTextarea
+        {/* <LabeledTextarea
           label="Krátký popis"
           value={excerpt}
           onChange={setExcerpt}
           placeholder="Volitelný stručný popis příspěvku..."
           rows={3}
-        />
+        /> */}
 
         <LabeledTextarea
           label="Obsah příspěvku"
