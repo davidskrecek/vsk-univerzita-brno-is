@@ -58,6 +58,7 @@ export const mapEventApiItemToUiEvent = (event: EventApiItem): UiEvent => {
     time: pragueTimeFormatter.format(start),
     location: event.location ?? undefined,
     sport: event.sport.name,
+    sportId: event.sport.id,
     description: event.description ?? undefined,
     startTimeIso: event.startTime,
   };

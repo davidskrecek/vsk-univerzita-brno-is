@@ -2,11 +2,12 @@
 
 import AppButton from "@/components/Common/AppButton";
 
-interface PostEditButtonProps {
+interface EditButtonProps {
   onClick: () => void;
+  label?: string;
 }
 
-export const PostEditButton = ({ onClick }: PostEditButtonProps) => {
+export const EditButton = ({ onClick, label = "Upravit" }: EditButtonProps) => {
   return (
     <AppButton
       type="button"
@@ -14,9 +15,9 @@ export const PostEditButton = ({ onClick }: PostEditButtonProps) => {
       className="w-full sm:w-auto font-display uppercase tracking-widest text-[11px] py-3 px-6"
       onClick={onClick}
     >
-      Upravit příspěvek
+      {label}
     </AppButton>
   );
 };
 
-export default PostEditButton;
+export default EditButton;

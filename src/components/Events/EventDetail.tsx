@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from 'react';
 import { IoClose, IoLocationOutline } from 'react-icons/io5';
 import dynamic from 'next/dynamic';
 import CalendarExport from '../Common/CalendarExport';
@@ -19,6 +20,7 @@ interface EventDetailProps {
   time?: string;
   location?: string;
   description?: string;
+  actions?: ReactNode;
   onClose?: () => void;
 }
 
@@ -29,6 +31,7 @@ export const EventDetail = ({
   time,
   location,
   description,
+  actions,
   onClose
 }: EventDetailProps) => {
   const formatDate = (dateStr: string) => {
@@ -122,7 +125,7 @@ export const EventDetail = ({
             {time && (
               <>
                 <span className="opacity-40">—</span>
-                <span>{time} (Europe/Prague)</span>
+                <span>{time}</span>
               </>
             )}
           </div>
@@ -153,6 +156,8 @@ export const EventDetail = ({
             className="mx-auto"
           />
         </div>
+
+        {actions ? <div className="w-full pt-2 flex justify-center">{actions}</div> : null}
       </div>
     </Modal>
   );
