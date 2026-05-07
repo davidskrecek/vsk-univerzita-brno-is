@@ -27,6 +27,7 @@ import { AuthModalProvider } from "@/components/Auth/AuthModalProvider";
 import { AuthModal } from "@/components/Overlay/AuthModal";
 import { AppSessionProvider } from "@/components/Auth/AppSessionProvider";
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
