@@ -8,7 +8,7 @@ import EmptyState from "@/components/Common/EmptyState";
 import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import PostDetail from "@/components/Posts/PostDetail";
 import { PostCard } from "@/components/Posts/PostCard";
-import PostEditButton from "@/components/Posts/PostEditButton";
+import EditButton from "@/components/Common/EditButton";
 import PostCreateForm from "@/components/Forms/PostCreateForm";
 import {
   extractPostSports,
@@ -172,7 +172,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
           content={activePostDetail.content}
           imageUrl={activePostDetail.imageUrl}
           links={detailLinks}
-          actions={canEditActivePost ? <PostEditButton onClick={openEditForPost} /> : null}
+          actions={canEditActivePost ? <EditButton label="Upravit příspěvek" onClick={openEditForPost} /> : null}
           onClose={closePostDetail}
         />
       ) : null}

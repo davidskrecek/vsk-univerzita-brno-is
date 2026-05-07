@@ -4,15 +4,21 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Modal } from "@/components/Overlay/Modal";
 import SectionActionButton from "@/components/Common/SectionActionButton";
-import PostCreateForm from "@/components/Forms/PostCreateForm";
 
-interface PostsCreateButtonProps {
+interface CreateFormButtonProps {
+  label: string;
+  FormComponent: React.ComponentType<{
+    sports: Array<{ id: number; name: string }>;
+    onCancel: () => void;
+    onSuccess: () => void;
+  }>;
   sports: Array<{ id: number; name: string }>;
 }
 
-export const PostsCreateButton = ({ sports }: PostsCreateButtonProps) => {
+export const CreateFormButton = ({ label, FormComponent, sports }: CreateFormButtonProps) => {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+
   const handleClose = () => setIsOpen(false);
 
   const availableSports =
@@ -27,7 +33,7 @@ export const PostsCreateButton = ({ sports }: PostsCreateButtonProps) => {
   return (
     <>
       <SectionActionButton
-        label="Nový příspěvek"
+        label={label}
         onClick={() => setIsOpen(true)}
         requiredRoles={["sport_manager", "superadmin"]}
       />
@@ -35,7 +41,7 @@ export const PostsCreateButton = ({ sports }: PostsCreateButtonProps) => {
       {isOpen ? (
         <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
           <div className="rounded-md border border-outline-variant/10 bg-surface-container-low p-6 shadow-ambient sm:p-8">
-            <PostCreateForm sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
+            <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
           </div>
         </Modal>
       ) : null}
@@ -43,4 +49,4 @@ export const PostsCreateButton = ({ sports }: PostsCreateButtonProps) => {
   );
 };
 
-export default PostsCreateButton;
+export default CreateFormButton;

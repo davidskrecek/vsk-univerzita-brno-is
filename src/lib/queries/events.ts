@@ -28,9 +28,15 @@ export async function getPublicEvents(): Promise<UiEvent[]> {
     id: String(event.id),
     title: event.title,
     date: new Date(event.startTime).toISOString().split("T")[0],
-    time: new Date(event.startTime).toLocaleTimeString("cs-CZ", { timeZone: "Europe/Prague" }),
+    time: new Intl.DateTimeFormat("cs-CZ", {
+      timeZone: "Europe/Prague",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(event.startTime)),
     location: event.location ?? undefined,
     sport: event.sport.name,
+    sportId: event.sport.id,
     description: event.description ?? undefined,
     startTimeIso: event.startTime.toISOString(),
   }));

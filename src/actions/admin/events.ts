@@ -201,3 +201,46 @@ export async function updateEvent(
     return { error: "Failed to update event" };
   }
 }
+
+export async function deleteEvent(
+  _prevState: EventActionState,
+  formData: FormData
+): Promise<EventActionState> {
+  try {
+    const session = await getRequiredSession();
+    requireRole(session, "superadmin", "sport_manager");
+
+    const rawValues = parseFormData(formData);
+    const parsed = z.object({ id: z.coerce.number().int().positive() }).safeParse(rawValues);
+
+    if (!parsed.success) {
+      return {
+        error: "Validation failed",
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+      };
+    }
+
+    const eventId = parsed.data.id;
+
+    const existing = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!existing) {
+      return { error: "Not found" };
+    }
+
+    requireSportScope(session, existing.sportId);
+
+    await prisma.event.delete({ where: { id: eventId } });
+
+    revalidatePath("/admin/events");
+    revalidatePath(`/events/${eventId}`);
+    revalidatePath(`/events`);
+
+    return { success: true };
+  } catch (e) {
+    if (e instanceof AuthError) {
+      return { error: e.message };
+    }
+    console.error(e);
+    return { error: "Failed to delete event" };
+  }
+}

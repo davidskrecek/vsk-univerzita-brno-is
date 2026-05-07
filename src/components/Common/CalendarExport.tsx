@@ -20,6 +20,13 @@ const toGoogleDateTime = (value: Date) => {
   return value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 };
 
+const normalizeTime = (value: string) => {
+  const match = value.match(/^(\d{2}:\d{2})(?::\d{2})?$/);
+  return match?.[1] ?? value;
+};
+
+const toLocalDateTime = (date: string, time: string) => new Date(`${date}T${normalizeTime(time)}:00`);
+
 const buildDateRange = ({
   date,
   time,
@@ -38,13 +45,13 @@ const buildDateRange = ({
     return `${start}/${end}`;
   }
 
-  const start = new Date(`${date}T${time}:00`);
+  const start = toLocalDateTime(date, time);
 
   let end: Date;
   if (endDate && endTime) {
-    end = new Date(`${endDate}T${endTime}:00`);
+    end = toLocalDateTime(endDate, endTime);
   } else if (endTime) {
-    end = new Date(`${date}T${endTime}:00`);
+    end = toLocalDateTime(date, endTime);
   } else {
     // Fallback to one-hour event when end is not provided.
     end = new Date(start.getTime() + 60 * 60 * 1000);
@@ -99,10 +106,10 @@ const buildIcsPayload = ({
     ].join("\r\n");
   }
 
-  const start = date && time ? new Date(`${date}T${time}:00`) : new Date();
+  const start = date && time ? toLocalDateTime(date, time) : new Date();
   let end: Date;
   if (date && endTime) {
-    end = new Date(`${endDate || date}T${endTime}:00`);
+    end = toLocalDateTime(endDate || date, endTime);
   } else {
     end = new Date(start.getTime() + 60 * 60 * 1000);
   }
