@@ -31,12 +31,13 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [postDetail, setPostDetail] = useState<PostDetailResult>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
-  const [isPreparingEdit, setIsPreparingEdit] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [pendingEditPost, setPendingEditPost] = useState<PostDetailResult>(null);
   const [isPending, startTransition] = useTransition();
 
   const activePostId = searchParams.get("postId");
+  const postIdNum = activePostId ? Number(activePostId) : null;
+  const isValidPostId = postIdNum !== null && Number.isInteger(postIdNum) && postIdNum > 0;
 
   const postSports = useMemo(() => extractPostSports(initialPosts), [initialPosts]);
   const filteredPosts = useMemo(
@@ -45,15 +46,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
   );
 
   useEffect(() => {
-    if (!activePostId) {
-      setPostDetail(null);
-      setDetailError(null);
-      return;
-    }
-
-    const postIdNum = Number(activePostId);
-    if (!Number.isInteger(postIdNum) || postIdNum <= 0) {
-      setDetailError("Neplatné ID příspěvku");
+    if (!activePostId || !isValidPostId) {
       return;
     }
 
@@ -69,14 +62,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
         setDetailError("Nepodařilo se načíst detail příspěvku");
       }
     });
-  }, [activePostId]);
-
-  useEffect(() => {
-    if (!activePostId && pendingEditPost && !isEditOpen) {
-      setIsEditOpen(true);
-      setIsPreparingEdit(false);
-    }
-  }, [activePostId, pendingEditPost, isEditOpen]);
+  }, [activePostId, isValidPostId, postIdNum]);
 
   const activePostDetail = useMemo(() => {
     if (!activePostId || !postDetail) {
@@ -90,11 +76,14 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
     return mapPostDetailLinks(activePostDetail);
   }, [activePostDetail]);
 
-  const accessibleSports = useMemo(() => {
-    if (!session?.user) return [];
-    if (session.user.role === "superadmin") return availableSports;
-    return availableSports.filter((sport) => session.user.managedSportIds.includes(sport.id));
-  }, [availableSports, session?.user]);
+  const accessibleSports =
+    !session?.user
+      ? []
+      : session.user.role === "superadmin"
+        ? availableSports
+        : availableSports.filter((sport) => session.user.managedSportIds.includes(sport.id));
+
+  const resolvedDetailError = activePostId && !isValidPostId ? "Neplatné ID příspěvku" : detailError;
 
   const canEditActivePost = Boolean(
     activePostDetail &&
@@ -122,8 +111,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
   const openEditForPost = useCallback(() => {
     if (!activePostDetail) return;
     setPendingEditPost(activePostDetail);
-    setIsPreparingEdit(true);
-    setIsEditOpen(false);
+    setIsEditOpen(true);
     closePostDetail();
   }, [activePostDetail, closePostDetail]);
 
@@ -160,11 +148,11 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
         <p className="text-sm font-sans text-on-surface/60">Načítání detailu příspěvku...</p>
       ) : null}
 
-      {activePostId && detailError ? (
-        <p className="text-sm font-sans text-red-500">{detailError}</p>
+      {activePostId && resolvedDetailError ? (
+        <p className="text-sm font-sans text-red-500">{resolvedDetailError}</p>
       ) : null}
 
-      {activePostDetail && !isPreparingEdit ? (
+      {activePostDetail && !isEditOpen ? (
         <PostDetail
           title={activePostDetail.title}
           category={activePostDetail.sport.name.toUpperCase()}

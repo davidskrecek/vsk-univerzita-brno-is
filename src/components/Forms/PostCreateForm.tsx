@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createPost, deletePost, updatePost, uploadPostImage } from "@/actions/admin/posts";
 import AppButton from "@/components/Common/AppButton";
@@ -62,7 +63,7 @@ export const PostCreateForm = ({
   const [title, setTitle] = useState(initialValues?.title ?? "");
   const [sportId, setSportId] = useState(initialValues?.sportId ? String(initialValues.sportId) : "");
   const [publishedAt, setPublishedAt] = useState(() => toDateInputValue(initialValues?.publishedAt));
-  const [excerpt, setExcerpt] = useState(initialValues?.excerpt ?? "");
+  const [excerpt] = useState(initialValues?.excerpt ?? "");
   const [content, setContent] = useState(initialValues?.content ?? "");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedImageName, setSelectedImageName] = useState<string>(initialValues?.imageUrl ? "Aktuální obrázek" : "");
@@ -307,9 +308,12 @@ export const PostCreateForm = ({
 
                 {selectedImagePreview ? (
               <div className="overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container-low">
-                <img
+                <Image
                   src={selectedImagePreview}
                   alt={selectedImageName || "Náhled obrázku"}
+                  width={960}
+                  height={384}
+                  unoptimized
                   className="h-48 w-full object-cover"
                 />
               </div>

@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import type { EventApiItem, UiEvent } from "@/components/Events/eventUtils";
+import type { UiEvent } from "@/components/Events/eventUtils";
 
 export async function getPublicEvents(): Promise<UiEvent[]> {
   const events = await prisma.event.findMany({
