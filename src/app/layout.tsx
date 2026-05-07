@@ -31,6 +31,7 @@ import { Suspense } from "react";
 
 import { PageReveal } from "@/components/Common/PageReveal";
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
