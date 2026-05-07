@@ -76,11 +76,12 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
     [filteredEvents, eventId]
   );
 
-  const accessibleSports = useMemo(() => {
-    if (!session?.user) return [];
-    if (session.user.role === "superadmin") return availableSports;
-    return availableSports.filter((sport) => session.user.managedSportIds?.includes(sport.id));
-  }, [availableSports, session?.user]);
+  const accessibleSports =
+    !session?.user
+      ? []
+      : session.user.role === "superadmin"
+        ? availableSports
+        : availableSports.filter((sport) => session.user.managedSportIds?.includes(sport.id));
 
   const canEditActiveEvent = Boolean(
     activeEvent &&
@@ -107,11 +108,6 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
     setIsEditOpen(false);
     setPendingEditEvent(null);
   }, []);
-
-  const toggleOptions = [
-    { id: "calendar" as const, label: "Kalendář" },
-    { id: "list" as const, label: "Seznam" },
-  ];
 
   const listContent = (
     <div className="stack-list">
