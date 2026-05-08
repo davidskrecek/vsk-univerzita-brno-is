@@ -4,7 +4,7 @@ import { useState } from "react";
 import AppButton from "@/components/Common/AppButton";
 import Modal from "@/components/Overlay/Modal";
 import UsersTable from "@/components/Admin/UserTable";
-import CreateUserForm from "@/components/Admin/CreateUserForm";
+import CreateUserForm from "@/components/Forms/CreateUserForm";
 
 export default function UserManagementClient({ users, roles }) {
     const [open, setOpen] = useState(false);

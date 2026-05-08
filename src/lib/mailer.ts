@@ -53,3 +53,25 @@ export async function sendChairmanNotification(
     html: `<pre>${escapeHtml(serialized)}</pre>`,
   });
 }
+
+export async function sendPasswordResetEmail(
+  to: string,
+  resetLink: string
+): Promise<void> {
+  await transporter.sendMail({
+    from: `"VSK Univerzita Brno" <${process.env.SMTP_FROM!}>`,
+    to,
+    subject: "Obnovení hesla / Password reset",
+    text: `Pro obnovení hesla klikněte na odkaz:\n${resetLink}\n.`,
+    html: `
+      <p>Dobrý den,</p>
+      <p>pro obnovení hesla klikněte na tlačítko níže.</p>
+      <p>
+        <a href="${resetLink}" style="display:inline-block;padding:10px 20px;background:#1d4ed8;color:#fff;border-radius:6px;text-decoration:none;">
+          Obnovit heslo
+        </a>
+      </p>
+      <p>Pokud jste o obnovení hesla nežádali vy, tento e-mail prosím ignorujte.</p>
+    `,
+  });
+}
