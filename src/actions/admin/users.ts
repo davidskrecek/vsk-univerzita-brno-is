@@ -14,7 +14,7 @@ export type UserActionState = {
   success?: boolean;
   error?: string;
   fieldErrors?: Record<string, string[]>;
-  data?: { personnelId: number; invitationToken: string };
+  data?: { personnelId: number; invitationToken?: string };
 };
 
 export type UserStatsResult = {
@@ -83,6 +83,7 @@ export async function createUser(
           email: body.email,
           phone: body.phone,
           sportId: body.sportId,
+          isActive: body.isActive
         },
       });
 
@@ -112,11 +113,13 @@ export async function createUser(
       if (body.isOfficial && body.officialPosition) {
         await tx.official.create({ data: { personnelId: p.id, position: body.officialPosition } });
       }
+
+      return p;
     });
 
     revalidatePath("/admin/users");
 
-    return { success: true, data: { personnelId: personnel.id, invitationToken: token } };
+    return { success: true, data: { personnelId: personnel.id } };
   } catch (e) {
     console.error(e);
 

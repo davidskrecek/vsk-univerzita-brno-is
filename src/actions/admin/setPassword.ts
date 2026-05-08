@@ -52,8 +52,7 @@ export async function setPassword(values: ResetPasswordSchema): Promise<ResetPas
 
                 await tx.editor.update({
                     where: {
-                        personnelId:
-                        invitation.personnelId,
+                        personnelId: invitation.personnelId,
                     },
                     data: {
                         passwordHash,
