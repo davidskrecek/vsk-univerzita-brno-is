@@ -5,6 +5,7 @@ export const createUserFormSchema = z.object({
     lastName: z.string().min(1, "Přijmení nesmí být prázdné").max(100, "Příjmení nesmí být delší než 100 znaků"),
     email: z.string().email("Email nesmí být prázdný"),
     editorRoleId: z.coerce.number().int().positive("Role musí být vybrána"),
+    phone: z.string().max(16, "Telefon nesmí být delší než 13 znaků"),
 });
 
 export type CreateUserFormSchema = z.infer<typeof createUserFormSchema>;
