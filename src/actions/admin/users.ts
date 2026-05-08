@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import {sendPasswordResetEmail} from "@/lib/mailer";
 
 export type UserActionState = {
   success?: boolean;
@@ -96,7 +97,7 @@ export async function createUser(
           passwordHash: placeholderHash,
           editorRole: {
             connect: {
-              id: body.editorRoleId ?? 123,
+              id: body.editorRoleId,
             }
           },
           managedSports: {
@@ -125,6 +126,7 @@ export async function createUser(
       return p;
     });
 
+    await sendPasswordResetEmail(body.email, `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`);
     revalidatePath("/admin/users");
 
     return { success: true, data: { personnelId: personnel.id, invitationToken: token } };
