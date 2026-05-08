@@ -6,18 +6,30 @@ import {FormProvider, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {createUserFormSchema, CreateUserFormSchema} from "@/schemas/user/createUserFormSchema";
 import FormLabeledInput from "@/components/Common/FormLabeledInput";
-import {createUser} from "@/actions/admin/users";
+import {createUser, updateUser} from "@/actions/admin/users";
 import {useToast} from "@/hooks/useToast";
 
-
-export default function CreateUserForm({ onSuccess, roles }) {
+export default function CreateUserForm({ onSuccess, roles, user }) {
     const toast = useToast();
     const form = useForm<CreateUserFormSchema>({
         resolver: zodResolver(createUserFormSchema),
+        defaultValues: {
+            firstName: user?.firstName || "",
+            lastName: user?.lastName || "",
+            email: user?.email || "",
+            phone: user?.phone || "",
+            editorRoleId: user?.editorRoleId ? user.editorRoleId : undefined,
+        }
     });
 
     const onSubmit = async (data: CreateUserFormSchema)=> {
-        const result = await createUser({}, makeFormData(data));
+        let result;
+
+        if(user) {
+            result = await updateUser({}, makeFormData({...data, personnelId: user.id}));
+        } else {
+            result = await createUser({}, makeFormData(data));
+        }
 
         if(!result.error) {
             onSuccess();
@@ -31,16 +43,17 @@ export default function CreateUserForm({ onSuccess, roles }) {
     return (
         <FormProvider {...form}>
             <div className="w-full">
-                <h1 className="mb-6 text-2xl font-display font-bold text-on-surface">Vytvořit uživatele</h1>
+                <h1 className="mb-6 text-2xl font-display font-bold text-on-surface">{user ? 'Editovat uživatele' : 'Vytvořit uživatele'}</h1>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormLabeledInput name="firstName" label="Jméno" />
                     <FormLabeledInput name="lastName" label="Příjmení" />
                     <FormLabeledInput name="email" type="email" label="Email"/>
+                    <FormLabeledInput name="phone" type="phone" label="Telefon"/>
 
                     <FormLabeledSelect label="Role" name="editorRoleId" options={roleOptions}/>
 
                     <AppButton type="submit" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? "Vytvářím..." : "Vytvořit"}
+                        {form.formState.isSubmitting ? "Vytvářím..." : user ? 'Editovat' : 'Vytvořit'}
                     </AppButton>
                 </form>
             </div>
