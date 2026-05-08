@@ -19,6 +19,7 @@ export default function CreateUserForm({ onSuccess, roles, user }) {
             email: user?.email || "",
             phone: user?.phone || "",
             editorRoleId: user?.editorRoleId ? user.editorRoleId : undefined,
+            isActive: user?.isActive ?? true
         }
     });
 
@@ -39,6 +40,9 @@ export default function CreateUserForm({ onSuccess, roles, user }) {
     }
 
     const roleOptions = roles.map((role) => ({ label: role.name, value: role.id.toString() }));
+    const isActiveOptions = [
+        {label: "Aktivní", value: "true"},
+        {label: "Neaktivní", value: "false"}];
 
     return (
         <FormProvider {...form}>
@@ -51,6 +55,7 @@ export default function CreateUserForm({ onSuccess, roles, user }) {
                     <FormLabeledInput name="phone" type="phone" label="Telefon"/>
 
                     <FormLabeledSelect label="Role" name="editorRoleId" options={roleOptions}/>
+                    <FormLabeledSelect label="Stav" name="isActive" options={isActiveOptions}/>
 
                     <AppButton type="submit" disabled={form.formState.isSubmitting}>
                         {form.formState.isSubmitting ? "Vytvářím..." : user ? 'Editovat' : 'Vytvořit'}
