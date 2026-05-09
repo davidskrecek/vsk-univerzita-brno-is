@@ -16,7 +16,7 @@ export const SectionHeader = ({
   className = "" 
 }: SectionHeaderProps) => {
   return (
-    <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${className}`}>
+    <div className={`flex flex-row items-center justify-between gap-4 ${className}`}>
       <div className="border-l-4 border-primary pl-6 space-y-2">
         <Tag className="text-4xl font-display font-bold uppercase tracking-display text-on-surface leading-tight">
           {title}
@@ -28,7 +28,7 @@ export const SectionHeader = ({
         )}
       </div>
       {rightContent && (
-        <div className="flex items-center sm:self-center">
+        <div className="flex items-center shrink-0">
           {rightContent}
         </div>
       )}

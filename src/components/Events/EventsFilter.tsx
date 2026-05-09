@@ -45,14 +45,16 @@ export default function EventsFilter({ availableSports }: EventsFilterProps) {
         selectedSport={selectedSport}
         onSportChange={updateSportFilter}
       />
-      <ViewToggle
-        options={[
-          { id: "calendar", label: "Kalendář" },
-          { id: "list", label: "Seznam" },
-        ]}
-        activeId={viewMode}
-        onChange={updateViewMode}
-      />
+      <div className="hidden md:block">
+        <ViewToggle
+          options={[
+            { id: "calendar", label: "Kalendář" },
+            { id: "list", label: "Seznam" },
+          ]}
+          activeId={viewMode}
+          onChange={updateViewMode}
+        />
+      </div>
     </div>
   );
 }

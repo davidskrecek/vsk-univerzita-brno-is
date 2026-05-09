@@ -236,28 +236,28 @@ export const EventCreateForm = ({
           />
         </div>
 
-        <div className="p-6 bg-surface-container-low border-t border-outline-variant/5">
-          <div className={`flex flex-col-reverse gap-3 sm:flex-row sm:items-center ${isEditing ? "sm:justify-between" : "sm:justify-end"}`}>
-            <div className="flex flex-col-reverse gap-3 sm:flex-row">
-              {isEditing ? (
-                <AppButton
-                  type="button"
-                  variant="danger"
-                  isUppercase
-                  onClick={handleDelete}
-                  isLoading={loading}
-                >
-                  Smazat akci
-                </AppButton>
-              ) : null}
-            </div>
+        <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
+          <div className={`flex flex-row items-center gap-2 ${isEditing ? "justify-between" : "justify-end"}`}>
+            {isEditing && (
+              <AppButton
+                type="button"
+                variant="danger"
+                isUppercase
+                onClick={handleDelete}
+                isLoading={loading}
+                className="px-3 sm:px-6"
+              >
+                Smazat<span className="hidden sm:inline">&nbsp;akci</span>
+              </AppButton>
+            )}
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-row gap-2">
               <AppButton
                 type="button"
                 variant="tertiary"
                 isUppercase
                 onClick={onCancel}
+                className="px-3 sm:px-6"
               >
                 Zrušit
               </AppButton>
@@ -267,8 +267,13 @@ export const EventCreateForm = ({
                 isUppercase
                 isLoading={loading}
                 disabled={!canSubmit}
+                className="px-3 sm:px-6"
               >
-                {isEditing ? "Uložit změny" : "Vytvořit akci"}
+                {isEditing ? (
+                  <>Uložit<span className="hidden sm:inline">&nbsp;změny</span></>
+                ) : (
+                  <>Vytvořit<span className="hidden sm:inline">&nbsp;akci</span></>
+                )}
               </AppButton>
             </div>
           </div>

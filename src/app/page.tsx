@@ -70,7 +70,7 @@ export default function Home() {
           title="Nejnovější příspěvky"
           rightContent={
             <AppLink href="/posts" className="text-[10px] font-display font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors no-underline">
-              Všechny příspěvky
+              Všechny<span className="hidden sm:inline">&nbsp;příspěvky</span>
             </AppLink>
           }
         />
@@ -85,7 +85,7 @@ export default function Home() {
           title="Nejbližší akce"
           rightContent={
             <AppLink href="/events" className="text-[10px] font-display font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors no-underline">
-              Všechny akce
+              Všechny<span className="hidden sm:inline">&nbsp;akce</span>
             </AppLink>
           }
         />
