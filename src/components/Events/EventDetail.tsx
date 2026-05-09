@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from 'react';
 import { IoClose, IoLocationOutline } from 'react-icons/io5';
 import dynamic from 'next/dynamic';
 import CalendarExport from '../Common/CalendarExport';
@@ -19,6 +20,7 @@ interface EventDetailProps {
   time?: string;
   location?: string;
   description?: string;
+  actions?: ReactNode;
   onClose?: () => void;
 }
 
@@ -29,6 +31,7 @@ export const EventDetail = ({
   time,
   location,
   description,
+  actions,
   onClose
 }: EventDetailProps) => {
   const formatDate = (dateStr: string) => {
@@ -56,7 +59,7 @@ export const EventDetail = ({
   return (
     <Modal
       onClose={onClose}
-      contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col animate-in zoom-in-95 duration-300"
+      contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col"
     >
       {/* MAP / IMAGE HEADER */}
       <div className="relative h-48 sm:h-56 md:h-64 bg-surface-container-high overflow-hidden flex-shrink-0">
@@ -122,7 +125,7 @@ export const EventDetail = ({
             {time && (
               <>
                 <span className="opacity-40">—</span>
-                <span>{time} (Europe/Prague)</span>
+                <span>{time}</span>
               </>
             )}
           </div>
@@ -153,6 +156,8 @@ export const EventDetail = ({
             className="mx-auto"
           />
         </div>
+
+        {actions ? <div className="w-full pt-2 flex justify-center">{actions}</div> : null}
       </div>
     </Modal>
   );

@@ -26,6 +26,10 @@ export const metadata: Metadata = {
 import { AuthModalProvider } from "@/components/Auth/AuthModalProvider";
 import { AuthModal } from "@/components/Overlay/AuthModal";
 import { AppSessionProvider } from "@/components/Auth/AppSessionProvider";
+import GlobalDetailHandler from "@/components/Overlay/GlobalDetailHandler";
+import { Suspense } from "react";
+
+import { PageReveal } from "@/components/Common/PageReveal";
 
 
 export default function RootLayout({
@@ -48,6 +52,9 @@ export default function RootLayout({
               </main>
               <Footer />
               <AuthModal />
+              <Suspense fallback={null}>
+                <GlobalDetailHandler />
+              </Suspense>
             </AuthModalProvider>
           </ToastProvider>
         </AppSessionProvider>

@@ -31,6 +31,7 @@ export async function getPostDetail(id: number): Promise<PostDetailData | null> 
       sport: { select: { id: true, name: true } },
       author: { select: { id: true, firstName: true, lastName: true } },
       media: { orderBy: { sortOrder: "asc" } },
+      links: { select: { url: true, alias: true } },
     },
   });
 

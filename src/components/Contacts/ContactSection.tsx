@@ -13,8 +13,8 @@ export const ContactSection = ({ title, contacts }: ContactSectionProps) => {
 
   return (
     <section className="stack-section">
-      <div className="border-l-4 border-primary pl-4 sm:pl-5">
-        <h2 className="text-2xl font-display font-bold uppercase tracking-display text-on-surface sm:text-3xl">
+      <div className="border-l-4 border-primary pl-6">
+        <h2 className="text-[11px] font-display font-bold uppercase tracking-widest text-on-surface/70 leading-none">
           {title}
         </h2>
       </div>

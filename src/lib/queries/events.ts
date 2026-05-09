@@ -1,12 +1,14 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import type { EventApiItem, UiEvent } from "@/components/Events/eventUtils";
+import type { UiEvent } from "@/components/Events/eventUtils";
 
-export async function getPublicEvents(): Promise<UiEvent[]> {
+export async function getPublicEvents(sportName?: string): Promise<UiEvent[]> {
   const events = await prisma.event.findMany({
     where: {
       isPublic: true,
       isCancelled: false,
+      startTime: { gte: new Date() },
+      sport: sportName ? { name: sportName } : undefined
     },
     select: {
       id: true,
@@ -27,9 +29,15 @@ export async function getPublicEvents(): Promise<UiEvent[]> {
     id: String(event.id),
     title: event.title,
     date: new Date(event.startTime).toISOString().split("T")[0],
-    time: new Date(event.startTime).toLocaleTimeString("cs-CZ", { timeZone: "Europe/Prague" }),
+    time: new Intl.DateTimeFormat("cs-CZ", {
+      timeZone: "Europe/Prague",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(event.startTime)),
     location: event.location ?? undefined,
     sport: event.sport.name,
+    sportId: event.sport.id,
     description: event.description ?? undefined,
     startTimeIso: event.startTime.toISOString(),
   }));

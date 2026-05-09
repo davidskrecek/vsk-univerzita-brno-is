@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { AnimatePresence } from "framer-motion";
+import { Modal } from "@/components/Overlay/Modal";
 import EmptyState from "@/components/Common/EmptyState";
-import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import PostDetail from "@/components/Posts/PostDetail";
 import { PostCard } from "@/components/Posts/PostCard";
+import Loading from "@/app/loading";
+import EditButton from "@/components/Common/EditButton";
+import PostCreateForm from "@/components/Forms/PostCreateForm";
 import {
-  extractPostSports,
-  filterPostsBySport,
   mapPostDetailLinks,
   type PostListItem,
 } from "@/components/Posts/postUtils";
@@ -16,141 +19,98 @@ import { getPostDetail, type PostDetailResult } from "@/actions/public/posts";
 
 interface PostsContentProps {
   initialPosts: PostListItem[];
+  availableSports: Array<{ id: number; name: string }>;
 }
 
-function PostsContentInner({ initialPosts }: PostsContentProps) {
+function PostsContentInner({ initialPosts, availableSports }: PostsContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { data: session } = useSession();
 
-  const [selectedSport, setSelectedSport] = useState<string | null>(null);
-  const [postDetail, setPostDetail] = useState<PostDetailResult>(null);
-  const [detailError, setDetailError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const selectedSport = searchParams.get("sport");
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [pendingEditPost, setPendingEditPost] = useState<PostDetailResult>(null);
 
-  const activePostId = searchParams.get("postId");
+  const accessibleSports =
+    !session?.user
+      ? []
+      : session.user.role === "superadmin"
+        ? availableSports
+        : availableSports.filter((sport) => session.user.managedSportIds?.includes(sport.id));
 
-  const sports = useMemo(() => extractPostSports(initialPosts), [initialPosts]);
-  const filteredPosts = useMemo(
-    () => filterPostsBySport(initialPosts, selectedSport),
-    [initialPosts, selectedSport]
-  );
 
-  useEffect(() => {
-    if (!activePostId) {
-      setPostDetail(null);
-      setDetailError(null);
-      return;
-    }
+  const openEditForPost = useCallback((detail: PostDetailResult) => {
+    if (!detail) return;
+    setPendingEditPost(detail);
+    setIsEditOpen(true);
 
-    const postIdNum = Number(activePostId);
-    if (!Number.isInteger(postIdNum) || postIdNum <= 0) {
-      setDetailError("Neplatné ID příspěvku");
-      return;
-    }
-
-    startTransition(async () => {
-      try {
-        setDetailError(null);
-        const detail = await getPostDetail(postIdNum);
-        setPostDetail(detail);
-        if (!detail) {
-          setDetailError("Příspěvek nebyl nalezen");
-        }
-      } catch {
-        setDetailError("Nepodařilo se načíst detail příspěvku");
-      }
-    });
-  }, [activePostId]);
-
-  const activePostDetail = useMemo(() => {
-    if (!activePostId || !postDetail) {
-      return null;
-    }
-    return String(postDetail.id) === activePostId ? postDetail : null;
-  }, [activePostId, postDetail]);
-
-  const detailLinks = useMemo(() => {
-    if (!activePostDetail) return [];
-    return mapPostDetailLinks({
-      id: activePostDetail.id,
-      title: activePostDetail.title,
-      content: activePostDetail.content,
-      imageUrl: activePostDetail.imageUrl,
-      publishedAt: activePostDetail.publishedAt,
-      createdAt: activePostDetail.createdAt,
-      sport: activePostDetail.sport,
-      media: activePostDetail.media,
-    });
-  }, [activePostDetail]);
-
-  const getPostHref = useCallback(
-    (postId: number) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("postId", String(postId));
-      return `/posts?${params.toString()}`;
-    },
-    [searchParams]
-  );
-
-  const closePostDetail = useCallback(() => {
+    // Close the detail modal
     const params = new URLSearchParams(searchParams.toString());
     params.delete("postId");
-    const query = params.toString();
-    router.push(query ? `?${query}` : "/posts", { scroll: false });
+    router.push(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
   return (
-    <div className="stack-page">
-      <SportFilter
-        sports={sports}
-        selectedSport={selectedSport}
-        onSportChange={setSelectedSport}
-      />
-
+    <div className="flex flex-col gap-8">
       <div className="stack-list">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => {
-            const href = getPostHref(post.id);
-
-            return (
-              <PostCard
-                key={post.id}
-                category={post.sport.name.toUpperCase()}
-                title={post.title}
-                description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
-                href={href}
-                imageUrl={post.imageUrl}
-              />
-            );
-          })
+        {initialPosts.length > 0 ? (
+          initialPosts.map((post) => (
+            <PostCard
+              key={post.id}
+              postId={post.id}
+              category={post.sport.name.toUpperCase()}
+              title={post.title}
+              description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
+              imageUrl={post.imageUrl}
+            />
+          ))
         ) : (
           <EmptyState message="Pro vybraný sport nebyly nalezeny žádné příspěvky." />
         )}
       </div>
 
-      {activePostId && isPending ? (
-        <p className="text-sm font-sans text-on-surface/60">Načítání detailu příspěvku...</p>
-      ) : null}
-
-      {activePostId && detailError ? (
-        <p className="text-sm font-sans text-red-500">{detailError}</p>
-      ) : null}
-
-      {activePostDetail ? (
-        <PostDetail
-          title={activePostDetail.title}
-          category={activePostDetail.sport.name.toUpperCase()}
-          date={activePostDetail.publishedAt ?? activePostDetail.createdAt}
-          content={activePostDetail.content}
-          imageUrl={activePostDetail.imageUrl}
-          links={detailLinks}
-          onClose={closePostDetail}
-        />
-      ) : null}
+      <AnimatePresence>
+        {isEditOpen && pendingEditPost && (
+          <Modal
+            onClose={() => {
+              setIsEditOpen(false);
+              setPendingEditPost(null);
+            }}
+            contentClassName="max-w-4xl w-full"
+          >
+            <PostCreateForm
+              mode="edit"
+              sports={accessibleSports}
+              initialValues={{
+                id: pendingEditPost.id,
+                sportId: pendingEditPost.sport.id,
+                title: pendingEditPost.title,
+                excerpt: null,
+                content: pendingEditPost.content,
+                imageUrl: pendingEditPost.imageUrl,
+                publishedAt: pendingEditPost.publishedAt,
+                links: pendingEditPost.links,
+              }}
+              onCancel={() => {
+                setIsEditOpen(false);
+                setPendingEditPost(null);
+              }}
+              onDeleted={() => {
+                setIsEditOpen(false);
+                setPendingEditPost(null);
+              }}
+              onSuccess={() => {
+                setIsEditOpen(false);
+                setPendingEditPost(null);
+              }}
+            />
+          </Modal>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-export default function PostsContent({ initialPosts }: PostsContentProps) {
-  return <PostsContentInner initialPosts={initialPosts} />;
+export default function PostsContent({ initialPosts, availableSports }: PostsContentProps) {
+  return <PostsContentInner initialPosts={initialPosts} availableSports={availableSports} />;
 }

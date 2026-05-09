@@ -5,5 +5,6 @@ export interface CalendarEvent {
   time?: string;
   location?: string;
   sport: string;
+  sportId: number;
 }
 

@@ -1,4 +1,6 @@
-import { ContactItem, ContactPerson, ContactSectionData } from "@/types/contacts";
+import { type ContactItem, type ContactPerson, type ContactSectionData } from "@/types/contacts";
+
+export type { ContactItem, ContactPerson, ContactSectionData };
 
 export interface ContactApiResponseItem {
   id: number;

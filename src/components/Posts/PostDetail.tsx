@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { ReactNode } from "react";
 import Modal from "@/components/Overlay/Modal";
 import { IoClose } from "react-icons/io5";
 
@@ -16,10 +17,11 @@ interface PostDetailProps {
   content: string;
   imageUrl?: string | null;
   links?: PostDetailLink[];
+  actions?: ReactNode;
   onClose?: () => void;
 }
 
-export const PostDetail = ({ title, category, date, content, imageUrl, links = [], onClose }: PostDetailProps) => {
+export const PostDetail = ({ title, category, date, content, imageUrl, links = [], actions, onClose }: PostDetailProps) => {
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     const months = [
@@ -47,7 +49,7 @@ export const PostDetail = ({ title, category, date, content, imageUrl, links = [
   return (
     <Modal
       onClose={onClose}
-      contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col animate-in zoom-in-95 duration-300"
+      contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col"
     >
       {imageUrl ? (
         <div className="relative h-48 flex-shrink-0 overflow-hidden bg-surface-container-high sm:h-56 md:h-64">
@@ -110,9 +112,9 @@ export const PostDetail = ({ title, category, date, content, imageUrl, links = [
         <div className="pt-4 w-full border-t border-outline-variant/5">
           <div className="flex flex-wrap items-center justify-center gap-3">
             {links.length > 0 ? (
-              links.map((l) => (
+              links.map((l, i) => (
                 <a
-                  key={l.href}
+                  key={`${l.href}-${i}`}
                   href={l.href}
                   target="_blank"
                   rel="noreferrer"
@@ -126,6 +128,9 @@ export const PostDetail = ({ title, category, date, content, imageUrl, links = [
             )}
           </div>
         </div>
+
+        {actions ? <div className="w-full pt-2 flex justify-center">{actions}</div> : null}
+        
       </div>
     </Modal>
   );

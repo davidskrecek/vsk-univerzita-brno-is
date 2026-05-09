@@ -1,29 +1,26 @@
-import EmptyState from "@/components/Common/EmptyState";
+import { Suspense } from "react";
 import SectionHeader from "@/components/Common/SectionHeader";
-import SportsSection from "@/components/Sports/SportsSection";
 import { getSports } from "@/lib/queries/sports";
-import { splitSportsByType } from "@/components/Sports/sportUtils";
+import Loading from "@/app/loading";
+import { PageReveal } from "@/components/Common/PageReveal";
+import SportsList from "@/components/Sports/SportsList";
 
-export default async function SportsPage() {
+async function SportsListContainer() {
   const sports = await getSports();
-  const { competitiveSports, recreationalSports } = splitSportsByType(sports);
+  return (
+    <PageReveal>
+      <SportsList sports={sports} />
+    </PageReveal>
+  );
+}
 
+export default function SportsPage() {
   return (
     <div className="stack-page">
       <SectionHeader title="Sporty" as="h1" className="mb-4" />
-
-      {sports.length === 0 ? (
-        <EmptyState message="Zatím nejsou dostupné žádné sporty." />
-      ) : (
-        <div className="space-y-14">
-          {competitiveSports.length > 0 ? (
-            <SportsSection title="Soutěžní oddíly" sports={competitiveSports} />
-          ) : null}
-          {recreationalSports.length > 0 ? (
-            <SportsSection title="Nesoutěžní oddíly" sports={recreationalSports} />
-          ) : null}
-        </div>
-      )}
+      <Suspense fallback={<Loading />}>
+        <SportsListContainer />
+      </Suspense>
     </div>
   );
 }

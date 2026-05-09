@@ -1,53 +1,54 @@
+import { Suspense } from "react";
 import AppLink from "@/components/Common/AppLink";
 import { Banner } from "@/components/Common/Banner";
 import { PostCard } from "@/components/Posts/PostCard";
 import { EventCard } from "@/components/Events/EventCard";
 import SectionHeader from "@/components/Common/SectionHeader";
+import { getPublishedPosts } from "@/lib/queries/posts";
+import { getPublicEvents } from "@/lib/queries/events";
+import { getCzechMonthShort, getEventDayOfMonth } from "@/components/Events/eventUtils";
+import Loading from "./loading";
 
-const latestPosts = [
-  {
-    id: "1",
-    category: "ATLETIKA",
-    title: "Vítězství na akademickém mistrovství v běhu",
-    description: "Naši běžci ovládli finálový závod v Praze a domů přivážejí celkem pět zlatých medailí v různých kategoriích.",
-  },
-  {
-    id: "2",
-    category: "BASKETBAL",
-    title: "Basketbalisté postoupili do univerzitní ligy",
-    description: "Po napínavém souboji s Technickou univerzitou si náš tým vybojoval postup do nejvyšší národní divize.",
-  },
-  {
-    id: "3",
-    category: "VOLEJBAL",
-    title: "Otevřený nábor do ženského volejbalového týmu",
-    description: "Hledáme nové posily pro nadcházející sezónu. Přijďte ukázat své dovednosti na trénink příští úterý.",
-  },
-];
+async function PostListContainer() {
+  const latestPosts = await getPublishedPosts(undefined, 3);
+  return (
+    <div className="stack-list">
+      {latestPosts.map((post) => (
+        <PostCard
+          key={post.id}
+          postId={String(post.id)}
+          category={post.sport.name.toUpperCase()}
+          title={post.title}
+          description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
+          imageUrl={post.imageUrl}
+        />
+      ))}
+    </div>
+  );
+}
 
-const upcomingEvents = [
-  {
-    day: "15",
-    month: "ŘÍJ",
-    category: "HOKEJ",
-    title: "Univerzitní hokejová bitva",
-    location: "Winning Group Arena, Brno"
-  },
-  {
-    day: "22",
-    month: "ŘÍJ",
-    category: "PLAVÁNÍ",
-    title: "Plavecké závody o pohár rektora",
-    location: "Bazén Lužánky"
-  },
-  {
-    day: "05",
-    month: "LIS",
-    category: "OSTATNÍ",
-    title: "Workshop: Sportovní psychologie",
-    location: "Aula FSpS MU"
-  }
-];
+async function UpcomingEventsContainer() {
+  const upcomingEvents = (await getPublicEvents()).slice(0, 3).sort(
+    (a, b) => new Date(a.startTimeIso).getTime() - new Date(b.startTimeIso).getTime()
+  );
+
+  return (
+    <div className="stack-list">
+      {upcomingEvents.map((event) => (
+        <EventCard
+          key={event.id}
+          id={event.id}
+          day={getEventDayOfMonth(event.date)}
+          month={getCzechMonthShort(event.date)}
+          category={event.sport}
+          title={event.title}
+          location={event.location || "Bude upřesněno"}
+          isInline
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -69,22 +70,13 @@ export default function Home() {
           title="Nejnovější příspěvky"
           rightContent={
             <AppLink href="/posts" className="text-[10px] font-display font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors no-underline">
-              Všechny příspěvky
+              Všechny<span className="hidden sm:inline">&nbsp;příspěvky</span>
             </AppLink>
           }
         />
-
-        <div className="stack-list">
-          {latestPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              href={`/posts?postId=${post.id}`}
-              category={post.category}
-              title={post.title}
-              description={post.description}
-            />
-          ))}
-        </div>
+        <Suspense fallback={<Loading />}>
+          <PostListContainer />
+        </Suspense>
       </section>
 
       {/* EVENTS SECTION */}
@@ -93,21 +85,13 @@ export default function Home() {
           title="Nejbližší akce"
           rightContent={
             <AppLink href="/events" className="text-[10px] font-display font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors no-underline">
-              Všechny akce
+              Všechny<span className="hidden sm:inline">&nbsp;akce</span>
             </AppLink>
           }
         />
-
-        <div className="stack-list">
-          {upcomingEvents.map((event, index) => (
-            <EventCard
-              key={index}
-              id={String(index + 1)}
-              {...event}
-              isInline
-            />
-          ))}
-        </div>
+        <Suspense fallback={<Loading />}>
+          <UpcomingEventsContainer />
+        </Suspense>
       </section>
 
       {/* STATS SECTION */}

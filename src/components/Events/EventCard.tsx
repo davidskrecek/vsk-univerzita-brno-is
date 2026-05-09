@@ -28,9 +28,7 @@ export const EventCard = ({ id, day, month, category, title, location, isInline 
 
   params.set('eventId', id);
 
-  const detailHref = isInline
-    ? `?${params.toString()}`
-    : `/events?${params.toString()}`;
+  const detailHref = `?${params.toString()}`;
 
   return (
     <div className="card-surface group relative flex flex-row items-center justify-between gap-4 sm:gap-8 p-0 overflow-hidden">

@@ -63,6 +63,7 @@
 
   html {
     scrollbar-gutter: stable;
+    overflow-y: visible;
   }
 
   body {
@@ -83,22 +84,25 @@
 
   /* Custom Scrollbar Design: Athletic Editorial */
   ::-webkit-scrollbar {
-    width: 0.625rem;
+    width: 10px;
+    height: 10px;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--color-surface-lowest);
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--color-surface-container-high);
-    border: 0.125rem solid var(--color-surface-lowest);
-    border-radius: 0.625rem;
+    background: var(--color-surface-container-highest);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: 10px;
     transition: background 0.3s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: var(--color-primary);
+    background-clip: padding-box;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -176,4 +180,32 @@
     font-size: var(--text-caption);
     letter-spacing: 0.2em;
   }
+}
+
+@keyframes reveal-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-reveal-down {
+  animation: reveal-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
 }
