@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { AnimatePresence } from "framer-motion";
 import { Modal } from "@/components/Overlay/Modal";
 import SectionActionButton from "@/components/Common/SectionActionButton";
 
@@ -38,11 +39,13 @@ export const CreateFormButton = ({ label, FormComponent, sports }: CreateFormBut
         requiredRoles={["sport_manager", "superadmin"]}
       />
 
-      {isOpen ? (
-        <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
-          <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
-        </Modal>
-      ) : null}
+      <AnimatePresence>
+        {isOpen && (
+          <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
+            <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
+          </Modal>
+        )}
+      </AnimatePresence>
     </>
   );
 };

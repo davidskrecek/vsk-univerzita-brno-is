@@ -16,7 +16,7 @@ async function PostListContainer() {
       {latestPosts.map((post) => (
         <PostCard
           key={post.id}
-          href={`/posts?postId=${post.id}`}
+          postId={String(post.id)}
           category={post.sport.name.toUpperCase()}
           title={post.title}
           description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}

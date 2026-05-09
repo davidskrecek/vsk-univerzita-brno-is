@@ -49,7 +49,7 @@ export const PostDetail = ({ title, category, date, content, imageUrl, links = [
   return (
     <Modal
       onClose={onClose}
-      contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col animate-in zoom-in-95 duration-300"
+      contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col"
     >
       {imageUrl ? (
         <div className="relative h-48 flex-shrink-0 overflow-hidden bg-surface-container-high sm:h-56 md:h-64">

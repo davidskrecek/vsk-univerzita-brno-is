@@ -225,7 +225,10 @@ export const PostCreateForm = ({
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar">
+        <div 
+          className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar"
+          style={{ scrollbarGutter: 'stable both-edges' }}
+        >
           <LabeledInput
             label="Titulek příspěvku"
             value={title}
