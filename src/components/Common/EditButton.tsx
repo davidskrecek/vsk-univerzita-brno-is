@@ -8,6 +8,10 @@ interface EditButtonProps {
 }
 
 export const EditButton = ({ onClick, label = "Upravit" }: EditButtonProps) => {
+  const parts = label.split(" ");
+  const mainText = parts[0];
+  const subText = parts.slice(1).join(" ");
+
   return (
     <AppButton
       type="button"
@@ -16,7 +20,8 @@ export const EditButton = ({ onClick, label = "Upravit" }: EditButtonProps) => {
       className="w-full sm:w-auto py-3 px-6"
       onClick={onClick}
     >
-      {label}
+      {mainText}
+      {subText && <span className="hidden sm:inline">&nbsp;{subText}</span>}
     </AppButton>
   );
 };
