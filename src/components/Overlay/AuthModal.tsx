@@ -11,7 +11,7 @@ export const AuthModal = () => {
 
   return (
     <Modal onClose={closeModal} contentClassName="max-w-md w-full">
-      <div className="rounded-md border border-outline-variant/10 bg-surface-container-low p-6 shadow-ambient sm:p-8">
+      <div className="rounded-md border border-outline-variant/10 bg-surface-container-low p-6 shadow-ambient sm:p-8 overflow-y-auto">
         <LoginForm onSuccess={closeModal} />
       </div>
     </Modal>

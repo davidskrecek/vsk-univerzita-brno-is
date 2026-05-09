@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import AppLink from "@/components/Common/AppLink";
 import { Banner } from "@/components/Common/Banner";
 import { PostCard } from "@/components/Posts/PostCard";
@@ -6,13 +7,50 @@ import SectionHeader from "@/components/Common/SectionHeader";
 import { getPublishedPosts } from "@/lib/queries/posts";
 import { getPublicEvents } from "@/lib/queries/events";
 import { getCzechMonthShort, getEventDayOfMonth } from "@/components/Events/eventUtils";
+import Loading from "./loading";
 
-export default async function Home() {
-  const latestPosts = await getPublishedPosts(3);
+async function PostListContainer() {
+  const latestPosts = await getPublishedPosts(undefined, 3);
+  return (
+    <div className="stack-list">
+      {latestPosts.map((post) => (
+        <PostCard
+          key={post.id}
+          href={`/posts?postId=${post.id}`}
+          category={post.sport.name.toUpperCase()}
+          title={post.title}
+          description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
+          imageUrl={post.imageUrl}
+        />
+      ))}
+    </div>
+  );
+}
+
+async function UpcomingEventsContainer() {
   const upcomingEvents = (await getPublicEvents()).slice(0, 3).sort(
     (a, b) => new Date(a.startTimeIso).getTime() - new Date(b.startTimeIso).getTime()
   );
 
+  return (
+    <div className="stack-list">
+      {upcomingEvents.map((event) => (
+        <EventCard
+          key={event.id}
+          id={event.id}
+          day={getEventDayOfMonth(event.date)}
+          month={getCzechMonthShort(event.date)}
+          category={event.sport}
+          title={event.title}
+          location={event.location || "Bude upřesněno"}
+          isInline
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function Home() {
   return (
     <div className="flex flex-col space-y-(--spacing-section) pt-(--spacing-list-gap) pb-0">
 
@@ -36,19 +74,9 @@ export default async function Home() {
             </AppLink>
           }
         />
-
-        <div className="stack-list">
-          {latestPosts.map((post) => (
-            <PostCard
-              key={post.id}
-              href={`/posts?postId=${post.id}`}
-              category={post.sport.name.toUpperCase()}
-              title={post.title}
-              description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
-              imageUrl={post.imageUrl}
-            />
-          ))}
-        </div>
+        <Suspense fallback={<Loading />}>
+          <PostListContainer />
+        </Suspense>
       </section>
 
       {/* EVENTS SECTION */}
@@ -61,21 +89,9 @@ export default async function Home() {
             </AppLink>
           }
         />
-
-        <div className="stack-list">
-          {upcomingEvents.map((event) => (
-            <EventCard
-              key={event.id}
-              id={event.id}
-              day={getEventDayOfMonth(event.date)}
-              month={getCzechMonthShort(event.date)}
-              category={event.sport}
-              title={event.title}
-              location={event.location || "Bude upřesněno"}
-              isInline
-            />
-          ))}
-        </div>
+        <Suspense fallback={<Loading />}>
+          <UpcomingEventsContainer />
+        </Suspense>
       </section>
 
       {/* STATS SECTION */}

@@ -1,3 +1,3 @@
-export default function ContactsLoading() {
-  return <p className="text-sm font-sans text-on-surface/60">Načítání kontaktů...</p>;
-}
+// Tento soubor blokoval zobrazeni nadpisu. 
+// Prosim smazte ho. Suspenze je nyni resena primo v page.tsx.
+export default function ContactsLoading() { return null; }

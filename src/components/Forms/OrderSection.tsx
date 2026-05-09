@@ -9,9 +9,10 @@ import { submitOrder } from "@/actions/submitOrder";
 
 interface OrderSectionProps {
   partners: Array<{ id: string; name: string }>;
+  hideHeader?: boolean;
 }
 
-export const OrderSection = ({ partners }: OrderSectionProps) => {
+export const OrderSection = ({ partners, hideHeader = false }: OrderSectionProps) => {
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
@@ -105,14 +106,16 @@ export const OrderSection = ({ partners }: OrderSectionProps) => {
 
   return (
     <section className="space-y-6 sm:space-y-8">
-      <div className="border-l-4 border-primary pl-6 space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-display font-bold uppercase tracking-display text-on-surface leading-none">
-          Objednávka
-        </h1>
-        <p className="text-sm font-sans text-on-surface/40 leading-relaxed max-w-2xl">
-          Využijte členských slev u našich partnerů. Objednávky jsou zpracovávány hromadně v pravidelných cyklech.
-        </p>
-      </div>
+      {!hideHeader && (
+        <div className="border-l-4 border-primary pl-6 space-y-3">
+          <h1 className="text-3xl sm:text-4xl font-display font-bold uppercase tracking-display text-on-surface leading-none">
+            Objednávka
+          </h1>
+          <p className="text-sm font-sans text-on-surface/40 leading-relaxed max-w-2xl">
+            Využijte členských slev u našich partnerů. Objednávky jsou zpracovávány hromadně v pravidelných cyklech.
+          </p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-10 items-start">
         <div className="space-y-8">
