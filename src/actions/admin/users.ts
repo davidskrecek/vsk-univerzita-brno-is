@@ -44,6 +44,7 @@ const createUserSchema = z.object({
   isActive: z.preprocess((v) => v === "true" || v === true, z.boolean()).optional(),
 });
 
+
 function parseFormData(formData: FormData): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   formData.forEach((value, key) => {
@@ -83,7 +84,7 @@ export async function createUser(
           email: body.email,
           phone: body.phone,
           sportId: body.sportId,
-          isActive: body.isActive
+          isActive: body.isActive,
         },
       });
 
