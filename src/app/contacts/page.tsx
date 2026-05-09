@@ -9,6 +9,7 @@ import {authOptions} from "@/lib/auth";
 import MiniSpinner from "@/components/Common/MiniSpinner";
 import {CreateUserFormButton} from "@/components/Common/CreateUserFormButton";
 import {getRoles} from "@/lib/queries/roles";
+import {getSports} from "@/lib/queries/sports";
 
 async function ContactsListContainer() {
   const contacts = await getActiveContacts();
@@ -19,19 +20,26 @@ async function ContactsListContainer() {
   );
 }
 
-export default async function ContactsPage() {
-   const session = await getServerSession(authOptions);
-   const canCreate = session?.user && (session.user.role === "superadmin" || session.user.role === "sport_manager");
+async function GetUserFormButton() {
+    const roles = await getRoles();
+    const sports = await getSports();
 
-   const roles = await getRoles();
+    return (
+        <Suspense fallback={<MiniSpinner/>}>
+            <CreateUserFormButton label="Vytvořit uživatele" roles={roles} sports={sports}/>
+        </Suspense>
+    );
+}
+
+export default async function ContactsPage() {
+    const session = await getServerSession(authOptions);
+   const canCreate = session?.user && (session.user.role === "superadmin" || session.user.role === "sport_manager");
 
   return (
     <div className="stack-page">
       <SectionHeader title="Kontakty" as="h1" rightContent={
         canCreate ? (
-            <Suspense fallback={<MiniSpinner/>}>
-                <CreateUserFormButton label="Vytvořit uživatele" roles={roles}/>
-            </Suspense>
+            <GetUserFormButton/>
         ) : null
       }/>
       <Suspense fallback={<Loading />}>

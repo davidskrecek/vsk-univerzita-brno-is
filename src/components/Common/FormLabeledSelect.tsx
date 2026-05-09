@@ -6,7 +6,7 @@ import LabeledField from "@/components/Common/LabeledField";
 
 interface SelectOption {
     label: string;
-    value: string;
+    value: string | number;
 }
 
 interface FormLabeledSelectProps {
@@ -17,36 +17,34 @@ interface FormLabeledSelectProps {
     className?: string;
     selectClassName?: string;
     disabled?: boolean;
+    multiple?: boolean;
 }
 
-export const FormLabeledSelect = ({label, name, options, placeholder = "Vyberte možnost", className = "", selectClassName = "", disabled,}: FormLabeledSelectProps) => {
-    const {register, formState: { errors },} = useFormContext();
+export const FormLabeledSelect = ({label, name, options, placeholder = "Vyberte možnost", className = "", selectClassName = "", disabled, multiple = false,}: FormLabeledSelectProps) => {
+    const {register, formState: { errors }} = useFormContext();
 
     const baseSelectClassName =
         "w-full bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors appearance-none cursor-pointer";
 
-    const error =
-        errors[name]?.message?.toString();
+    const error = errors[name]?.message?.toString();
 
     return (
         <LabeledField label={label} className={className}>
             <select
                 {...register(name)}
                 disabled={disabled}
-                defaultValue=""
+                multiple={multiple}
+                defaultValue={multiple ? [] : ""}
                 className={`${baseSelectClassName} ${selectClassName}`}
             >
-                {placeholder && (
+                {!multiple && placeholder && (
                     <option value="" disabled>
                         {placeholder}
                     </option>
                 )}
 
                 {options.map((opt) => (
-                    <option
-                        key={opt.value}
-                        value={opt.value}
-                    >
+                    <option key={opt.value} value={opt.value}>
                         {opt.label}
                     </option>
                 ))}
