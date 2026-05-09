@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 interface PostCardProps {
   category: string;
@@ -7,7 +10,7 @@ interface PostCardProps {
   description: string;
   href?: string;
   imageUrl?: string | null;
-  postId?: string;
+  postId?: string | number;
   isInline?: boolean;
 }
 
@@ -18,9 +21,23 @@ export const PostCard = ({
   href,
   imageUrl,
   postId,
-  isInline = false
 }: PostCardProps) => {
-  const finalHref = isInline ? `?postId=${postId}` : (href || '#');
+  const searchParams = useSearchParams();
+
+  const getHref = () => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (postId) {
+      params.set("postId", String(postId));
+    } else if (href) {
+      const idFromHref = href.includes('postId=') ? href.split('postId=')[1] : null;
+      if (idFromHref) params.set("postId", idFromHref);
+    }
+
+    return `?${params.toString()}`;
+  }
+
+  const finalHref = getHref();
   return (
     <Link
       href={finalHref}
