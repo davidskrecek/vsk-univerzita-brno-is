@@ -40,9 +40,7 @@ export const CreateFormButton = ({ label, FormComponent, sports }: CreateFormBut
 
       {isOpen ? (
         <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
-          <div className="rounded-md border border-outline-variant/10 bg-surface-container-low p-6 shadow-ambient sm:p-8">
-            <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
-          </div>
+          <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
         </Modal>
       ) : null}
     </>

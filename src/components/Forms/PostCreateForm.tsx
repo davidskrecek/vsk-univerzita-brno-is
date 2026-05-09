@@ -3,13 +3,17 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createPost, deletePost, updatePost, uploadPostImage } from "@/actions/admin/posts";
+import { createPost, deletePost, updatePost } from "@/actions/admin/posts";
 import AppButton from "@/components/Common/AppButton";
 import LabeledField from "@/components/Common/LabeledField";
 import LabeledInput from "@/components/Common/LabeledInput";
 import LabeledTextarea from "@/components/Common/LabeledTextarea";
+import { PostLinksSection } from "@/components/Forms/PostLinksSection";
+import { SportPicker } from "@/components/Forms/SportPicker";
 import { useToast } from "@/hooks/useToast";
 import { IoClose } from "react-icons/io5";
+import { DatePicker } from "@/components/Overlay/DatePicker";
+import { format } from "date-fns";
 
 interface SportOption {
   id: number;
@@ -105,34 +109,10 @@ export const PostCreateForm = ({
     setSelectedImageName(file?.name ?? "");
   };
 
-  const updateLink = (index: number, field: keyof PostLinkDraft, value: string) => {
-    setLinks((currentLinks) =>
-      currentLinks.map((link, linkIndex) => (linkIndex === index ? { ...link, [field]: value } : link))
-    );
+  const updateLinks = (updatedLinks: PostLinkDraft[]) => {
+    setLinks(updatedLinks);
   };
 
-  const addLink = () => {
-    setLinks((currentLinks) => [...currentLinks, { url: "", alias: "" }]);
-  };
-
-  const removeLink = (index: number) => {
-    setLinks((currentLinks) => currentLinks.filter((_, linkIndex) => linkIndex !== index));
-  };
-
-  const uploadImage = async () => {
-    if (!selectedImage || loading) return null;
-
-    const uploadFormData = new FormData();
-    uploadFormData.set("image", selectedImage);
-
-    const result = await uploadPostImage(uploadFormData);
-
-    if (result.error) {
-      throw new Error(result.error);
-    }
-
-    return result.url ?? null;
-  };
 
   const handleDelete = async () => {
     if (!isEditing || !initialValues?.id) return;
@@ -185,12 +165,7 @@ export const PostCreateForm = ({
       formData.set("publishedAt", localDate.toISOString());
     }
 
-    if (selectedImage) {
-      const uploadedUrl = await uploadImage();
-      if (uploadedUrl) {
-        formData.set("imageUrl", uploadedUrl);
-      }
-    }
+    // Image is not stored anywhere as per requirements
 
     const cleanedLinks = links
       .map((link) => ({
@@ -228,196 +203,133 @@ export const PostCreateForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative space-y-6">
+    <form onSubmit={handleSubmit} className="relative">
       {onCancel ? (
         <button
           type="button"
           onClick={onCancel}
-          className="absolute right-0 top-0 z-10 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
+          className="absolute right-4 top-4 z-20 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
           aria-label="Zavřít formulář"
         >
           <IoClose size={20} />
         </button>
       ) : null}
 
-      <div className="border-l-4 border-primary pl-6 pr-12 space-y-3">
-        <h2 className="text-3xl sm:text-4xl font-display font-bold uppercase tracking-display text-on-surface leading-none">
-          {isEditing ? "Upravit příspěvek" : "Nový příspěvek"}
-        </h2>
-        <p className="text-sm font-sans text-on-surface/40 leading-relaxed max-w-2xl">
-          {isEditing
-            ? "Upravte příspěvek v rámci sportu, který máte přiřazený."
-            : "Vytvořte nový příspěvek pro sekci, kterou spravujete."}
-        </p>
-      </div>
+      <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
+        <div className="px-6 py-6 sm:px-8 bg-surface-container-low border-b border-outline-variant/5">
+          <h2 className="text-xl sm:text-2xl font-display font-bold uppercase tracking-wider text-on-surface">
+            {isEditing ? "Upravit příspěvek" : "Nový příspěvek"}
+          </h2>
+          <p className="text-[11px] font-sans uppercase tracking-widest text-on-surface/30 mt-1">
+            {isEditing ? "Administrace obsahu" : "Vytvoření obsahu"}
+          </p>
+        </div>
 
-      <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-6 sm:p-8 space-y-6">
-        <LabeledInput
-          label="Titulek příspěvku"
-          value={title}
-          onChange={setTitle}
-          placeholder="Zadejte poutavý nadpis..."
-        />
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <LabeledField label="Sportovní kategorie">
-            <select
-              value={sportId}
-              onChange={(e) => setSportId(e.target.value)}
-              className="w-full bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors"
-              disabled={availableSports.length === 0}
-            >
-              {availableSports.length === 0 ? (
-                <option value="">Žádné dostupné sekce</option>
-              ) : (
-                availableSports.map((sport) => (
-                  <option key={sport.id} value={sport.id}>
-                    {sport.name}
-                  </option>
-                ))
-              )}
-            </select>
-          </LabeledField>
-
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar">
           <LabeledInput
-            label="Datum publikace"
-            type="date"
-            value={publishedAt}
-            onChange={setPublishedAt}
-            inputClassName="[color-scheme:dark]"
+            label="Titulek příspěvku"
+            value={title}
+            onChange={setTitle}
+            placeholder="Zadejte poutavý nadpis..."
           />
 
-        </div>
-
-        <LabeledField label="Náhledový obrázek">
-          <div className="space-y-3">
-            <label className="flex min-h-13 cursor-pointer items-center justify-between gap-3 rounded-md border border-dashed border-outline-variant/20 bg-surface-container-high px-4 py-3 text-sm font-sans text-on-surface/60 transition-colors hover:border-primary/40 hover:text-on-surface/80">
-              <span className="truncate">
-                {selectedImageName || "Vyberte soubor z počítače"}
-              </span>
-              <span className="shrink-0 text-xs uppercase tracking-widest text-on-surface/40">
-                Procházet
-              </span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="sr-only"
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <LabeledField label="Sportovní kategorie">
+              <SportPicker
+                sports={availableSports}
+                selectedId={sportId}
+                onSelect={setSportId}
+                disabled={availableSports.length === 0}
               />
-            </label>
-
-                {selectedImagePreview ? (
-              <div className="overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container-low">
-                <Image
-                  src={selectedImagePreview}
-                  alt={selectedImageName || "Náhled obrázku"}
-                  width={960}
-                  height={384}
-                  unoptimized
-                  className="h-48 w-full object-cover"
-                />
-              </div>
-            ) : null}
-          </div>
-        </LabeledField>
-
-        {/* <LabeledTextarea
-          label="Krátký popis"
-          value={excerpt}
-          onChange={setExcerpt}
-          placeholder="Volitelný stručný popis příspěvku..."
-          rows={3}
-        /> */}
-
-        <LabeledTextarea
-          label="Obsah příspěvku"
-          value={content}
-          onChange={setContent}
-          placeholder="Začněte psát o novinkách z vašeho týmu..."
-          rows={10}
-        />
-
-        <div className="space-y-5 rounded-xl border border-outline-variant/10 bg-surface-container-low px-4 py-5 sm:px-5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div className="space-y-2">
-              <div className="text-caption font-display font-bold uppercase tracking-widest text-on-surface/60">
-                Odkazy
-              </div>
-              <p className="text-xs font-sans text-on-surface/40">
-                Volitelně přidejte odkazy, které se zobrazí u detailu příspěvku.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={addLink}
-              className="w-full sm:w-auto rounded-md border border-outline-variant/10 bg-surface-container-high px-4 py-3 text-[11px] font-display font-bold uppercase tracking-widest text-on-surface/60 transition-colors hover:border-primary/40 hover:text-primary"
-            >
-              Přidat odkaz
-            </button>
+            </LabeledField>
+            <LabeledField label="Datum publikace">
+              <DatePicker
+                date={publishedAt ? new Date(publishedAt) : undefined}
+                onDateChange={(d) => setPublishedAt(d ? format(d, "yyyy-MM-dd") : "")}
+                disabled={true}
+              />
+            </LabeledField>
           </div>
 
-          {links.length > 0 ? (
+          <LabeledField label="Náhledový obrázek (pouze náhled)">
             <div className="space-y-3">
-              {links.map((link, index) => (
-                <div key={index} className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.25fr)_minmax(0,0.9fr)_auto] md:items-end">
-                  <LabeledInput
-                    label={`URL odkazu ${index + 1}`}
-                    value={link.url}
-                    onChange={(value) => updateLink(index, "url", value)}
-                    placeholder="https://..."
-                    autoComplete="off"
+              <label className="flex min-h-13 cursor-pointer items-center justify-between gap-3 rounded-md border border-dashed border-outline-variant/20 bg-surface-container-high px-4 py-3 text-sm font-sans text-on-surface/60 transition-colors hover:border-primary/40 hover:text-on-surface/80">
+                <span className="truncate">
+                  {selectedImageName || "Vyberte soubor z počítače"}
+                </span>
+                <span className="shrink-0 text-xs uppercase tracking-widest text-on-surface/40">
+                  Procházet
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="sr-only"
+                />
+              </label>
+
+              {selectedImagePreview ? (
+                <div className="overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container-low">
+                  <Image
+                    src={selectedImagePreview}
+                    alt={selectedImageName || "Náhled obrázku"}
+                    width={960}
+                    height={384}
+                    unoptimized
+                    className="h-48 w-full object-cover"
                   />
-                  <LabeledInput
-                    label="Text odkazu"
-                    value={link.alias}
-                    onChange={(value) => updateLink(index, "alias", value)}
-                    placeholder="Např. Fotky"
-                    autoComplete="off"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeLink(index)}
-                    className="h-13 rounded-md border border-outline-variant/10 px-4 text-xs font-display font-bold uppercase tracking-widest text-on-surface/40 transition-colors hover:border-primary/40 hover:text-primary"
-                  >
-                    Odebrat
-                  </button>
                 </div>
-              ))}
+              ) : null}
             </div>
-          ) : null}
+          </LabeledField>
+
+          <LabeledTextarea
+            label="Obsah příspěvku"
+            value={content}
+            onChange={setContent}
+            placeholder="Začněte psát o novinkách z vašeho týmu..."
+            rows={10}
+          />
+
+          <PostLinksSection links={links} onChange={updateLinks} />
         </div>
 
-        <div className={`flex flex-col-reverse gap-3 sm:flex-row sm:items-center ${isEditing ? "sm:justify-between" : "sm:justify-center"}`}>
-          <div className="flex flex-col-reverse gap-3 sm:flex-row">
-            {isEditing ? (
+        <div className="p-6 bg-surface-container-low border-t border-outline-variant/5">
+          <div className={`flex flex-col-reverse gap-3 sm:flex-row sm:items-center ${isEditing ? "sm:justify-between" : "sm:justify-end"}`}>
+            <div className="flex flex-col-reverse gap-3 sm:flex-row">
+              {isEditing ? (
+                <AppButton
+                  type="button"
+                  variant="danger"
+                  isUppercase
+                  onClick={handleDelete}
+                  isLoading={loading}
+                >
+                  Smazat příspěvek
+                </AppButton>
+              ) : null}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
               <AppButton
                 type="button"
                 variant="tertiary"
-                className="w-full sm:w-auto font-display uppercase tracking-widest text-[11px] py-4 px-8 text-red-500 hover:bg-red-500/10"
-                onClick={handleDelete}
-                disabled={loading}
+                isUppercase
+                onClick={onCancel}
               >
-                Smazat příspěvek
+                Zrušit
               </AppButton>
-            ) : null}
+              <AppButton
+                type="submit"
+                variant="primary"
+                isUppercase
+                isLoading={loading}
+                disabled={!canSubmit}
+              >
+                {isEditing ? "Uložit změny" : "Publikovat příspěvek"}
+              </AppButton>
+            </div>
           </div>
-
-          <AppButton
-            type="button"
-            variant="tertiary"
-            className="w-full sm:w-auto font-display uppercase tracking-widest text-[11px] py-4 px-8"
-            onClick={onCancel}
-          >
-            Zrušit
-          </AppButton>
-          <AppButton
-            type="submit"
-            variant="primary"
-            className="w-full sm:w-auto font-display uppercase tracking-widest text-[11px] py-4 px-8"
-            disabled={!canSubmit}
-          >
-            {loading ? (isEditing ? "Ukládám..." : "Publikuji...") : isEditing ? "Uložit změny" : "Publikovat příspěvek"}
-          </AppButton>
         </div>
       </div>
     </form>

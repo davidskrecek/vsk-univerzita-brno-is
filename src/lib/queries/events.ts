@@ -2,12 +2,13 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { UiEvent } from "@/components/Events/eventUtils";
 
-export async function getPublicEvents(): Promise<UiEvent[]> {
+export async function getPublicEvents(sportName?: string): Promise<UiEvent[]> {
   const events = await prisma.event.findMany({
     where: {
       isPublic: true,
       isCancelled: false,
       startTime: { gte: new Date() },
+      sport: sportName ? { name: sportName } : undefined
     },
     select: {
       id: true,

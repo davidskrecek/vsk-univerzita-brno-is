@@ -27,6 +27,8 @@ import { AuthModalProvider } from "@/components/Auth/AuthModalProvider";
 import { AuthModal } from "@/components/Overlay/AuthModal";
 import { AppSessionProvider } from "@/components/Auth/AppSessionProvider";
 
+import { PageReveal } from "@/components/Common/PageReveal";
+
 export default function RootLayout({
   children,
 }: Readonly<{

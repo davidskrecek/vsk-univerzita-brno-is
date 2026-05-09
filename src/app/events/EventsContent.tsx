@@ -4,18 +4,17 @@ import { Suspense, useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import EmptyState from "@/components/Common/EmptyState";
-import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import { Modal } from "@/components/Overlay/Modal";
 import { Calendar } from "@/components/Events/Calendar/Calendar";
 import { EventCard } from "@/components/Events/EventCard";
 import EventDetail from "@/components/Events/EventDetail";
 import EditButton from "@/components/Common/EditButton";
 import EventCreateForm from "@/components/Forms/EventCreateForm";
+import Loading from "@/app/loading";
+import ViewToggle from "@/components/Common/ViewToggle";
 import {
   getCzechMonthShort,
   getEventDayOfMonth,
-  extractEventSports,
-  filterEventsBySport,
   findEventById,
   type UiEvent,
 } from "@/components/Events/eventUtils";
@@ -58,7 +57,7 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const selectedSport = searchParams.get("sport");
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [pendingEditEvent, setPendingEditEvent] = useState<UiEvent | null>(null);
 
@@ -66,14 +65,10 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
   const viewMode: ViewMode = viewModeParam === "list" ? "list" : "calendar";
   const eventId = searchParams.get("eventId");
 
-  const sports = useMemo(() => extractEventSports(initialEvents), [initialEvents]);
-  const filteredEvents = useMemo(
-    () => filterEventsBySport(initialEvents, selectedSport),
-    [initialEvents, selectedSport]
-  );
+
   const activeEvent = useMemo(
-    () => findEventById(filteredEvents, eventId),
-    [filteredEvents, eventId]
+    () => findEventById(initialEvents, eventId),
+    [initialEvents, eventId]
   );
 
   const accessibleSports =
@@ -89,6 +84,8 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
       (session.user.role === "superadmin" || session.user.role === "sport_manager") &&
       accessibleSports.some((sport) => sport.id === activeEvent.sportId)
   );
+
+
 
   const closeEventDetail = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -111,23 +108,18 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
 
   const listContent = (
     <div className="stack-list">
-      <EventsListContent events={filteredEvents} />
+      <EventsListContent events={initialEvents} />
     </div>
   );
 
   return (
-    <div className="stack-page">
-      <SportFilter
-        sports={sports}
-        selectedSport={selectedSport}
-        onSportChange={setSelectedSport}
-      />
+    <div className="flex flex-col gap-12">
 
       <div className="min-h-105 md:min-h-150">
         <div className="md:hidden">{listContent}</div>
         <div className="hidden md:block">
           {viewMode === "calendar" ? (
-            <Calendar events={filteredEvents} />
+            <Calendar events={initialEvents} />
           ) : (
             listContent
           )}
@@ -145,23 +137,21 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
 
       {isEditOpen && pendingEditEvent ? (
         <Modal onClose={closeEditModal} contentClassName="max-w-4xl w-full">
-          <div className="rounded-md border border-outline-variant/10 bg-surface-container-low p-6 shadow-ambient sm:p-8">
-            <EventCreateForm
-              mode="edit"
-              sports={accessibleSports}
-              initialValues={{
-                id: Number(pendingEditEvent.id),
-                sportId: pendingEditEvent.sportId,
-                title: pendingEditEvent.title,
-                description: pendingEditEvent.description ?? null,
-                location: pendingEditEvent.location ?? null,
-                startTime: pendingEditEvent.startTimeIso,
-              }}
-              onCancel={closeEditModal}
-              onDeleted={closeEditModal}
-              onSuccess={closeEditModal}
-            />
-          </div>
+          <EventCreateForm
+            mode="edit"
+            sports={accessibleSports}
+            initialValues={{
+              id: Number(pendingEditEvent.id),
+              sportId: pendingEditEvent.sportId,
+              title: pendingEditEvent.title,
+              description: pendingEditEvent.description ?? null,
+              location: pendingEditEvent.location ?? null,
+              startTime: pendingEditEvent.startTimeIso,
+            }}
+            onCancel={closeEditModal}
+            onDeleted={closeEditModal}
+            onSuccess={closeEditModal}
+          />
         </Modal>
       ) : null}
     </div>
@@ -170,7 +160,7 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
 
 export default function EventsContent({ initialEvents, availableSports }: EventsContentProps) {
   return (
-    <Suspense fallback={<div>Načítání...</div>}>
+    <Suspense fallback={<Loading />}>
       <EventsContentInner initialEvents={initialEvents} availableSports={availableSports} />
     </Suspense>
   );

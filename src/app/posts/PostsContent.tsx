@@ -5,14 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Modal } from "@/components/Overlay/Modal";
 import EmptyState from "@/components/Common/EmptyState";
-import SportFilter from "@/components/Common/SportFilter/SportFilter";
 import PostDetail from "@/components/Posts/PostDetail";
 import { PostCard } from "@/components/Posts/PostCard";
+import Loading from "@/app/loading";
 import EditButton from "@/components/Common/EditButton";
 import PostCreateForm from "@/components/Forms/PostCreateForm";
 import {
-  extractPostSports,
-  filterPostsBySport,
   mapPostDetailLinks,
   type PostListItem,
 } from "@/components/Posts/postUtils";
@@ -28,7 +26,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
   const router = useRouter();
   const { data: session } = useSession();
 
-  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+  const selectedSport = searchParams.get("sport");
   const [postDetail, setPostDetail] = useState<PostDetailResult>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -39,11 +37,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
   const postIdNum = activePostId ? Number(activePostId) : null;
   const isValidPostId = postIdNum !== null && Number.isInteger(postIdNum) && postIdNum > 0;
 
-  const postSports = useMemo(() => extractPostSports(initialPosts), [initialPosts]);
-  const filteredPosts = useMemo(
-    () => filterPostsBySport(initialPosts, selectedSport),
-    [initialPosts, selectedSport]
-  );
+
 
   useEffect(() => {
     if (!activePostId || !isValidPostId) {
@@ -81,7 +75,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
       ? []
       : session.user.role === "superadmin"
         ? availableSports
-        : availableSports.filter((sport) => session.user.managedSportIds.includes(sport.id));
+        : availableSports.filter((sport) => session.user.managedSportIds?.includes(sport.id));
 
   const resolvedDetailError = activePostId && !isValidPostId ? "Neplatné ID příspěvku" : detailError;
 
@@ -116,16 +110,11 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
   }, [activePostDetail, closePostDetail]);
 
   return (
-    <div className="stack-page">
-      <SportFilter
-        sports={postSports}
-        selectedSport={selectedSport}
-        onSportChange={setSelectedSport}
-      />
+    <div className="flex flex-col gap-8">
 
       <div className="stack-list">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map((post) => {
+        {initialPosts.length > 0 ? (
+          initialPosts.map((post) => {
             const href = getPostHref(post.id);
 
             return (
@@ -145,7 +134,7 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
       </div>
 
       {activePostId && isPending ? (
-        <p className="text-sm font-sans text-on-surface/60">Načítání detailu příspěvku...</p>
+        <Loading />
       ) : null}
 
       {activePostId && resolvedDetailError ? (
@@ -173,34 +162,32 @@ function PostsContentInner({ initialPosts, availableSports }: PostsContentProps)
           }}
           contentClassName="max-w-4xl w-full"
         >
-          <div className="rounded-md border border-outline-variant/10 bg-surface-container-low p-6 shadow-ambient sm:p-8">
-            <PostCreateForm
-              mode="edit"
-              sports={accessibleSports}
-              initialValues={{
-                id: pendingEditPost.id,
-                sportId: pendingEditPost.sport.id,
-                title: pendingEditPost.title,
-                excerpt: null,
-                content: pendingEditPost.content,
-                imageUrl: pendingEditPost.imageUrl,
-                publishedAt: pendingEditPost.publishedAt,
-                links: pendingEditPost.links,
-              }}
-              onCancel={() => {
-                setIsEditOpen(false);
-                setPendingEditPost(null);
-              }}
-              onDeleted={() => {
-                setIsEditOpen(false);
-                setPendingEditPost(null);
-              }}
-              onSuccess={() => {
-                setIsEditOpen(false);
-                setPendingEditPost(null);
-              }}
-            />
-          </div>
+          <PostCreateForm
+            mode="edit"
+            sports={accessibleSports}
+            initialValues={{
+              id: pendingEditPost.id,
+              sportId: pendingEditPost.sport.id,
+              title: pendingEditPost.title,
+              excerpt: null,
+              content: pendingEditPost.content,
+              imageUrl: pendingEditPost.imageUrl,
+              publishedAt: pendingEditPost.publishedAt,
+              links: pendingEditPost.links,
+            }}
+            onCancel={() => {
+              setIsEditOpen(false);
+              setPendingEditPost(null);
+            }}
+            onDeleted={() => {
+              setIsEditOpen(false);
+              setPendingEditPost(null);
+            }}
+            onSuccess={() => {
+              setIsEditOpen(false);
+              setPendingEditPost(null);
+            }}
+          />
         </Modal>
       ) : null}
     </div>

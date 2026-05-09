@@ -1,3 +1,6 @@
+import React from "react";
+import Loading from "@/app/loading";
+
 export default function EventsLoading() {
-  return <p className="text-sm font-sans text-on-surface/60">Načítání akcí...</p>;
+  return <Loading />;
 }

@@ -59,7 +59,7 @@ export const Modal = ({ children, onClose, contentClassName = "", className = ""
       />
       <div
         onClick={(e) => e.stopPropagation()}
-        className={`relative w-full max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] overflow-y-auto ${contentClassName}`}
+        className={`relative w-full max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-4rem)] flex flex-col ${contentClassName}`}
       >
         {children}
       </div>

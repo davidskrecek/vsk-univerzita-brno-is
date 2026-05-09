@@ -12,7 +12,8 @@ export const EditButton = ({ onClick, label = "Upravit" }: EditButtonProps) => {
     <AppButton
       type="button"
       variant="secondary"
-      className="w-full sm:w-auto font-display uppercase tracking-widest text-[11px] py-3 px-6"
+      isUppercase
+      className="w-full sm:w-auto py-3 px-6"
       onClick={onClick}
     >
       {label}

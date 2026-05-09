@@ -2,9 +2,12 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import type { PostListItem } from "@/components/Posts/postUtils";
 
-export async function getPublishedPosts(limit = 50): Promise<PostListItem[]> {
+export async function getPublishedPosts(sportName?: string, limit = 50): Promise<PostListItem[]> {
   const posts = await prisma.post.findMany({
-    where: { isPublished: true },
+    where: { 
+      isPublished: true,
+      sport: sportName ? { name: sportName } : undefined
+    },
     select: {
       id: true,
       title: true,

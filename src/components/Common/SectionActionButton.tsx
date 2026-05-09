@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import AppButton from "@/components/Common/AppButton";
 
 interface SectionActionButtonProps {
   label: string;
@@ -36,13 +37,15 @@ export const SectionActionButton = ({
   }
 
   return (
-    <button
+    <AppButton
       type="button"
+      variant="secondary"
+      isUppercase
       onClick={onClick}
-      className="text-on-surface/60 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-lowest"
+      className="py-2 px-5"
     >
       {label}
-    </button>
+    </AppButton>
   );
 };
 

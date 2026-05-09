@@ -30,7 +30,7 @@ export default function ContactsContent({ initialContacts }: ContactsContentProp
   const visibleCount = filteredSections.reduce((sum, section) => sum + section.contacts.length, 0);
 
   return (
-    <div className="stack-page">
+    <div className="flex flex-col gap-8">
       <SportFilter
         sports={sports}
         selectedSport={selectedSport}
