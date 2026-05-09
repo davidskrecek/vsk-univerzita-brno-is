@@ -8,12 +8,10 @@ import Image from 'next/image';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa6';
 import { IoMenu } from 'react-icons/io5';
 import AppLink from '../Common/AppLink';
-import {useSession} from "next-auth/react";
 
 export const NavBar = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const {data: session} = useSession();
 
   const navLinks = [
     { name: 'DOMŮ', href: '/' },
@@ -24,10 +22,6 @@ export const NavBar = () => {
     { name: 'FORMULÁŘE', href: '/forms' },
     { name: 'OSTATNÍ', href: '/other' },
   ];
-
-  if(session && session.user.role === 'superadmin') {
-    navLinks.push({ name: 'ADMIN', href: '/admin' });
-  }
 
   const isActive = (href: string) => pathname === href || (href !== '/' && pathname.startsWith(href));
 

@@ -7,10 +7,17 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {createUserFormSchema, CreateUserFormSchema} from "@/schemas/user/createUserFormSchema";
 import FormLabeledInput from "@/components/Common/FormLabeledInput";
 import {createUser, updateUser} from "@/actions/admin/users";
-import {useToast} from "@/hooks/useToast";
+import {Role} from "@/lib/queries/roles";
+import {User} from "@/lib/queries/users";
 
-export default function CreateUserForm({ onSuccess, roles, user }) {
-    const toast = useToast();
+type CreateUserFormProps = {
+    onSuccess: () => void;
+    onError: (message: string) => void;
+    roles: Role[],
+    user?: User
+}
+
+export default function CreateUserForm({ onSuccess, onError, roles, user }: CreateUserFormProps) {
     const form = useForm<CreateUserFormSchema>({
         resolver: zodResolver(createUserFormSchema),
         defaultValues: {
@@ -35,7 +42,7 @@ export default function CreateUserForm({ onSuccess, roles, user }) {
         if(!result.error) {
             onSuccess();
         } else {
-            toast.error("Nepodařilo se vytvořit uživatele");
+            onError(result.error);
         }
     }
 
@@ -49,10 +56,15 @@ export default function CreateUserForm({ onSuccess, roles, user }) {
             <div className="w-full">
                 <h1 className="mb-6 text-2xl font-display font-bold text-on-surface">{user ? 'Editovat uživatele' : 'Vytvořit uživatele'}</h1>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormLabeledInput name="firstName" label="Jméno" />
-                    <FormLabeledInput name="lastName" label="Příjmení" />
-                    <FormLabeledInput name="email" type="email" label="Email"/>
-                    <FormLabeledInput name="phone" type="phone" label="Telefon"/>
+                    <div className="flex gap-4">
+                        <FormLabeledInput name="firstName" label="Jméno" placeholder="Jméno" className="w-full"/>
+                        <FormLabeledInput name="lastName" label="Příjmení" placeholder="Příjmení" className="w-full"/>
+                    </div>
+
+                    <div className="flex gap-4">
+                        <FormLabeledInput name="email" type="email" label="Email" placeholder="Zadejte email" className="w-full"/>
+                        <FormLabeledInput name="phone" type="phone" label="Telefon" placeholder="Telefon" className="w-full"/>
+                    </div>
 
                     <FormLabeledSelect label="Role" name="editorRoleId" options={roleOptions}/>
                     <FormLabeledSelect label="Stav" name="isActive" options={isActiveOptions}/>

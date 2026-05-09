@@ -257,7 +257,7 @@ export async function updateUser(_prevState: UserActionState, formData: FormData
       return { error: e.message };
     }
 
-    return { error: e};
+    return { error: "Failed to update user" };
   }
 }
 
