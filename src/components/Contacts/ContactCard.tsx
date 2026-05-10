@@ -1,16 +1,30 @@
 "use client";
 
-import { Mail, Phone } from "lucide-react";
+import {Mail, Phone} from "lucide-react";
 import { ContactPerson } from "@/types/contacts";
+import {UserFormModalButton} from "@/components/Common/UserFormModalButtonProps";
+import {Role} from "@/lib/queries/roles";
+import {Sport} from "@/lib/queries/sports";
 
 interface ContactCardProps {
   contact: ContactPerson;
+  canEdit: boolean;
+  roles: Role[];
+  sports: Sport[];
 }
 
-export const ContactCard = ({ contact }: ContactCardProps) => {
+export const ContactCard = ({ contact, canEdit, roles, sports }: ContactCardProps) => {
   return (
     <article className="relative rounded-md border border-outline-variant/10 bg-surface-container-low p-5 shadow-ambient transition-colors hover:bg-surface-container">
       <span className="meta-badge absolute top-4 right-4">
+        {contact.sport}
+      </span>
+
+        {canEdit && (
+            <UserFormModalButton userId={contact.id} roles={roles} sports={sports} iconOnly/>
+        )}
+
+        <span className="meta-badge absolute top-4 right-4">
         {contact.sport}
       </span>
 
