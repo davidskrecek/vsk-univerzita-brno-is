@@ -1,12 +1,17 @@
 import ContactCard from "@/components/Contacts/ContactCard";
 import { ContactPerson } from "@/types/contacts";
+import {Role} from "@/lib/queries/roles";
+import {Sport} from "@/lib/queries/sports";
 
 interface ContactSectionProps {
   title: string;
   contacts: ContactPerson[];
+  canEdit: boolean;
+  roles: Role[];
+  sports: Sport[];
 }
 
-export const ContactSection = ({ title, contacts }: ContactSectionProps) => {
+export const ContactSection = ({ title, contacts, canEdit, roles, sports }: ContactSectionProps) => {
   if (contacts.length === 0) {
     return null;
   }
@@ -21,7 +26,7 @@ export const ContactSection = ({ title, contacts }: ContactSectionProps) => {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {contacts.map((contact) => (
-          <ContactCard key={contact.id} contact={contact} />
+          <ContactCard key={contact.id} contact={contact} canEdit={canEdit} roles={roles} sports={sports} />
         ))}
       </div>
     </section>

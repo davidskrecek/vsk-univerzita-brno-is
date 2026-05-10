@@ -7,43 +7,37 @@ import Loading from "@/app/loading";
 import {getServerSession} from "next-auth";
 import {authOptions} from "@/lib/auth";
 import MiniSpinner from "@/components/Common/MiniSpinner";
-import {CreateUserFormButton} from "@/components/Common/CreateUserFormButton";
-import {getRoles} from "@/lib/queries/roles";
-import {getSports} from "@/lib/queries/sports";
+import {getRoles, Role} from "@/lib/queries/roles";
+import {getSports, Sport} from "@/lib/queries/sports";
+import {UserFormModalButton} from "@/components/Common/UserFormModalButtonProps";
 
-async function ContactsListContainer() {
+async function ContactsListContainer({canEdit, sports, roles}: {canEdit: boolean, sports: Sport[], roles: Role[]}) {
   const contacts = await getActiveContacts();
   return (
     <PageReveal>
-      <ContactsContent initialContacts={contacts} />
+      <ContactsContent initialContacts={contacts} canEdit={canEdit} roles={roles} allSports={sports}/>
     </PageReveal>
   );
-}
-
-async function GetUserFormButton() {
-    const roles = await getRoles();
-    const sports = await getSports();
-
-    return (
-        <Suspense fallback={<MiniSpinner/>}>
-            <CreateUserFormButton label="Vytvořit uživatele" roles={roles} sports={sports}/>
-        </Suspense>
-    );
 }
 
 export default async function ContactsPage() {
     const session = await getServerSession(authOptions);
    const canCreate = session?.user && (session.user.role === "superadmin" || session.user.role === "sport_manager");
 
+    const roles = await getRoles();
+    const sports = await getSports();
+
   return (
     <div className="stack-page">
       <SectionHeader title="Kontakty" as="h1" rightContent={
         canCreate ? (
-            <GetUserFormButton/>
+            <Suspense fallback={<MiniSpinner/>}>
+                <UserFormModalButton label="Vytvořit uživatele" roles={roles} sports={sports}/>
+            </Suspense>
         ) : null
       }/>
       <Suspense fallback={<Loading />}>
-        <ContactsListContainer />
+        <ContactsListContainer canEdit={canCreate} roles={roles} sports={sports} />
       </Suspense>
     </div>
   );

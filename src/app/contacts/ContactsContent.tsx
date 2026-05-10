@@ -9,12 +9,17 @@ import {
   extractSports,
   type ContactItem,
 } from "@/components/Contacts/contactUtils";
+import {Sport} from "@/lib/queries/sports";
+import {Role} from "@/lib/queries/roles";
 
 interface ContactsContentProps {
   initialContacts: ContactItem[];
+  canEdit: boolean;
+  roles: Role[];
+  allSports: Sport[];
 }
 
-export default function ContactsContent({ initialContacts }: ContactsContentProps) {
+export default function ContactsContent({ initialContacts, canEdit, roles, allSports }: ContactsContentProps) {
   const contacts = initialContacts;
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
 
@@ -41,7 +46,7 @@ export default function ContactsContent({ initialContacts }: ContactsContentProp
         <EmptyState message="Pro vybraný sport nebyly nalezeny žádné kontakty." />
       ) : (
         filteredSections.map((section) => (
-          <ContactSection key={section.id} title={section.title} contacts={section.contacts} />
+          <ContactSection key={section.id} title={section.title} contacts={section.contacts} canEdit={canEdit} roles={roles} sports={allSports} />
         ))
       )}
     </div>

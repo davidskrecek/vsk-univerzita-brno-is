@@ -31,27 +31,21 @@ export default function CreateUserForm({onResult, roles, sports, user}: CreateUs
             phone: user?.phone || "",
 
             sportId: user?.sportId,
-
-            editorRoleId: user?.editorRoleId
-                ? user.editorRoleId.toString()
-                : undefined,
-
+            editorRoleId: user?.editor?.editorRoleId,
             isActive: user?.isActive ?? true,
+            isTrainer: user?.trainer !== null,
+            trainerCategory: user?.trainer?.category || "",
+            isOfficial: user?.official !== null,
+            officialPosition: user?.official?.position || "",
 
-            isTrainer: user?.isTrainer ?? false,
-            trainerCategory: user?.trainerCategory || "",
-
-            isOfficial: user?.isOfficial ?? false,
-            officialPosition: user?.officialPosition || "",
-
-            managedSportIds:
-                user?.managedSportIds?.map(String) || [],
+            managedSportIds: user?.editor?.managedSports?.map(data => String(data.sportId)) || [],
         },
     });
 
+    console.log(user?.editor?.managedSports?.map(data => data.sportId));
+
     const isTrainer = form.watch("isTrainer");
     const isOfficial = form.watch("isOfficial");
-    const isEditor = form.watch("isEditor");
 
     const onSubmit = async (data: CreateUserFormSchema) => {
         let result;
@@ -104,14 +98,15 @@ export default function CreateUserForm({onResult, roles, sports, user}: CreateUs
 
                     <div className="flex gap-4">
                         <FormLabeledSelect label="Sport" name="sportId" options={sportOptions} className="w-full"/>
-                        <FormLabeledSelect label="Role editora" name="editorRoleId" options={roleOptions} className="w-full"/>
+                        <FormLabeledSelect label="Role" name="editorRoleId" options={roleOptions} className="w-full"/>
                         <FormLabeledSelect label="Stav" name="isActive" options={isActiveOptions} className="w-full"/>
                     </div>
+
+                    <FormLabeledSelect label="Spravované sporty" name="managedSportIds" options={sportOptions} multiple={true}/>
 
                     <div className="flex gap-6">
                         <FormCheckbox name="isTrainer" label="Trenér"/>
                         <FormCheckbox name="isOfficial" label="Rozhodčí"/>
-                        <FormCheckbox name="isEditor" label="Editor"/>
                     </div>
 
                     {isTrainer && (
@@ -120,13 +115,6 @@ export default function CreateUserForm({onResult, roles, sports, user}: CreateUs
 
                     {isOfficial && (
                         <FormLabeledInput name="officialPosition" label="Pozice rozhodčího" placeholder="Pozice rozhodčího"/>
-                    )}
-
-                    {isEditor && (
-                        <>
-                            <FormLabeledSelect label="Role editora" name="editorRoleId" options={roleOptions}/>
-                            <FormLabeledSelect label="Spravované sporty" name="managedSportIds" options={sportOptions} multiple={true}/>
-                        </>
                     )}
 
                     <AppButton type="submit" disabled={form.formState.isSubmitting}>
