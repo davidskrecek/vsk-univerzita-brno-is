@@ -2,7 +2,7 @@
 
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {createUser, updateUser, User} from "@/actions/admin/users";
+import {createUser, sendPasswordEmail, updateUser, User} from "@/actions/admin/users";
 import FormLabeledInput from "@/components/Common/FormLabeledInput";
 import FormLabeledSelect from "@/components/Common/FormLabeledSelect";
 import AppButton from "@/components/Common/AppButton";
