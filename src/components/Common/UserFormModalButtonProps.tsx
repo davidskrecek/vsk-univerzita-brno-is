@@ -10,8 +10,7 @@ import {useToast} from "@/hooks/useToast";
 import {Sport} from "@/lib/queries/sports";
 import {Pencil} from "lucide-react";
 import MiniSpinner from "@/components/Common/MiniSpinner";
-import {getUserById} from "@/actions/admin/users";
-import {User} from "@/lib/queries/users";
+import {getUserById, User} from "@/actions/admin/users";
 
 type UserFormModalButtonProps = {
     label?: string;
@@ -25,7 +24,7 @@ type UserFormModalButtonProps = {
 export const UserFormModalButton = ({label, roles, sports, userId, iconOnly}: UserFormModalButtonProps) => {
 
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>();
     const [loading, setLoading] = useState(false);
 
     const toast = useToast();
@@ -38,7 +37,7 @@ export const UserFormModalButton = ({label, roles, sports, userId, iconOnly}: Us
         if (userId) {
             try {
                 setLoading(true);
-                const loadedUser = await getUserById(Number(userId));
+                const loadedUser = (await getUserById(Number(userId))) as User;
                 setUser(loadedUser);
             } catch (e) {
                 toast.error("Nepodařilo se načíst uživatele");
