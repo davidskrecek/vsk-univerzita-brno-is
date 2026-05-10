@@ -37,7 +37,7 @@ export default async function ContactsPage() {
         ) : null
       }/>
       <Suspense fallback={<Loading />}>
-        <ContactsListContainer canEdit={canCreate} roles={roles} sports={sports} />
+        <ContactsListContainer canEdit={canCreate ?? false} roles={roles} sports={sports} />
       </Suspense>
     </div>
   );

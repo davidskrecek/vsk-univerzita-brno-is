@@ -8,7 +8,6 @@ import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import {sendPasswordResetEmail} from "@/lib/mailer";
-import {User} from "@/lib/queries/users";
 
 export type UserActionState = {
   success?: boolean;
@@ -282,7 +281,7 @@ export async function getUserStats(): Promise<UserStatsResult> {
   };
 }
 
-export async function sendPasswordEmail(user: User): Promise<UserActionState> {
+export async function sendPasswordEmail(data: {id: number, email: string}): Promise<UserActionState> {
   const session = await getRequiredSession();
   requireRole(session, "superadmin");
 
@@ -293,14 +292,14 @@ export async function sendPasswordEmail(user: User): Promise<UserActionState> {
   try {
     await prisma.accountInvitation.create({
       data: {
-        personnelId: Number(user.id),
+        personnelId: data.id,
         tokenHash,
         expiresAt,
         createdByPersonnelId: session.user.personnelId,
       },
     });
 
-    await sendPasswordResetEmail(user.email, `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`);
+    await sendPasswordResetEmail(data.email, `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`);
 
     return {success: true}
   } catch (e) {
@@ -310,7 +309,7 @@ export async function sendPasswordEmail(user: User): Promise<UserActionState> {
   }
 }
 
-export async function getUserById(id: number): Promise<User> {
+export async function getUserById(id: number) {
   const session = await getRequiredSession();
   requireRole(session, "superadmin");
 
@@ -335,3 +334,34 @@ export async function getUserById(id: number): Promise<User> {
     },
   });
 }
+
+export type User = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+
+  sportId?: number;
+
+  isActive: boolean;
+
+  editor?: {
+    editorRoleId: number;
+    managedSports: {
+      sportId: number;
+      sport: {
+        id: number;
+        name: string;
+      };
+    }[];
+  } | null;
+
+  trainer: {
+    category: string | null;
+  } | null;
+
+  official: {
+    position: string;
+  } | null;
+};
