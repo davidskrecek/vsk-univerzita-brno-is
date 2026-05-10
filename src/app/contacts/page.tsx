@@ -21,24 +21,24 @@ async function ContactsListContainer({canEdit, sports, roles}: {canEdit: boolean
 }
 
 export default async function ContactsPage() {
-    const session = await getServerSession(authOptions);
-   const canCreate = session?.user && (session.user.role === "superadmin" || session.user.role === "sport_manager");
+        const session = await getServerSession(authOptions);
+       const canCreate = session?.user && (session.user.role === "superadmin" || session.user.role === "sport_manager");
 
-    const roles = await getRoles();
-    const sports = await getSports();
+        const roles = await getRoles();
+        const sports = await getSports();
 
-  return (
-    <div className="stack-page">
-      <SectionHeader title="Kontakty" as="h1" rightContent={
-        canCreate ? (
-            <Suspense fallback={<MiniSpinner/>}>
-                <UserFormModalButton label="Vytvořit uživatele" roles={roles} sports={sports}/>
-            </Suspense>
-        ) : null
-      }/>
-      <Suspense fallback={<Loading />}>
-        <ContactsListContainer canEdit={canCreate ?? false} roles={roles} sports={sports} />
-      </Suspense>
-    </div>
-  );
+      return (
+        <div className="stack-page">
+          <SectionHeader title="Kontakty" as="h1" rightContent={
+            canCreate ? (
+                <Suspense fallback={<MiniSpinner/>}>
+                    <UserFormModalButton label="Vytvořit uživatele" roles={roles} sports={sports}/>
+                </Suspense>
+            ) : null
+          }/>
+          <Suspense fallback={<Loading />}>
+            <ContactsListContainer canEdit={canCreate ?? false} roles={roles} sports={sports} />
+          </Suspense>
+        </div>
+      );
 }
