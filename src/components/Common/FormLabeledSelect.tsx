@@ -34,7 +34,6 @@ export const FormLabeledSelect = ({label, name, options, placeholder = "Vyberte 
                 {...register(name)}
                 disabled={disabled}
                 multiple={multiple}
-                defaultValue={multiple ? [] : ""}
                 className={`${baseSelectClassName} ${selectClassName}`}
             >
                 {!multiple && placeholder && (
@@ -44,7 +43,7 @@ export const FormLabeledSelect = ({label, name, options, placeholder = "Vyberte 
                 )}
 
                 {options.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
+                    <option key={opt.value} value={String(opt.value)}>
                         {opt.label}
                     </option>
                 ))}

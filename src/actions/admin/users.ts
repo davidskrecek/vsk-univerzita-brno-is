@@ -309,3 +309,29 @@ export async function sendPasswordEmail(user: User): Promise<UserActionState> {
     }
   }
 }
+
+export async function getUserById(id: number): Promise<User> {
+  const session = await getRequiredSession();
+  requireRole(session, "superadmin");
+
+  return prisma.personnel.findUnique({
+    where: { id },
+    include: {
+      sport: true,
+
+      editor: {
+        include: {
+          editorRole: true,
+          managedSports: {
+            include: {
+              sport: true,
+            },
+          },
+        },
+      },
+
+      trainer: true,
+      official: true,
+    },
+  });
+}
