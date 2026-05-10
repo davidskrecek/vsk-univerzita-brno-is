@@ -69,7 +69,7 @@ export const UserFormModalButton = ({label, roles, sports, userId, iconOnly}: Us
     return (
         <>
             {iconOnly ? (
-                <Pencil size={14} onClick={openModal} className="absolute bottom-4 right-4 text-primary/70 transition-colors hover:text-primary cursor-pointer"/>
+                <Pencil size={14} onClick={openModal} className="absolute bottom-10 right-4 text-primary/70 transition-colors hover:text-primary cursor-pointer"/>
             ) : (
                 <SectionActionButton label={label ?? ""} onClick={openModal} requiredRoles={["superadmin"]}/>
             )}
