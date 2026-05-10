@@ -1,16 +1,49 @@
 "use client";
 
-import { Mail, Phone } from "lucide-react";
+import {Mail, Phone} from "lucide-react";
 import { ContactPerson } from "@/types/contacts";
+import {UserFormModalButton} from "@/components/Common/UserFormModalButtonProps";
+import {Role} from "@/lib/queries/roles";
+import {Sport} from "@/lib/queries/sports";
+import {sendPasswordEmail} from "@/actions/admin/users";
+import {useToast} from "@/hooks/useToast";
 
 interface ContactCardProps {
   contact: ContactPerson;
+  canEdit: boolean;
+  roles: Role[];
+  sports: Sport[];
 }
 
-export const ContactCard = ({ contact }: ContactCardProps) => {
+export const ContactCard = ({ contact, canEdit, roles, sports }: ContactCardProps) => {
+    const toast = useToast();
+
+    const onPasswordReset = async () => {
+        const result = await sendPasswordEmail({id: Number(contact.id), email: contact.email});
+        if(result.success) {
+            toast.success("Email pro reset hesla byl odeslán");
+        } else {
+            toast.error("Nepodařilo se odeslat email pro reset hesla");
+        }
+    }
+
   return (
     <article className="relative rounded-md border border-outline-variant/10 bg-surface-container-low p-5 shadow-ambient transition-colors hover:bg-surface-container">
       <span className="meta-badge absolute top-4 right-4">
+        {contact.sport}
+      </span>
+
+        {canEdit && (
+            <>
+                <UserFormModalButton userId={contact.id} roles={roles} sports={sports} iconOnly/>
+                <span onClick={onPasswordReset}
+                        className="meta-eyebrow absolute bottom-4 right-4 cursor-pointer text-primary/70 transition-colors hover:text-primary">
+                    Restartovat heslo
+                </span>
+            </>
+        )}
+
+        <span className="meta-badge absolute top-4 right-4">
         {contact.sport}
       </span>
 
