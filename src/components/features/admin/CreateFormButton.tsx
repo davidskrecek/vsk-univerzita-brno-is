@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
 import { Modal } from "@/components/ui/Overlay/Modal";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
@@ -14,35 +13,25 @@ interface CreateFormButtonProps {
     onSuccess: () => void;
   }>;
   sports: Array<{ id: number; name: string }>;
+  requiredPermission?: string;
 }
 
-export const CreateFormButton = ({ label, FormComponent, sports }: CreateFormButtonProps) => {
-  const { data: session } = useSession();
+export const CreateFormButton = ({ label, FormComponent, sports, requiredPermission }: CreateFormButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
-
   const handleClose = () => setIsOpen(false);
-
-  const availableSports =
-    session?.user?.role === "superadmin"
-      ? sports
-      : sports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
-
-  if (!availableSports.length) {
-    return null;
-  }
 
   return (
     <>
       <SectionActionButton
         label={label}
         onClick={() => setIsOpen(true)}
-        requiredRoles={["sport_manager", "superadmin"]}
+        requiredPermission={requiredPermission}
       />
 
       <AnimatePresence>
         {isOpen && (
           <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
-            <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
+            <FormComponent sports={sports} onCancel={handleClose} onSuccess={handleClose} />
           </Modal>
         )}
       </AnimatePresence>

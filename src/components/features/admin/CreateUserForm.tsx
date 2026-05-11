@@ -105,6 +105,9 @@ export default function CreateUserForm({ onResult, onCancel, sports, roles, user
             let roleName = editorType === "admin" ? "sport_manager" : "editor";
             const targetRole = roles.find(r => r.name === roleName);
             if (targetRole) formData.append("editorRoleId", String(targetRole.id));
+            if (sportId) {
+                formData.append("managedSportIds", JSON.stringify([Number(sportId)]));
+            }
         }
 
         if (trainerCategory) {
@@ -113,8 +116,8 @@ export default function CreateUserForm({ onResult, onCancel, sports, roles, user
         }
 
         const result = user?.id
-            ? await updateUserAction(formData)
-            : await createUserAction(formData);
+            ? await updateUserAction(undefined, formData)
+            : await createUserAction(undefined, formData);
 
         if (result.success) onResult();
         else onResult(result.error);
