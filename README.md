@@ -40,7 +40,13 @@ The seed creates:
 - Trainer account: `trener.atletika@vsk.cz` / `Trener1234!`
 - Sample posts and events
 
-### 5. Start dev server
+### 5. Start Redis server
+
+```bash
+docker run -d -p 6379:6379 redis:7-alpine
+```
+
+### 6. Start dev server
 
 ```bash
 npm run dev
