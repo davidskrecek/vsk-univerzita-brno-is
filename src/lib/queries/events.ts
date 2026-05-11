@@ -1,15 +1,27 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import type { UiEvent } from "@/components/Events/eventUtils";
+import type { UiEvent } from "@/components/features/events/eventUtils";
 
-export async function getPublicEvents(sportName?: string): Promise<UiEvent[]> {
+export async function getPublicEvents(sportName?: string, year?: number, month?: number): Promise<UiEvent[]> {
+  const where: any = {
+    isPublic: true,
+    isCancelled: false,
+    sport: sportName ? { name: sportName } : undefined
+  };
+
+  if (year && month) {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+    where.startTime = {
+      gte: startOfMonth,
+      lte: endOfMonth
+    };
+  } else {
+    where.startTime = { gte: new Date() };
+  }
+
   const events = await prisma.event.findMany({
-    where: {
-      isPublic: true,
-      isCancelled: false,
-      startTime: { gte: new Date() },
-      sport: sportName ? { name: sportName } : undefined
-    },
+    where,
     select: {
       id: true,
       title: true,
@@ -55,3 +67,4 @@ export async function getEventById(id: number) {
 }
 
 export type PublicEvent = Awaited<ReturnType<typeof getPublicEvents>>[number];
+
