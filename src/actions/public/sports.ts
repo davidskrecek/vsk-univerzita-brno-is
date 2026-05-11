@@ -9,3 +9,4 @@ export async function getAvailableSports() {
   });
   return sports;
 }
+

@@ -1,7 +1,7 @@
 "use client";
 
-import SectionHeader from "@/components/Common/SectionHeader";
-import OtherSection from "@/components/Other/OtherSection";
+import SectionHeader from "@/components/layout/SectionHeader";
+import OtherSection from "@/components/ui/Display/OtherSection";
 
 export default function OtherPage() {
     const sections = [
@@ -44,3 +44,4 @@ export default function OtherPage() {
         </div>
     );
 }
+

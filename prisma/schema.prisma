@@ -180,6 +180,7 @@ model AccountInvitation {
   expiresAt            DateTime  @map("expires_at")
   usedAt               DateTime? @map("used_at")
   createdByPersonnelId Int?      @map("created_by_personnel_id")
+  metadata             Json?     @map("metadata")
   createdAt            DateTime  @default(now()) @map("created_at")
 
   personnel Personnel  @relation("InvitationPersonnel", fields: [personnelId], references: [id])

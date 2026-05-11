@@ -36,3 +36,4 @@ export async function submitOrder(formData: OrderFormData): Promise<void> {
   // Send confirmation email to the user
   await sendConfirmationEmail(formData.email, confirmationLink);
 }
+

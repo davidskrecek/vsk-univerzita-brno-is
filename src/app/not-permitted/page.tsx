@@ -3,8 +3,9 @@
  * Testing purpose only
  */
 
-import { NotPermitted } from "@/components/Auth/NotPermitted";
+import { NotPermitted } from "@/components/features/auth/NotPermitted";
 
 export default function NotPermittedPage() {
   return <NotPermitted requiredRole="admin" />;
 }
+

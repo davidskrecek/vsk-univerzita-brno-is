@@ -1,29 +1,32 @@
 import { Suspense } from "react";
-import AppLink from "@/components/Common/AppLink";
-import { Banner } from "@/components/Common/Banner";
-import { PostCard } from "@/components/Posts/PostCard";
-import { EventCard } from "@/components/Events/EventCard";
-import SectionHeader from "@/components/Common/SectionHeader";
+import AppLink from "@/components/ui/Actions/AppLink";
+import { Banner } from "@/components/layout/Banner";
+import { PostCard } from "@/components/features/posts/PostCard";
+import { EventCard } from "@/components/features/events/EventCard";
+import SectionHeader from "@/components/layout/SectionHeader";
 import { getPublishedPosts } from "@/lib/queries/posts";
 import { getPublicEvents } from "@/lib/queries/events";
-import { getCzechMonthShort, getEventDayOfMonth } from "@/components/Events/eventUtils";
-import Loading from "./loading";
+import { getCzechMonthShort, getEventDayOfMonth } from "@/components/features/events/eventUtils";
+import { PageReveal } from "@/components/layout/PageReveal";
+import Loading from "@/app/loading";
 
 async function PostListContainer() {
-  const latestPosts = await getPublishedPosts(undefined, 3);
+  const { posts: latestPosts } = await getPublishedPosts(undefined, 1, 3);
   return (
-    <div className="stack-list">
-      {latestPosts.map((post) => (
-        <PostCard
-          key={post.id}
-          postId={String(post.id)}
-          category={post.sport.name.toUpperCase()}
-          title={post.title}
-          description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
-          imageUrl={post.imageUrl}
-        />
-      ))}
-    </div>
+    <PageReveal>
+      <div className="stack-list">
+        {latestPosts.map((post) => (
+          <PostCard
+            key={post.id}
+            postId={String(post.id)}
+            category={post.sport.name.toUpperCase()}
+            title={post.title}
+            description={post.excerpt ?? "Pro tento příspěvek není dostupný stručný popis."}
+            imageUrl={post.imageUrl}
+          />
+        ))}
+      </div>
+    </PageReveal>
   );
 }
 
@@ -33,20 +36,22 @@ async function UpcomingEventsContainer() {
   );
 
   return (
-    <div className="stack-list">
-      {upcomingEvents.map((event) => (
-        <EventCard
-          key={event.id}
-          id={event.id}
-          day={getEventDayOfMonth(event.date)}
-          month={getCzechMonthShort(event.date)}
-          category={event.sport}
-          title={event.title}
-          location={event.location || "Bude upřesněno"}
-          isInline
-        />
-      ))}
-    </div>
+    <PageReveal>
+      <div className="stack-list">
+        {upcomingEvents.map((event) => (
+          <EventCard
+            key={event.id}
+            id={event.id}
+            day={getEventDayOfMonth(event.date)}
+            month={getCzechMonthShort(event.date)}
+            category={event.sport}
+            title={event.title}
+            location={event.location || "Bude upřesněno"}
+            isInline
+          />
+        ))}
+      </div>
+    </PageReveal>
   );
 }
 
@@ -116,3 +121,4 @@ export default function Home() {
     </div>
   );
 }
+

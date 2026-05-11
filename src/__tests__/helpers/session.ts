@@ -19,3 +19,4 @@ export const mockSportManagerSession: AppSession = {
     managedSportIds: [1],
   },
 };
+

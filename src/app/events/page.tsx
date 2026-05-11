@@ -1,23 +1,23 @@
 import { Suspense } from "react";
-import SectionHeader from "@/components/Common/SectionHeader";
-import CreateFormButton from "@/components/Common/CreateFormButton";
-import EventCreateForm from "@/components/Forms/EventCreateForm";
+import SectionHeader from "@/components/layout/SectionHeader";
+import CreateFormButton from "@/components/features/admin/CreateFormButton";
+import EventCreateForm from "@/components/features/events/EventCreateForm";
 import { getPublicEvents } from "@/lib/queries/events";
 import { getSports } from "@/lib/queries/sports";
 import EventsContent from "./EventsContent";
-import EventsFilter from "@/components/Events/EventsFilter";
+import EventsFilter from "@/components/features/events/EventsFilter";
 import Loading from "@/app/loading";
-import MiniSpinner from "@/components/Common/MiniSpinner";
-import { PageReveal } from "@/components/Common/PageReveal";
+import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
+import { PageReveal } from "@/components/layout/PageReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-async function EventsListContainer({ sport, sports }: { sport?: string; sports: any[] }) {
-  const initialEvents = await getPublicEvents(sport);
-  
+async function EventsListContainer({ sport, sports, year, month }: { sport?: string; sports: any[]; year?: number; month?: number }) {
+  const initialEvents = await getPublicEvents(sport, year, month);
+
   return (
     <PageReveal>
-      <EventsContent initialEvents={initialEvents} availableSports={sports} />
+      <EventsContent initialEvents={initialEvents} availableSports={sports} year={year} month={month} />
     </PageReveal>
   );
 }
@@ -36,12 +36,16 @@ async function NewEventButton() {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ sport?: string }>;
+  searchParams: Promise<{ sport?: string; view?: string; month?: string; year?: string }>;
 }) {
-  const { sport } = await searchParams;
+  const { sport, view, month, year } = await searchParams;
   const sports = await getSports();
-  const sportNames = sports.map(s => s.name);
-  
+
+  const isCalendar = view !== "list";
+  const now = new Date();
+  const currentMonth = Number(month) || (isCalendar ? now.getMonth() + 1 : undefined);
+  const currentYear = Number(year) || (isCalendar ? now.getFullYear() : undefined);
+
   const session = await getServerSession(authOptions);
   const canCreate = session?.user && (session.user.role === "superadmin" || session.user.role === "sport_manager");
 
@@ -58,12 +62,18 @@ export default async function EventsPage({
           ) : null
         }
       />
-      
-      <EventsFilter availableSports={sportNames} />
-      
+
+      <EventsFilter availableSports={sports} />
+
       <Suspense fallback={<Loading />}>
-        <EventsListContainer sport={sport} sports={sports} />
+        <EventsListContainer
+          sport={sport}
+          sports={sports}
+          year={currentYear}
+          month={currentMonth}
+        />
       </Suspense>
     </div>
   );
 }
+

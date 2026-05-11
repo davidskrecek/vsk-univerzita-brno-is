@@ -6,3 +6,4 @@ export default function AlreadyConfirmedPage() {
     </div>
   );
 }
+

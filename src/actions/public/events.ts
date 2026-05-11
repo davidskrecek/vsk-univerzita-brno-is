@@ -1,22 +1,44 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { type UiEvent } from "@/components/Events/eventUtils";
+import { type UiEvent } from "@/components/features/events/eventUtils";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { UserRole } from "@/lib/constants/roles";
 
 export async function getEventDetail(id: number): Promise<UiEvent | null> {
   if (!Number.isInteger(id) || id <= 0) {
     return null;
   }
 
-  const event = await prisma.event.findFirst({
-    where: { id, isPublic: true },
-    include: {
-      sport: { select: { id: true, name: true } },
-    },
-  });
+  const [event, session] = await Promise.all([
+    prisma.event.findFirst({
+      where: { id, isPublic: true },
+      include: {
+        sport: { select: { id: true, name: true } },
+        links: { select: { url: true, alias: true } },
+      },
+    }),
+    getServerSession(authOptions)
+  ]);
 
   if (!event) {
     return null;
+  }
+
+  // Server-side authorization check
+  let canEdit = false;
+  if (session?.user) {
+    if (session.user.role === UserRole.SUPERADMIN) {
+      canEdit = true;
+    } else if (event.authorPersonnelId === Number(session.user.personnelId)) {
+      canEdit = true;
+    } else if (
+      (session.user.role === UserRole.SPORT_MANAGER || session.user.role === UserRole.EDITOR) && 
+      session.user.managedSportIds?.includes(event.sportId)
+    ) {
+      canEdit = true;
+    }
   }
 
   return {
@@ -34,5 +56,9 @@ export async function getEventDetail(id: number): Promise<UiEvent | null> {
     sportId: event.sport.id,
     description: event.description ?? undefined,
     startTimeIso: event.startTime.toISOString(),
+    canEdit,
+    links: event.links.map(l => ({ url: l.url, alias: l.alias })),
   };
 }
+
+
