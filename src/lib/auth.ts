@@ -15,8 +15,11 @@ export const authOptions: AuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
+        const email = credentials.email.trim().toLowerCase();
+        console.log(`[AUTH] Attempting login for: ${email}`);
+
         const editor = await prisma.editor.findFirst({
-          where: { personnel: { email: credentials.email } },
+          where: { personnel: { email } },
           include: {
             personnel: true,
             editorRole: true,
@@ -24,12 +27,19 @@ export const authOptions: AuthOptions = {
           },
         });
 
-        if (!editor) return null;
+        if (!editor) {
+          console.log(`[AUTH] User not found in DB: ${email}`);
+          return null;
+        }
+
+        console.log(`[AUTH] User found, checking password...`);
 
         if (editor.lockedUntil && editor.lockedUntil > new Date()) {
           throw new Error("AccountLocked");
         }
 
+        console.log(`[AUTH] Password length: ${credentials.password.length}`);
+        
         const valid = await bcrypt.compare(credentials.password, editor.passwordHash);
 
         if (!valid) {
@@ -52,7 +62,8 @@ export const authOptions: AuthOptions = {
           email: editor.personnel.email,
           name: `${editor.personnel.firstName} ${editor.personnel.lastName}`,
           role: editor.editorRole.name,
-          managedSportIds: editor.managedSports.map((managedSport) => managedSport.sportId),
+          managedSportIds: editor.managedSports.map((ms) => ms.sportId),
+          permissions: (editor.editorRole.permissions as any) || {},
         };
       },
     }),
@@ -61,15 +72,19 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.personnelId = Number(user.id);
-        token.role = (user as { role: string }).role;
-        token.managedSportIds = (user as { managedSportIds: number[] }).managedSportIds;
+        token.role = (user as any).role;
+        token.managedSportIds = (user as any).managedSportIds;
+        token.permissions = (user as any).permissions;
       }
       return token;
     },
     async session({ session, token }) {
-      session.user.personnelId = token.personnelId as number;
-      session.user.role = token.role as string;
-      session.user.managedSportIds = token.managedSportIds as number[];
+      if (session.user) {
+        session.user.personnelId = token.personnelId as number;
+        session.user.role = token.role as any;
+        session.user.managedSportIds = token.managedSportIds as number[];
+        session.user.permissions = token.permissions as Record<string, boolean>;
+      }
       return session;
     },
   },
@@ -77,3 +92,4 @@ export const authOptions: AuthOptions = {
     signIn: "/",
   },
 };
+

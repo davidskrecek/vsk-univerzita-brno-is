@@ -6,3 +6,4 @@ export async function getRoles() {
 }
 
 export type Role = Awaited<ReturnType<typeof getRoles>>[number];
+
