@@ -16,3 +16,4 @@ export function apiError(e: unknown): NextResponse {
 export function ok<T>(data: T, status = 200): NextResponse {
   return NextResponse.json(data, { status });
 }
+
