@@ -4,6 +4,7 @@ export interface ContactItem {
   lastName: string;
   role: string;
   sportName: string | null;
+  sportId: number | null;
   email: string;
   phone: string | null;
   roleGroup?: string | null;
@@ -15,8 +16,10 @@ export interface ContactPerson {
   name: string;
   role: string;
   sport: string;
+  sportId: number | null;
   email: string;
   phone: string | null;
+  isActive: boolean;
 }
 
 export interface ContactSectionData {
@@ -24,4 +27,5 @@ export interface ContactSectionData {
   title: string;
   contacts: ContactPerson[];
 }
+
 

@@ -13,3 +13,14 @@ export interface ToastContextValue {
   error: (message: string, duration?: number) => void;
 }
 
+export interface ConfirmOptions {
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    type?: "primary" | "danger";
+}
+
+export type ConfirmContextValue = (options: ConfirmOptions) => Promise<boolean>;
+
+
