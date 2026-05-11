@@ -11,6 +11,7 @@ import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
 import { PageReveal } from "@/components/layout/PageReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { isSuperAdminRole } from "@/lib/constants/roles";
 
 async function EventsListContainer({ sport, sports, year, month }: { sport?: string; sports: any[]; year?: number; month?: number }) {
   const initialEvents = await getPublicEvents(sport, year, month);
@@ -23,12 +24,19 @@ async function EventsListContainer({ sport, sports, year, month }: { sport?: str
 }
 
 async function NewEventButton() {
-  const sports = await getSports();
+  const session = await getServerSession(authOptions);
+  const allSports = await getSports();
+  
+  const availableSports = session?.user?.role === "superadmin"
+    ? allSports
+    : allSports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
+  
   return (
     <CreateFormButton
       label="Nová akce"
       FormComponent={EventCreateForm}
-      sports={sports}
+      sports={availableSports}
+      requiredPermission="events:write"
     />
   );
 }
@@ -47,7 +55,7 @@ export default async function EventsPage({
   const currentYear = Number(year) || (isCalendar ? now.getFullYear() : undefined);
 
   const session = await getServerSession(authOptions);
-  const canCreate = session?.user && (session.user.role === "superadmin" || session.user.role === "sport_manager");
+  const canCreate = session?.user && (session?.user.permissions["posts:write"] === true || isSuperAdminRole(session.user.role));
 
   return (
     <div className="stack-page">

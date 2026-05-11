@@ -12,22 +12,30 @@ async function main() {
   // 1. Roles
   const superadminRole = await prisma.editorRole.upsert({
     where: { name: "superadmin" },
-    update: {},
+    update: { permissions: { all: true } },
     create: { name: "superadmin", permissions: { all: true } },
   });
 
   const editorRole = await prisma.editorRole.upsert({
     where: { name: "editor" },
-    update: {},
+    update: {
+      permissions: {
+        "posts:write": true,
+        "events:write": true,
+      },
+    },
     create: {
       name: "editor",
-      permissions: { posts: ["create", "update"], events: ["create", "update"] },
+      permissions: {
+        "posts:write": true,
+        "events:write": true,
+      },
     },
   });
 
   const sportManagerRole = await prisma.editorRole.upsert({
     where: { name: "sport_manager" },
-    update: {},
+    update: { permissions: { all: true } },
     create: {
       name: "sport_manager",
       permissions: { all: true },
@@ -36,8 +44,17 @@ async function main() {
 
   const viewerRole = await prisma.editorRole.upsert({
     where: { name: "viewer" },
-    update: {},
-    create: { name: "viewer", permissions: { posts: ["read"], events: ["read"] } },
+    update: {
+      permissions: {
+        "users:view": true,
+      },
+    },
+    create: {
+      name: "viewer",
+      permissions: {
+        "users:view": true,
+      },
+    },
   });
 
   // 2. Sports
@@ -102,7 +119,13 @@ async function main() {
 
     await prisma.editor.upsert({
       where: { personnelId: p.id },
-      update: { editorRoleId: sportManagerRole.id },
+      update: {
+        editorRoleId: sportManagerRole.id,
+        managedSports: {
+          deleteMany: {},
+          create: [{ sportId: sportsMap[m.sport].id }],
+        },
+      },
       create: { 
         personnelId: p.id, 
         passwordHash: commonHash, 
@@ -127,7 +150,13 @@ async function main() {
 
     await prisma.editor.upsert({
       where: { personnelId: p.id },
-      update: { editorRoleId: editorRole.id },
+      update: {
+        editorRoleId: editorRole.id,
+        managedSports: {
+          deleteMany: {},
+          create: [{ sportId: sportsMap[e.sport].id }],
+        },
+      },
       create: { 
         personnelId: p.id, 
         passwordHash: commonHash, 
