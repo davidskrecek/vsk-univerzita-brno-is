@@ -70,3 +70,4 @@ describe("POST /api/auth/invitation/accept", () => {
     expect(body.success).toBe(true);
   });
 });
+

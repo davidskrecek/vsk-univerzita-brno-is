@@ -1,9 +1,9 @@
 import { Suspense } from "react";
-import SectionHeader from "@/components/Common/SectionHeader";
+import SectionHeader from "@/components/layout/SectionHeader";
 import { getSports } from "@/lib/queries/sports";
 import Loading from "@/app/loading";
-import { PageReveal } from "@/components/Common/PageReveal";
-import SportsList from "@/components/Sports/SportsList";
+import { PageReveal } from "@/components/layout/PageReveal";
+import SportsList from "@/components/features/sports/SportsList";
 
 async function SportsListContainer() {
   const sports = await getSports();
@@ -24,3 +24,4 @@ export default function SportsPage() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import SetPasswordForm from "@/components/Forms/SetPasswordForm";
+import { redirect } from "next/navigation";
 
 type SetPasswordPageProps = {
     searchParams: Promise<{ token?: string; }>;
@@ -22,21 +22,6 @@ export default async function SetPasswordPage({searchParams}: SetPasswordPagePro
         )
     }
 
-    return (
-        <div className="min-h-screen flex items-center justify-center p-6">
-            <div className="w-full max-w-md bg-surface-container rounded-2xl shadow-ambient p-8">
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold mb-2">
-                        Nastavení hesla
-                    </h1>
-
-                    <p className="text-on-surface/70 text-sm">
-                        Zadejte nové heslo pro aktivaci účtu.
-                    </p>
-                </div>
-
-                <SetPasswordForm token={token ?? ""} />
-            </div>
-        </div>
-    );
+    redirect(`/?token=${token}`);
 }
+

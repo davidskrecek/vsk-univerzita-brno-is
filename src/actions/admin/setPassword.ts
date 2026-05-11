@@ -23,7 +23,7 @@ export async function setPassword(values: ResetPasswordSchema): Promise<ResetPas
             };
         }
 
-        const { token, password } = parsed.data;
+        const { token, password, oldPassword } = parsed.data;
 
         const tokenHash = crypto
             .createHash("sha256")
@@ -42,12 +42,31 @@ export async function setPassword(values: ResetPasswordSchema): Promise<ResetPas
                                 gt: new Date(),
                             },
                         },
+                        include: {
+                            personnel: {
+                                include: {
+                                    editor: true,
+                                }
+                            }
+                        }
                     });
 
                 if (!invitation) {
                     return {
                         error: "Invalid or expired invitation",
                     };
+                }
+
+                const existingHash = invitation.personnel.editor?.passwordHash;
+                const isPending = existingHash === "PENDING";
+
+                if (existingHash && !isPending && oldPassword) {
+                    const isMatch = await bcrypt.compare(oldPassword, existingHash);
+                    if (!isMatch) {
+                        return {
+                            error: "Původní heslo není správné.",
+                        };
+                    }
                 }
 
                 await tx.editor.update({
@@ -82,3 +101,4 @@ export async function setPassword(values: ResetPasswordSchema): Promise<ResetPas
         };
     }
 }
+

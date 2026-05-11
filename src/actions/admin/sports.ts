@@ -77,3 +77,4 @@ export async function createSport(
     return { error: "Failed to create sport" };
   }
 }
+

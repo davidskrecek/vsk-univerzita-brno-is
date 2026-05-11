@@ -4,27 +4,29 @@ import { Suspense, useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
-import EmptyState from "@/components/Common/EmptyState";
-import { Modal } from "@/components/Overlay/Modal";
-import { Calendar } from "@/components/Events/Calendar/Calendar";
-import { EventCard } from "@/components/Events/EventCard";
-import EventDetail from "@/components/Events/EventDetail";
-import EditButton from "@/components/Common/EditButton";
-import EventCreateForm from "@/components/Forms/EventCreateForm";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
+import { Modal } from "@/components/ui/Overlay/Modal";
+import { Calendar } from "@/components/features/events/Calendar/Calendar";
+import { EventCard } from "@/components/features/events/EventCard";
+import EventDetail from "@/components/features/events/EventDetail";
+import EditButton from "@/components/ui/Actions/EditButton";
+import EventCreateForm from "@/components/features/events/EventCreateForm";
 import Loading from "@/app/loading";
-import ViewToggle from "@/components/Common/ViewToggle";
+import ViewToggle from "@/components/ui/Actions/ViewToggle";
 import {
   getCzechMonthShort,
   getEventDayOfMonth,
   findEventById,
   type UiEvent,
-} from "@/components/Events/eventUtils";
+} from "@/components/features/events/eventUtils";
 
 type ViewMode = "calendar" | "list";
 
 interface EventsContentProps {
   initialEvents: UiEvent[];
   availableSports: Array<{ id: number; name: string }>;
+  year?: number;
+  month?: number;
 }
 
 interface EventsListContentProps {
@@ -53,14 +55,13 @@ const EventsListContent = ({ events }: EventsListContentProps) => {
   );
 };
 
-function EventsContentInner({ initialEvents, availableSports }: EventsContentProps) {
+function EventsContentInner({ initialEvents, availableSports, year, month }: EventsContentProps) {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { data: session } = useSession();
 
-  const selectedSport = searchParams.get("sport");
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [pendingEditEvent, setPendingEditEvent] = useState<UiEvent | null>(null);
+  const now = new Date();
+  const activeYear = year || now.getFullYear();
+  const activeMonth = month || now.getMonth() + 1;
 
   const viewModeParam = searchParams.get("view");
   const viewMode: ViewMode = viewModeParam === "list" ? "list" : "calendar";
@@ -72,10 +73,8 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
         ? availableSports
         : availableSports.filter((sport) => session.user.managedSportIds?.includes(sport.id));
 
-  const openEditForEvent = useCallback((detail: UiEvent) => {
-    setPendingEditEvent(detail);
-    setIsEditOpen(true);
-  }, []);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [pendingEditEvent, setPendingEditEvent] = useState<UiEvent | null>(null);
 
   const closeEditModal = useCallback(() => {
     setIsEditOpen(false);
@@ -94,7 +93,7 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
         <div className="md:hidden">{listContent}</div>
         <div className="hidden md:block">
           {viewMode === "calendar" ? (
-            <Calendar events={initialEvents} />
+            <Calendar events={initialEvents} year={activeYear} month={activeMonth} />
           ) : (
             listContent
           )}
@@ -126,6 +125,7 @@ function EventsContentInner({ initialEvents, availableSports }: EventsContentPro
   );
 }
 
-export default function EventsContent({ initialEvents, availableSports }: EventsContentProps) {
-  return <EventsContentInner initialEvents={initialEvents} availableSports={availableSports} />;
+export default function EventsContent({ initialEvents, availableSports, year, month }: EventsContentProps) {
+  return <EventsContentInner initialEvents={initialEvents} availableSports={availableSports} year={year} month={month} />;
 }
+

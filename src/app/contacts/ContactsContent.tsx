@@ -1,54 +1,109 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import EmptyState from "@/components/Common/EmptyState";
-import SportFilter from "@/components/Common/SportFilter/SportFilter";
-import ContactSection from "@/components/Contacts/ContactSection";
+import { useTransition, useCallback, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import ViewToggle from "@/components/ui/Actions/ViewToggle";
+import SportFilter from "@/components/ui/Filters/SportFilter";
+import ContactSection from "@/components/features/contacts/ContactSection";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
 import {
   buildContactSections,
   extractSports,
   type ContactItem,
-} from "@/components/Contacts/contactUtils";
-import {Sport} from "@/lib/queries/sports";
-import {Role} from "@/lib/queries/roles";
+} from "@/components/features/contacts/contactUtils";
+import { Sport } from "@/lib/queries/sports";
+import { Role } from "@/lib/queries/roles";
 
 interface ContactsContentProps {
   initialContacts: ContactItem[];
+  allAvailableContacts: ContactItem[];
   canEdit: boolean;
+  isSuperAdmin: boolean;
   roles: Role[];
   allSports: Sport[];
+  currentSport?: string;
+  currentShowInactive: boolean;
 }
 
-export default function ContactsContent({ initialContacts, canEdit, roles, allSports }: ContactsContentProps) {
-  const contacts = initialContacts;
-  const [selectedSport, setSelectedSport] = useState<string | null>(null);
+export default function ContactsContent({
+  initialContacts,
+  allAvailableContacts,
+  canEdit,
+  isSuperAdmin,
+  roles,
+  allSports,
+  currentSport,
+  currentShowInactive
+}: ContactsContentProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  const { data: session } = useSession();
 
-  const sports = useMemo(() => extractSports(contacts), [contacts]);
+  const updateFilters = useCallback((sportName: string | null, showInactive: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (sportName) {
+      params.set("sport", sportName);
+    } else {
+      params.delete("sport");
+    }
 
-  const filteredSections = useMemo(() => {
-    const activeContacts = selectedSport
-      ? contacts.filter((person) => !person.sportName || person.sportName === selectedSport)
-      : contacts;
-    return buildContactSections(activeContacts);
-  }, [contacts, selectedSport]);
+    if (showInactive) {
+      params.set("showInactive", "true");
+    } else {
+      params.delete("showInactive");
+    }
 
-  const visibleCount = filteredSections.reduce((sum, section) => sum + section.contacts.length, 0);
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
+  }, [router, searchParams]);
+
+  const sortedSports = useMemo(() =>
+    [...allSports].sort((a, b) => a.name.localeCompare(b.name, "cs")),
+    [allSports]
+  );
+
+  const sections = useMemo(() => buildContactSections(initialContacts), [initialContacts]);
+  const visibleCount = sections.reduce((sum, section) => sum + section.contacts.length, 0);
 
   return (
-    <div className="flex flex-col gap-8">
-      <SportFilter
-        sports={sports}
-        selectedSport={selectedSport}
-        onSportChange={setSelectedSport}
-      />
+    <div className={`flex flex-col gap-8 transition-opacity duration-300 ${isPending ? "opacity-50" : "opacity-100"}`}>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <SportFilter
+          sports={sortedSports}
+          selectedSport={currentSport || null}
+          onSportChange={(sport) => updateFilters(sport, currentShowInactive)}
+        />
+
+        {isSuperAdmin && (
+          <ViewToggle
+            options={[
+              { id: "active", label: "Aktivní" },
+              { id: "all", label: "Všechny" },
+            ]}
+            activeId={currentShowInactive ? "all" : "active"}
+            onChange={(id) => updateFilters(currentSport || null, id === "all")}
+          />
+        )}
+      </div>
 
       {visibleCount === 0 ? (
         <EmptyState message="Pro vybraný sport nebyly nalezeny žádné kontakty." />
       ) : (
-        filteredSections.map((section) => (
-          <ContactSection key={section.id} title={section.title} contacts={section.contacts} canEdit={canEdit} roles={roles} sports={allSports} />
+        sections.map((section) => (
+          <ContactSection
+            key={section.id}
+            title={section.title}
+            contacts={section.contacts}
+            roles={roles}
+            sports={allSports}
+            user={session?.user}
+          />
         ))
       )}
     </div>
   );
 }
+

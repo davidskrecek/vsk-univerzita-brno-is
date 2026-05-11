@@ -7,107 +7,196 @@ async function main() {
   const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
   const prisma = new PrismaClient({ adapter });
 
-  const superadmin = await prisma.editorRole.upsert({
+  console.log("Seeding database...");
+
+  // 1. Roles
+  const superadminRole = await prisma.editorRole.upsert({
     where: { name: "superadmin" },
     update: {},
     create: { name: "superadmin", permissions: { all: true } },
   });
 
-  const sportManager = await prisma.editorRole.upsert({
-    where: { name: "sport_manager" },
+  const editorRole = await prisma.editorRole.upsert({
+    where: { name: "editor" },
     update: {},
     create: {
-      name: "sport_manager",
+      name: "editor",
       permissions: { posts: ["create", "update"], events: ["create", "update"] },
     },
   });
 
-  await prisma.editorRole.upsert({
+  const sportManagerRole = await prisma.editorRole.upsert({
+    where: { name: "sport_manager" },
+    update: {},
+    create: {
+      name: "sport_manager",
+      permissions: { all: true },
+    },
+  });
+
+  const viewerRole = await prisma.editorRole.upsert({
     where: { name: "viewer" },
     update: {},
     create: { name: "viewer", permissions: { posts: ["read"], events: ["read"] } },
   });
 
-  const atletika = await prisma.sport.upsert({
-    where: { name: "Atletika" },
-    update: {},
-    create: { name: "Atletika", isCompetitive: true, description: "Oddíl atletiky VSK Univerzita Brno." },
-  });
+  // 2. Sports
+  const competitiveSports = [
+    "Atletika", "Basketbal", "Cheerleaders", "Florbal", "Lyžování", 
+    "Moderní gymnastika", "Plavání", "Šachy", "Skoky do vody", 
+    "Softball", "Stolní tenis", "Synchronizované plavání", "Volejbal"
+  ];
 
-  const tenis = await prisma.sport.upsert({
-    where: { name: "Tenis" },
-    update: {},
-    create: { name: "Tenis", isCompetitive: false, description: "Rekreační tenisový oddíl." },
-  });
+  const nonCompetitiveSports = [
+    "Aikibudo", "Basketbal (rekreační)", "ČASPV", "Kanoistika", 
+    "Šerm", "Sportovní aerobik", "Tenis", "Turistika"
+  ];
 
-  const adminPersonnel = await prisma.personnel.upsert({
+  const sportsMap: Record<string, any> = {};
+
+  for (const name of competitiveSports) {
+    sportsMap[name] = await prisma.sport.upsert({
+      where: { name },
+      update: { isCompetitive: true },
+      create: { name, isCompetitive: true, description: `Oddíl ${name.toLowerCase()} VSK Univerzita Brno.` },
+    });
+  }
+
+  for (const name of nonCompetitiveSports) {
+    sportsMap[name] = await prisma.sport.upsert({
+      where: { name },
+      update: { isCompetitive: false },
+      create: { name, isCompetitive: false, description: `Rekreační oddíl ${name.toLowerCase()}.` },
+    });
+  }
+
+  // 3. Personnel & Editors
+  const commonHash = await bcrypt.hash("Heslo123!", 12);
+
+  // Superadmin
+  const adminP = await prisma.personnel.upsert({
     where: { email: "admin@vsk.cz" },
-    update: {},
+    update: { isActive: true },
     create: { firstName: "Adam", lastName: "Novák", email: "admin@vsk.cz", isActive: true },
   });
 
-  const adminHash = await bcrypt.hash("Admin1234!", 12);
   await prisma.editor.upsert({
-    where: { personnelId: adminPersonnel.id },
-    update: {},
-    create: {
-      personnelId: adminPersonnel.id,
-      passwordHash: adminHash,
-      editorRoleId: superadmin.id,
-    },
+    where: { personnelId: adminP.id },
+    update: { editorRoleId: superadminRole.id },
+    create: { personnelId: adminP.id, passwordHash: commonHash, editorRoleId: superadminRole.id },
   });
 
-  const trainerPersonnel = await prisma.personnel.upsert({
-    where: { email: "trener.atletika@vsk.cz" },
-    update: {},
-    create: {
-      firstName: "Petr",
-      lastName: "Dvořák",
-      email: "trener.atletika@vsk.cz",
-      phone: "+420 777 111 222",
-      sportId: atletika.id,
-      isActive: true,
-    },
-  });
+  // Sport Managers
+  const managers = [
+    { firstName: "Petr", lastName: "Dvořák", email: "manager.atletika@vsk.cz", sport: "Atletika" },
+    { firstName: "Jana", lastName: "Svobodová", email: "manager.plavani@vsk.cz", sport: "Plavání" },
+    { firstName: "Marek", lastName: "Kučera", email: "manager.volejbal@vsk.cz", sport: "Volejbal" },
+  ];
 
-  await prisma.trainer.upsert({
-    where: { personnelId: trainerPersonnel.id },
-    update: {},
-    create: { personnelId: trainerPersonnel.id, category: "I. třída" },
-  });
+  for (const m of managers) {
+    const p = await prisma.personnel.upsert({
+      where: { email: m.email },
+      update: { isActive: true, sportId: sportsMap[m.sport].id },
+      create: { firstName: m.firstName, lastName: m.lastName, email: m.email, sportId: sportsMap[m.sport].id, isActive: true },
+    });
 
-  const trainerHash = await bcrypt.hash("Trener1234!", 12);
-  await prisma.editor.upsert({
-    where: { personnelId: trainerPersonnel.id },
-    update: {},
-    create: {
-      personnelId: trainerPersonnel.id,
-      passwordHash: trainerHash,
-      editorRoleId: sportManager.id,
-      managedSports: {
-        create: [{ sportId: atletika.id }],
+    await prisma.editor.upsert({
+      where: { personnelId: p.id },
+      update: { editorRoleId: sportManagerRole.id },
+      create: { 
+        personnelId: p.id, 
+        passwordHash: commonHash, 
+        editorRoleId: sportManagerRole.id,
+        managedSports: { create: [{ sportId: sportsMap[m.sport].id }] }
       },
-    },
-  });
+    });
+  }
+
+  // Editors
+  const editors = [
+    { firstName: "David", lastName: "Skřeček", email: "davidskrecek@gmail.com", sport: "Atletika" },
+    { firstName: "Lucie", lastName: "Bílá", email: "lucie.editor@vsk.cz", sport: "Tenis" },
+  ];
+
+  for (const e of editors) {
+    const p = await prisma.personnel.upsert({
+      where: { email: e.email },
+      update: { isActive: true, sportId: sportsMap[e.sport].id },
+      create: { firstName: e.firstName, lastName: e.lastName, email: e.email, sportId: sportsMap[e.sport].id, isActive: true },
+    });
+
+    await prisma.editor.upsert({
+      where: { personnelId: p.id },
+      update: { editorRoleId: editorRole.id },
+      create: { 
+        personnelId: p.id, 
+        passwordHash: commonHash, 
+        editorRoleId: editorRole.id,
+        managedSports: { create: [{ sportId: sportsMap[e.sport].id }] }
+      },
+    });
+  }
+
+  // Trainers & Regular Personnel
+  const trainers = [
+    { firstName: "Ivan", lastName: "Hrozný", email: "ivan@vsk.cz", sport: "Aikibudo", category: "Mistr" },
+    { firstName: "Eva", lastName: "Zátopková", email: "eva@vsk.cz", sport: "Atletika", category: "II. třída" },
+    { firstName: "Tomáš", lastName: "Rosický", email: "tomas@vsk.cz", sport: "Florbal", category: "Licence B" },
+  ];
+
+  for (const t of trainers) {
+    const p = await prisma.personnel.upsert({
+      where: { email: t.email },
+      update: { isActive: true, sportId: sportsMap[t.sport].id },
+      create: { firstName: t.firstName, lastName: t.lastName, email: t.email, sportId: sportsMap[t.sport].id, isActive: true },
+    });
+
+    await prisma.trainer.upsert({
+      where: { personnelId: p.id },
+      update: { category: t.category },
+      create: { personnelId: p.id, category: t.category },
+    });
+  }
+
+  // 4. Posts & Events
+  console.log("Creating posts and events...");
+
+  // Get some IDs for reference
+  const pAtletika = managers[0].email; // Petr Dvořák
+  const pPlavani = managers[1].email; // Jana Svobodová
+  const eAtletika = editors[0].email; // David Skřeček
+
+  const personnelMap: Record<string, number> = {};
+  const allP = await prisma.personnel.findMany();
+  allP.forEach(p => personnelMap[p.email] = p.id);
 
   await prisma.post.createMany({
     skipDuplicates: true,
     data: [
       {
-        authorPersonnelId: trainerPersonnel.id,
-        sportId: atletika.id,
-        title: "Příprava na ligovou sezónu 2026",
-        excerpt: "Nastartujte sezónu s námi – přidejte se k tréninkovému kempu v Brně.",
-        content: "Podrobnosti o zimní přípravě a plánovaném kempu v Brně. Kemp se koná 15.–20. března.",
+        authorPersonnelId: personnelMap[pAtletika],
+        sportId: sportsMap["Atletika"].id,
+        title: "Přebory Jihomoravského kraje",
+        excerpt: "Velký úspěch našich atletů na krajských přeborech.",
+        content: "Naši atleti vybojovali celkem 12 medailí, z toho 5 zlatých. Gratulujeme!",
         isPublished: true,
         publishedAt: new Date(),
       },
       {
-        authorPersonnelId: adminPersonnel.id,
-        sportId: tenis.id,
-        title: "Otevírací hodiny tenisových kurtů – jaro 2026",
-        excerpt: "Kurty jsou od dubna opět k dispozici pro členy klubu.",
-        content: "Rezervace přes online systém, otevírací doba 8–22 h. Nezapomeňte si přinést průkaz člena.",
+        authorPersonnelId: personnelMap[eAtletika],
+        sportId: sportsMap["Atletika"].id,
+        title: "Nové tréninkové hodiny",
+        excerpt: "Od příštího týdne měníme časy tréninků přípravky.",
+        content: "Tréninky budou nově začínat v 15:30 místo 16:00.",
+        isPublished: true,
+        publishedAt: new Date(),
+      },
+      {
+        authorPersonnelId: personnelMap[pPlavani],
+        sportId: sportsMap["Plavání"].id,
+        title: "Závody v Olomouci",
+        excerpt: "Výsledky z víkendových závodů v Olomouci.",
+        content: "Všichni naši plavci si vylepšili osobní rekordy.",
         isPublished: true,
         publishedAt: new Date(),
       },
@@ -118,32 +207,32 @@ async function main() {
     skipDuplicates: true,
     data: [
       {
-        authorPersonnelId: trainerPersonnel.id,
-        sportId: atletika.id,
-        title: "Oblastní přebor – Brno 2026",
-        description: "Závodní den pro všechny věkové kategorie.",
-        startTime: new Date("2026-05-10T09:00:00"),
-        endTime: new Date("2026-05-10T17:00:00"),
-        location: "Atletický stadion Rožnovského, Brno",
-        eventType: "match",
+        authorPersonnelId: personnelMap[pAtletika],
+        sportId: sportsMap["Atletika"].id,
+        title: "Soustředění Nymburk",
+        description: "Intenzivní příprava na sezónu.",
+        startTime: new Date("2026-04-10T09:00:00"),
+        endTime: new Date("2026-04-17T17:00:00"),
+        location: "SC Nymburk",
+        eventType: "other",
         isPublic: true,
       },
       {
-        authorPersonnelId: adminPersonnel.id,
-        sportId: tenis.id,
-        title: "Tenisový turnaj členů",
-        description: "Neformální turnaj pro registrované členy klubu.",
-        startTime: new Date("2026-05-24T10:00:00"),
-        endTime: new Date("2026-05-24T16:00:00"),
-        location: "Tenisové kurty VSK, Brno",
-        eventType: "meeting",
+        authorPersonnelId: personnelMap[pPlavani],
+        sportId: sportsMap["Plavání"].id,
+        title: "Mistrovství ČR v plavání",
+        description: "Hlavní vrchol sezóny pro kategorii dospělých.",
+        startTime: new Date("2026-06-15T08:00:00"),
+        endTime: new Date("2026-06-18T20:00:00"),
+        location: "Podolí, Praha",
+        eventType: "match",
         isPublic: true,
       },
     ],
   });
 
   await prisma.$disconnect();
-  console.log("Seed done.");
+  console.log("Seeding complete!");
 }
 
 main().catch((e) => {

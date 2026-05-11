@@ -1,6 +1,6 @@
-import SectionHeader from "@/components/Common/SectionHeader";
-import OrderSection from "@/components/Forms/OrderSection";
-import { PageReveal } from "@/components/Common/PageReveal";
+import SectionHeader from "@/components/layout/SectionHeader";
+import OrderSection from "@/components/features/partners/OrderSection";
+import { PageReveal } from "@/components/layout/PageReveal";
 
 const PARTNERS = [
   { id: "nutrend", name: "Nutrend" },
@@ -24,3 +24,4 @@ export default function FormsPage() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { ErrorScreen } from '@/components/Common/ErrorScreen';
+import { ErrorScreen } from '@/components/ui/Feedback/ErrorScreen';
 
 export default function NotFound() {
   return (
@@ -9,3 +9,4 @@ export default function NotFound() {
     />
   );
 }
+
