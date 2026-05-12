@@ -66,48 +66,47 @@ export const NavBar = () => {
               </DropdownMenu.Trigger>
               <DropdownMenu.Portal>
                 <DropdownMenu.Content
-                  className="z-[2100] min-w-[14rem] rounded-md p-1 shadow-ambient border border-outline-variant/10 bg-surface-container-low animate-in fade-in zoom-in-95 duration-200"
-                  sideOffset={10}
+                  className="z-[2100] min-w-[70vw] rounded-xl p-2 shadow-2xl border border-outline-variant/20 bg-surface-container-low/95 backdrop-blur-md animate-in fade-in slide-in-from-top-2 zoom-in-95 duration-300"
+                  sideOffset={12}
                   align="end"
-                  onCloseAutoFocus={(e) => e.preventDefault()}
                 >
-                  {navLinks.map((link) => (
-                    <DropdownMenu.Item
-                      key={link.href}
-                      className={`flex items-center gap-3 px-3 py-2 text-xs font-bold rounded-md outline-none transition-colors cursor-pointer uppercase tracking-wider ${isActive(link.href)
-                        ? 'text-primary bg-primary/10'
-                        : 'text-on-surface/80 hover:text-primary hover:bg-primary/10'
-                        }`}
-                      onSelect={() => {
-                        router.push(link.href);
-                      }}
-                    >
-                      {link.name}
+                  <div className="flex flex-col gap-1">
+                    {navLinks.map((link) => (
+                      <DropdownMenu.Item
+                        key={link.href}
+                        onSelect={() => router.push(link.href)}
+                        className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg outline-none transition-all cursor-pointer tracking-tight ${isActive(link.href)
+                          ? 'text-primary bg-primary/10'
+                          : 'text-on-surface/90 hover:bg-white/5 active:scale-[0.98]'
+                          }`}
+                      >
+                        {link.name}
+                      </DropdownMenu.Item>
+                    ))}
+                  </div>
+
+                  <DropdownMenu.Separator className="my-2 h-px bg-outline-variant/10" />
+
+                  <div className="grid grid-cols-2 gap-2 p-1">
+                    <DropdownMenu.Item asChild>
+                      <a
+                        href="https://www.facebook.com/VSKUniverzitaBrno"
+                        target="_blank"
+                        className="flex justify-center items-center gap-2 p-2 text-[10px] font-bold text-on-surface/60 hover:text-[#1877F2] hover:bg-[#1877F2]/10 rounded-lg transition-colors uppercase"
+                      >
+                        <FaFacebookF size={14} /> FB
+                      </a>
                     </DropdownMenu.Item>
-                  ))}
-                  <DropdownMenu.Separator className="my-1 h-px bg-outline-variant/20" />
-                  <DropdownMenu.Item asChild>
-                    <a
-                      href="https://www.facebook.com/VSKUniverzitaBrno"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-3 px-3 py-2 text-xs font-bold text-on-surface/80 hover:text-primary hover:bg-primary/10 rounded-md outline-none transition-colors cursor-pointer uppercase tracking-wider"
-                    >
-                      <FaFacebookF size={14} />
-                      Facebook
-                    </a>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item asChild>
-                    <a
-                      href="https://www.instagram.com/vskunibrno/"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-3 px-3 py-2 text-xs font-bold text-on-surface/80 hover:text-primary hover:bg-primary/10 rounded-md outline-none transition-colors cursor-pointer uppercase tracking-wider"
-                    >
-                      <FaInstagram size={16} />
-                      Instagram
-                    </a>
-                  </DropdownMenu.Item>
+                    <DropdownMenu.Item asChild>
+                      <a
+                        href="https://www.instagram.com/vskunibrno/"
+                        target="_blank"
+                        className="flex justify-center items-center gap-2 p-2 text-[10px] font-bold text-on-surface/60 hover:text-[#E4405F] hover:bg-[#E4405F]/10 rounded-lg transition-colors uppercase"
+                      >
+                        <FaInstagram size={14} /> IG
+                      </a>
+                    </DropdownMenu.Item>
+                  </div>
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>

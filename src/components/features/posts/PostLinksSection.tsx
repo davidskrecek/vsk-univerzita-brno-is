@@ -57,7 +57,7 @@ export const PostLinksSection = ({ links, onChange }: PostLinksSectionProps) => 
               <button
                 type="button"
                 onClick={() => removeLink(index)}
-                className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant/10 bg-surface-container-high text-on-surface/40 opacity-0 transition-all hover:text-red-500 hover:scale-[1.1] group-hover:opacity-100 shadow-lg z-10"
+                className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant/10 bg-surface-container-high text-on-surface/40 opacity-100 transition-all hover:text-red-500 hover:scale-[1.1] shadow-lg z-10"
                 title="Odstranit odkaz"
               >
                 <IoTrashOutline size={14} />

@@ -22,7 +22,6 @@ async function createAndSendInvitation(personnelId: number, email: string, creat
 
   const invitationLink = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
   
-  // Add to background queue
   await emailQueue.add("send-invitation", {
     type: "invitation",
     email,

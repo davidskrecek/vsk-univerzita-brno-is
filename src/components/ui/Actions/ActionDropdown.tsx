@@ -44,7 +44,7 @@ export const ActionDropdown = ({
 
       <DropdownMenu.Portal>
         <DropdownMenu.Content
-          className={`glass-overlay z-[2100] min-w-[10rem] rounded-md p-1 shadow-ambient border border-outline-variant/10 animate-in fade-in zoom-in-95 duration-200 ${contentClassName}`}
+          className={`glass-overlay z-[2100] min-w-[10rem] rounded-md p-1 shadow-ambient border border-outline-variant/10 animate-in fade-in zoom-in-95 duration-200 ${contentClassName} max-h-[30vh] overflow-y-auto custom-scrollbar`}
           sideOffset={sideOffset}
           align={align}
           onCloseAutoFocus={(e) => e.preventDefault()}
