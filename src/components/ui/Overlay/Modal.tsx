@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, usePresence } from "framer-motion";
 
 interface ModalProps {
   children: React.ReactNode;
@@ -10,31 +10,26 @@ interface ModalProps {
   className?: string;
 }
 
-let activeModalLocks = 0;
-
 export const Modal = ({ children, onClose, contentClassName = "", className = "" }: ModalProps) => {
+  const [isPresent] = usePresence();
+
   useEffect(() => {
-    const body = document.body;
+    const style = document.body.style;
+    const initialOverflow = style.overflow;
 
-    const previousBodyOverflow = body.style.overflow;
-
-    if (activeModalLocks === 0) {
-      body.style.overflow = "hidden";
+    if (isPresent) {
+      style.overflow = 'hidden';
+    } else {
+      style.overflow = initialOverflow;
     }
 
-    activeModalLocks += 1;
-
     return () => {
-      activeModalLocks = Math.max(0, activeModalLocks - 1);
-
-      if (activeModalLocks === 0) {
-        body.style.overflow = previousBodyOverflow;
-      }
+      style.overflow = initialOverflow;
     };
-  }, []);
+  }, [isPresent]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+    <div className={`fixed inset-0 z-[100] flex items-center justify-center ${!isPresent ? "pointer-events-none" : ""}`}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
