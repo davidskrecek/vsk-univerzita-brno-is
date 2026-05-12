@@ -63,7 +63,7 @@ export const authOptions: AuthOptions = {
           name: `${editor.personnel.firstName} ${editor.personnel.lastName}`,
           role: editor.editorRole.name,
           managedSportIds: editor.managedSports.map((ms) => ms.sportId),
-          permissions: (editor.editorRole.permissions as any) || {},
+          permissions: (editor.permissions as Record<string, boolean>) || {},
         };
       },
     }),
@@ -71,19 +71,21 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        const u = user as unknown as { role: string; managedSportIds: number[]; permissions: Record<string, boolean> };
         token.personnelId = Number(user.id);
-        token.role = (user as any).role;
-        token.managedSportIds = (user as any).managedSportIds;
-        token.permissions = (user as any).permissions;
+        token.role = u.role;
+        token.managedSportIds = u.managedSportIds;
+        token.permissions = u.permissions;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.personnelId = token.personnelId as number;
-        session.user.role = token.role as any;
-        session.user.managedSportIds = token.managedSportIds as number[];
-        session.user.permissions = token.permissions as Record<string, boolean>;
+        const user = session.user as { personnelId?: number; role?: string; managedSportIds?: number[]; permissions?: Record<string, boolean> };
+        user.personnelId = token.personnelId as number;
+        user.role = token.role as string;
+        user.managedSportIds = token.managedSportIds as number[];
+        user.permissions = token.permissions as Record<string, boolean>;
       }
       return session;
     },

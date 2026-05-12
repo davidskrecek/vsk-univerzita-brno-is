@@ -1,38 +1,53 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
-import { Modal } from "@/components/ui/Overlay/Modal";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
+import { sessionHasPermission } from "@/lib/permissions";
 
 interface CreateFormButtonProps {
   label: string;
+  requiredPermission: string;
   FormComponent: React.ComponentType<{
     sports: Array<{ id: number; name: string }>;
     onCancel: () => void;
     onSuccess: () => void;
   }>;
-  sports: Array<{ id: number; name: string }>;
-  requiredPermission?: string;
 }
 
-export const CreateFormButton = ({ label, FormComponent, sports, requiredPermission }: CreateFormButtonProps) => {
+export const CreateFormButton = ({ label, requiredPermission, FormComponent }: CreateFormButtonProps) => {
+  const { sports } = useSports();
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+
   const handleClose = () => setIsOpen(false);
+
+  const availableSports =
+    sessionHasPermission(session, "sports:manage")
+      ? sports
+      : sports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
+
+  if (!availableSports.length) {
+    return null;
+  }
 
   return (
     <>
       <SectionActionButton
         label={label}
-        onClick={() => setIsOpen(true)}
         requiredPermission={requiredPermission}
+        onClick={() => setIsOpen(true)}
       />
 
       <AnimatePresence>
         {isOpen && (
-          <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
-            <FormComponent sports={sports} onCancel={handleClose} onSuccess={handleClose} />
-          </Modal>
+          <FormComponent
+            sports={availableSports}
+            onCancel={handleClose}
+            onSuccess={handleClose}
+          />
         )}
       </AnimatePresence>
     </>
@@ -40,4 +55,3 @@ export const CreateFormButton = ({ label, FormComponent, sports, requiredPermiss
 };
 
 export default CreateFormButton;
-

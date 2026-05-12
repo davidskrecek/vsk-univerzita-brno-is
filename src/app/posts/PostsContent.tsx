@@ -5,7 +5,6 @@ import Pagination from "@/components/ui/Navigation/Pagination";
 
 interface PostsContentProps {
   initialPosts: PostListItem[];
-  availableSports: Array<{ id: number; name: string }>;
   total: number;
   currentPage: number;
 }

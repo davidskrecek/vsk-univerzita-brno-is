@@ -16,7 +16,7 @@ export function useUserInvitation(userId: number, email: string, onResult: () =>
                 } else {
                     toast.error(res.error || "Chyba při odesílání e-mailu.");
                 }
-            } catch (error) {
+            } catch {
                 toast.error("Neočekávaná chyba při odesílání e-mailu.");
             }
         });

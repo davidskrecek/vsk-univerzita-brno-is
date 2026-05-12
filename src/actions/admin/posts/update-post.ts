@@ -70,7 +70,7 @@ export async function updatePostAction(
           entityType: "post",
           entityId: postId,
           action: "update",
-          payload: body as any,
+          payload: JSON.parse(JSON.stringify(body)),
         }
       });
 
@@ -82,10 +82,11 @@ export async function updatePostAction(
     revalidatePath(`/posts`);
 
     return { success: true, data: { id: updated.id } };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[POSTS] updatePost error:", e);
     if (e instanceof AuthError) return { error: e.message };
     return { error: "Nepodařilo se aktualizovat příspěvek." };
   }
 }
+
 

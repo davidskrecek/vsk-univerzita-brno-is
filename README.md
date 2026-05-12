@@ -2,11 +2,13 @@
 
 ## Setup
 
-### 1. Start the database
+### 1. Start the database and Redis
 
 ```bash
 cd db
 docker compose up -d
+cd ..
+docker run -d -p 6379:6379 --name dev-redis redis:7-alpine
 ```
 
 ### 2. Configure environment
@@ -46,7 +48,16 @@ The seed creates:
 docker run -d -p 6379:6379 redis:7-alpine
 ```
 
-### 6. Start dev server
+### 6. Resetting the Database
+
+If you need to drop everything and start from scratch (drops DB, migrates, and seeds):
+
+```bash
+npx prisma migrate reset
+```
+*(Confirm with 'y' when prompted)*
+
+### 7. Start dev server
 
 ```bash
 npm run dev

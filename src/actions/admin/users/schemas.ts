@@ -10,6 +10,7 @@ export const UserFormSchema = z.object({
   sportId: z.coerce.number().int().positive("Vyberte sport"),
   editorRoleId: z.coerce.number().optional(),
   managedSportIds: z.array(z.coerce.number()).optional().default([]),
+  permissions: z.record(z.string(), z.boolean()).optional(),
   isTrainer: z.preprocess((v) => v === "true" || v === true, z.boolean()).optional(),
   trainerCategory: z.string().optional(),
   isOfficial: z.preprocess((v) => v === "true" || v === true, z.boolean()).optional(),

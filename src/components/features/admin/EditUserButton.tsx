@@ -7,7 +7,6 @@ import CreateUserForm from "@/components/features/admin/CreateUserForm";
 import Modal from "@/components/ui/Overlay/Modal";
 import { Role } from "@/lib/queries/roles";
 import { useToast } from "@/hooks/useToast";
-import { Sport } from "@/lib/queries/sports";
 import { Pencil } from "lucide-react";
 import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
 import { getUserById } from "@/actions/admin/users/get-user";
@@ -16,14 +15,12 @@ import { FullUser as User } from "@/actions/admin/users/schemas";
 type EditUserButtonProps = {
     label?: string;
     roles: Role[];
-    sports: Sport[];
-
     userId?: string;
     iconOnly?: boolean;
     children?: React.ReactNode;
 }
 
-export const EditUserButton = ({ label, roles, sports, userId, iconOnly, children }: EditUserButtonProps) => {
+export const EditUserButton = ({ label, roles, userId, iconOnly, children }: EditUserButtonProps) => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState<User | null>();
@@ -41,7 +38,7 @@ export const EditUserButton = ({ label, roles, sports, userId, iconOnly, childre
                 setLoading(true);
                 const loadedUser = (await getUserById(Number(userId))) as User;
                 setUser(loadedUser);
-            } catch (e) {
+            } catch {
                 toast.error("Nepodařilo se načíst kontakt");
                 setIsOpen(false);
             } finally {
@@ -77,26 +74,27 @@ export const EditUserButton = ({ label, roles, sports, userId, iconOnly, childre
             ) : iconOnly ? (
                 <Pencil size={14} onClick={openModal} className="absolute bottom-10 right-4 text-primary/70 transition-colors hover:text-primary cursor-pointer" />
             ) : (
-                <SectionActionButton label={label ?? ""} onClick={openModal} requiredRoles={["superadmin"]} />
+                <SectionActionButton label={label ?? ""} onClick={openModal} requiredPermission="users:manage" />
             )}
 
             <AnimatePresence>
                 {isOpen && (
-                    <Modal onClose={() => setIsOpen(false)} contentClassName="max-w-4xl w-full">
+                    <>
                         {loading ? (
-                            <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-12 flex justify-center">
-                                <MiniSpinner />
-                            </div>
+                            <Modal onClose={() => setIsOpen(false)} contentClassName="max-w-md w-full">
+                                <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-12 flex justify-center">
+                                    <MiniSpinner />
+                                </div>
+                            </Modal>
                         ) : (
                             <CreateUserForm
                                 user={user ?? undefined}
                                 onResult={(error) => handleResult(error)}
                                 onCancel={() => setIsOpen(false)}
                                 roles={roles}
-                                sports={sports}
                             />
                         )}
-                    </Modal>
+                    </>
                 )}
             </AnimatePresence>
         </>

@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession } from "@/lib/session";
-import { requirePermission } from "@/lib/rbac";
+import { requirePermission, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { UserFormSchema, UserActionState } from "@/actions/admin/users/schemas";
 import crypto from "crypto";
@@ -29,16 +29,16 @@ async function createAndSendInvitation(personnelId: number, email: string, creat
     type: "invitation",
     email,
     link: invitationLink,
-  }, {
-    attempts: 3,
-    backoff: {
-      type: "exponential",
-      delay: 5000,
-    }
-  });
+  }); //, {
+  //   attempts: 3,
+  //   backoff: {
+  //     type: "exponential",
+  //     delay: 5000,
+  //   }
+  // }
 }
 
-export async function updateUserAction(_prevState: any, formData: FormData): Promise<UserActionState> {
+export async function updateUserAction(formData: FormData): Promise<UserActionState> {
   try {
     const session = await getRequiredSession();
     requirePermission(session, "users:manage");
@@ -48,12 +48,15 @@ export async function updateUserAction(_prevState: any, formData: FormData): Pro
     if (rawData.managedSportIds) {
         processedData.managedSportIds = JSON.parse(rawData.managedSportIds as string);
     }
+    if (rawData.permissions) {
+        processedData.permissions = JSON.parse(rawData.permissions as string);
+    }
 
     const parsed = UserFormSchema.safeParse(processedData);
     if (!parsed.success) {
       return {
         error: "Validace selhala.",
-        fieldErrors: parsed.error.flatten().fieldErrors as any,
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
       };
     }
 
@@ -64,6 +67,23 @@ export async function updateUserAction(_prevState: any, formData: FormData): Pro
       where: { id },
       include: { editor: true }
     });
+
+    if (!existingUser) return { error: "Uživatel nebyl nalezen." };
+
+    // VERIFY OLD SCOPE
+    if (existingUser.sportId) {
+      requireSportScope(session, existingUser.sportId);
+    }
+
+    // VERIFY NEW SCOPE
+    if (body.sportId) {
+      requireSportScope(session, body.sportId);
+    }
+
+    // VERIFY ROLES SCOPE
+    if (body.managedSportIds && body.managedSportIds.length > 0) {
+      body.managedSportIds.forEach((sportId: number) => requireSportScope(session, sportId));
+    }
 
     await prisma.$transaction(async (tx) => {
       await tx.personnel.update({
@@ -86,12 +106,14 @@ export async function updateUserAction(_prevState: any, formData: FormData): Pro
               personnelId: id,
               passwordHash: "PENDING",
               editorRoleId: body.editorRoleId,
+              permissions: body.permissions || {},
               managedSports: {
                 create: body.managedSportIds.map((sportId) => ({ sportId })),
               },
             },
             update: {
               editorRoleId: body.editorRoleId,
+              permissions: body.permissions || {},
               managedSports: {
                 deleteMany: {},
                 create: body.managedSportIds.map((sportId) => ({ sportId })),
@@ -134,7 +156,7 @@ export async function updateUserAction(_prevState: any, formData: FormData): Pro
           entityType: "personnel",
           entityId: id,
           action: "update",
-          payload: body as any,
+          payload: JSON.parse(JSON.stringify(body)),
         }
       });
     });
@@ -150,10 +172,11 @@ export async function updateUserAction(_prevState: any, formData: FormData): Pro
     }
 
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[AUTH] updateUser error:", e);
     if (e.code === "P2002") return { error: "Uživatel s tímto e-mailem již v systému existuje." };
     return { error: "Nepodařilo se aktualizovat uživatele." };
   }
 }
+
 

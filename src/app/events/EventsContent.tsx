@@ -1,22 +1,17 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useState } from "react";
+import { useSports } from "@/components/features/sports/SportsProvider";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
-import { Modal } from "@/components/ui/Overlay/Modal";
 import { Calendar } from "@/components/features/events/Calendar/Calendar";
 import { EventCard } from "@/components/features/events/EventCard";
-import EventDetail from "@/components/features/events/EventDetail";
-import EditButton from "@/components/ui/Actions/EditButton";
 import EventCreateForm from "@/components/features/events/EventCreateForm";
-import Loading from "@/app/loading";
-import ViewToggle from "@/components/ui/Actions/ViewToggle";
 import {
   getCzechMonthShort,
   getEventDayOfMonth,
-  findEventById,
   type UiEvent,
 } from "@/components/features/events/eventUtils";
 
@@ -24,7 +19,6 @@ type ViewMode = "calendar" | "list";
 
 interface EventsContentProps {
   initialEvents: UiEvent[];
-  availableSports: Array<{ id: number; name: string }>;
   year?: number;
   month?: number;
 }
@@ -55,7 +49,8 @@ const EventsListContent = ({ events }: EventsListContentProps) => {
   );
 };
 
-function EventsContentInner({ initialEvents, availableSports, year, month }: EventsContentProps) {
+function EventsContentInner({ initialEvents, year, month }: EventsContentProps) {
+  const { sports: availableSports } = useSports();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
 
@@ -102,30 +97,28 @@ function EventsContentInner({ initialEvents, availableSports, year, month }: Eve
 
       <AnimatePresence>
         {isEditOpen && pendingEditEvent && (
-          <Modal onClose={closeEditModal} contentClassName="max-w-4xl w-full">
-            <EventCreateForm
-              mode="edit"
-              sports={accessibleSports}
-              initialValues={{
-                id: Number(pendingEditEvent.id),
-                sportId: pendingEditEvent.sportId,
-                title: pendingEditEvent.title,
-                description: pendingEditEvent.description ?? null,
-                location: pendingEditEvent.location ?? null,
-                startTime: pendingEditEvent.startTimeIso,
-              }}
-              onCancel={closeEditModal}
-              onDeleted={closeEditModal}
-              onSuccess={closeEditModal}
-            />
-          </Modal>
+          <EventCreateForm
+            mode="edit"
+            sports={accessibleSports}
+            initialValues={{
+              id: Number(pendingEditEvent.id),
+              sportId: pendingEditEvent.sportId,
+              title: pendingEditEvent.title,
+              description: pendingEditEvent.description ?? null,
+              location: pendingEditEvent.location ?? null,
+              startTime: pendingEditEvent.startTimeIso,
+            }}
+            onCancel={closeEditModal}
+            onDeleted={closeEditModal}
+            onSuccess={closeEditModal}
+          />
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-export default function EventsContent({ initialEvents, availableSports, year, month }: EventsContentProps) {
-  return <EventsContentInner initialEvents={initialEvents} availableSports={availableSports} year={year} month={month} />;
+export default function EventsContent({ initialEvents, year, month }: EventsContentProps) {
+  return <EventsContentInner initialEvents={initialEvents} year={year} month={month} />;
 }
 

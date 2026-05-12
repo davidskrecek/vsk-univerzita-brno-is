@@ -3,12 +3,11 @@
 import { useSession } from "next-auth/react";
 import { IoAdd } from "react-icons/io5";
 import AppButton from "@/components/ui/Actions/AppButton";
-import { isSuperAdminRole } from "@/lib/constants/roles";
+import { sessionHasPermission, type Permission } from "@/lib/permissions";
 
 interface SectionActionButtonProps {
   label: string;
   onClick: () => void;
-  requiredRoles?: string[];
   requiredPermission?: string;
   isUppercase?: boolean;
 }
@@ -24,8 +23,9 @@ export const SectionActionButton = ({
   if (status !== "authenticated") {
     return null;
   }
-  const userPermissions = session?.user?.permissions || {};
-  if ((requiredPermission && userPermissions[requiredPermission] === true) || isSuperAdminRole(session?.user?.role)) {
+
+  if (requiredPermission && !sessionHasPermission(session, requiredPermission as Permission)) {
+    return null;
   }
 
   return (
@@ -47,4 +47,3 @@ export const SectionActionButton = ({
 };
 
 export default SectionActionButton;
-

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createEventAction } from "@/actions/admin/events/create-event";
 import { updateEventAction } from "@/actions/admin/events/update-event";
@@ -12,12 +12,13 @@ import LabeledTextarea from "@/components/ui/Forms/LabeledTextarea";
 import { SportPicker } from "@/components/ui/Pickers/SportPicker";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/useToast";
-import { IoClose, IoCalendarOutline, IoTimeOutline } from "react-icons/io5";
+import { useConfirm } from "@/hooks/useConfirm";
+import { IoClose } from "react-icons/io5";
 import { DatePicker } from "@/components/ui/Pickers/DatePicker";
 import { TimePicker } from "@/components/ui/Pickers/TimePicker";
 import { LocationPicker } from "@/components/ui/Pickers/LocationPicker";
-import { PostLinksSection } from "@/components/features/posts/PostLinksSection";
-
+import { LinksSection, LinkDraft } from "@/components/ui/Forms/LinksSection";
+import Modal from "@/components/ui/Overlay/Modal";
 
 interface SportOption {
   id: number;
@@ -41,6 +42,7 @@ interface EventCreateFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
   onDeleted?: () => void;
+  canDelete?: boolean;
 }
 
 const DEFAULT_ERROR = "Akci se nepodařilo uložit.";
@@ -68,9 +70,11 @@ export const EventCreateForm = ({
   onSuccess,
   onCancel,
   onDeleted,
+  canDelete = false,
 }: EventCreateFormProps) => {
   const router = useRouter();
   const toast = useToast();
+  const confirm = useConfirm();
   const isEditing = mode === "edit" && typeof initialValues?.id === "number";
 
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -79,7 +83,7 @@ export const EventCreateForm = ({
   const [startTime, setStartTime] = useState(() => toTimeInputValue(initialValues?.startTime));
   const [location, setLocation] = useState(initialValues?.location ?? "");
   const [description, setDescription] = useState(initialValues?.description ?? "");
-  const [links, setLinks] = useState<any[]>(
+  const [links, setLinks] = useState<LinkDraft[]>(
     initialValues?.links?.map((link) => ({ url: link.url, alias: link.alias ?? "" })) ?? []
   );
   const [loading, setLoading] = useState(false);
@@ -100,7 +104,13 @@ export const EventCreateForm = ({
   const handleDelete = async () => {
     if (!isEditing || !initialValues?.id) return;
 
-    const confirmed = window.confirm("Opravdu chcete tuto akci smazat?");
+    const confirmed = await confirm({
+      title: "Smazat akci",
+      message: "Opravdu chcete tuto akci smazat? Tato operace je nevratná.",
+      confirmLabel: "Smazat",
+      cancelLabel: "Zrušit",
+      type: "danger"
+    });
     if (!confirmed) return;
 
     setLoading(true);
@@ -130,6 +140,16 @@ export const EventCreateForm = ({
     if (!canSubmit) {
       toast.warning("Vyplňte prosím sport, název, datum, čas, místo a popis akce.");
       return;
+    }
+
+    if (isEditing) {
+      const isConfirmed = await confirm({
+        title: "Uložit změny",
+        message: "Opravdu chcete uložit provedené změny v akci?",
+        confirmLabel: "Uložit",
+        type: "primary"
+      });
+      if (!isConfirmed) return;
     }
 
     const formData = new FormData();
@@ -180,125 +200,126 @@ export const EventCreateForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
-      {onCancel ? (
-        <button
-          type="button"
-          onClick={onCancel}
-          className="absolute right-4 top-4 z-20 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
-          aria-label="Zavřít formulář"
-        >
-          <IoClose size={20} />
-        </button>
-      ) : null}
-
-      <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
-        <div className="px-6 py-6 sm:px-8 bg-surface-container-low border-b border-outline-variant/5">
-          <h2 className="text-xl sm:text-2xl font-display font-bold uppercase tracking-wider text-on-surface">
-            {isEditing ? "Upravit akci" : "Nová akce"}
-          </h2>
-          <p className="text-[11px] font-sans uppercase tracking-widest text-on-surface/30 mt-1">
-            {isEditing ? "Plánování události" : "Vytvoření události"}
-          </p>
-        </div>
-
-        <div
-          className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar"
-          style={{ scrollbarGutter: 'stable both-edges' }}
-        >
-          <LabeledInput
-            label="Název události"
-            value={title}
-            onChange={setTitle}
-            placeholder="Např. Akademické mistrovství v basketbalu"
-          />
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-            <LabeledField label="Datum konání">
-              <DatePicker
-                date={startDate ? new Date(startDate) : undefined}
-                onDateChange={(d) => setStartDate(d ? format(d, "yyyy-MM-dd") : "")}
-              />
-            </LabeledField>
-
-            <LabeledField label="Čas zahájení">
-              <TimePicker
-                time={startTime}
-                onTimeChange={setStartTime}
-              />
-            </LabeledField>
-
-            <LabeledField label="Sportovní odvětví">
-              <SportPicker
-                sports={sports}
-                selectedId={sportId}
-                onSelect={setSportId}
-                disabled={sports.length <= 1}
-              />
-            </LabeledField>
+    <Modal onClose={onCancel} contentClassName="max-w-4xl w-full">
+      <form onSubmit={handleSubmit} className="relative w-full h-full">
+        {onCancel ? (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="absolute right-4 top-4 z-20 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
+            aria-label="Zavřít formulář"
+          >
+            <IoClose size={20} />
+          </button>
+        ) : null}
+        <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
+          <div className="px-6 py-6 sm:px-8 bg-surface-container-low border-b border-outline-variant/5">
+            <h2 className="text-xl sm:text-2xl font-display font-bold uppercase tracking-wider text-on-surface">
+              {isEditing ? "Upravit akci" : "Nová akce"}
+            </h2>
+            <p className="text-[11px] font-sans uppercase tracking-widest text-on-surface/30 mt-1">
+              {isEditing ? "Plánování události" : "Vytvoření události"}
+            </p>
           </div>
 
-          <LabeledField label="Místo konání">
-            <LocationPicker
-              value={location}
-              onChange={setLocation}
+          <div
+            className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar"
+            style={{ scrollbarGutter: 'stable both-edges' }}
+          >
+            <LabeledInput
+              label="Název události"
+              value={title}
+              onChange={setTitle}
+              placeholder="Např. Akademické mistrovství v basketbalu"
             />
-          </LabeledField>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              <LabeledField label="Datum konání">
+                <DatePicker
+                  date={startDate ? new Date(startDate) : undefined}
+                  onDateChange={(d) => setStartDate(d ? format(d, "yyyy-MM-dd") : "")}
+                />
+              </LabeledField>
 
-          <LabeledTextarea
-            label="Podrobnosti akce"
-            value={description}
-            onChange={setDescription}
-            placeholder="Popište průběh, požadavky na sportovce nebo doplňující info..."
-            rows={8}
-          />
+              <LabeledField label="Čas zahájení">
+                <TimePicker
+                  time={startTime}
+                  onTimeChange={setStartTime}
+                />
+              </LabeledField>
 
-          <PostLinksSection links={links} onChange={setLinks} />
-        </div>
+              <LabeledField label="Sportovní odvětví">
+                <SportPicker
+                  sports={sports}
+                  selectedId={sportId}
+                  onSelect={setSportId}
+                  disabled={sports.length <= 1}
+                />
+              </LabeledField>
+            </div>
 
-        <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
-          <div className={`flex flex-row items-center gap-2 ${isEditing ? "justify-between" : "justify-end"}`}>
-            {isEditing && (
-              <AppButton
-                type="button"
-                variant="danger"
-                isUppercase
-                onClick={handleDelete}
-                isLoading={loading}
-                className="px-3 sm:px-6"
-              >
-                Smazat<span className="hidden sm:inline">&nbsp;akci</span>
-              </AppButton>
-            )}
+            <LabeledField label="Místo konání">
+              <LocationPicker
+                value={location}
+                onChange={setLocation}
+              />
+            </LabeledField>
 
-            <div className="flex flex-row gap-2">
-              <AppButton
-                type="button"
-                variant="tertiary"
-                isUppercase
-                onClick={onCancel}
-                className="px-3 sm:px-6"
-              >
-                Zrušit
-              </AppButton>
-              <AppButton
-                type="submit"
-                variant="primary"
-                isUppercase
-                isLoading={loading}
-                disabled={!canSubmit}
-                className="px-3 sm:px-6"
-              >
-                {isEditing ? (
-                  <>Uložit<span className="hidden sm:inline">&nbsp;změny</span></>
-                ) : (
-                  <>Vytvořit<span className="hidden sm:inline">&nbsp;akci</span></>
-                )}
-              </AppButton>
+            <LabeledTextarea
+              label="Podrobnosti akce"
+              value={description}
+              onChange={setDescription}
+              placeholder="Popište průběh, požadavky na sportovce nebo doplňující info..."
+              rows={8}
+            />
+
+            <LinksSection links={links} onChange={setLinks} />
+          </div>
+
+          <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
+            <div className={`flex flex-row items-center gap-2 ${isEditing && canDelete ? "justify-between" : "justify-end"}`}>
+              {isEditing && canDelete && (
+                <AppButton
+                  type="button"
+                  variant="danger"
+                  isUppercase
+                  onClick={handleDelete}
+                  isLoading={loading}
+                  className="px-3 sm:px-6"
+                >
+                  Smazat<span className="hidden sm:inline">&nbsp;akci</span>
+                </AppButton>
+              )}
+
+              <div className="flex flex-row gap-2">
+                <AppButton
+                  type="button"
+                  variant="tertiary"
+                  isUppercase
+                  onClick={onCancel}
+                  className="px-3 sm:px-6"
+                >
+                  Zrušit
+                </AppButton>
+                <AppButton
+                  type="submit"
+                  variant="primary"
+                  isUppercase
+                  isLoading={loading}
+                  disabled={!canSubmit}
+                  className="px-3 sm:px-6"
+                >
+                  {isEditing ? (
+                    <>Uložit<span className="hidden sm:inline">&nbsp;změny</span></>
+                  ) : (
+                    <>Vytvořit<span className="hidden sm:inline">&nbsp;akci</span></>
+                  )}
+                </AppButton>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </Modal>
   );
 };
 

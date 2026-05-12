@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 type CollapsibleSectionProps = {
     title: string;
-    icon: any;
+    icon: React.ElementType;
     children: React.ReactNode;
     defaultOpen?: boolean;
 };

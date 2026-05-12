@@ -26,20 +26,23 @@ export const metadata: Metadata = {
 import { AuthModalProvider } from "@/components/features/auth/AuthModalProvider";
 import { AuthModal } from "@/components/features/auth/AuthModal";
 import { AppSessionProvider } from "@/components/features/auth/AppSessionProvider";
-import GlobalDetailHandler from "@/components/features/admin/GlobalDetailHandler";
+import GlobalDetailHandler from "@/components/layout/GlobalDetailHandler";
 import { SetPasswordModal } from "@/components/features/auth/SetPasswordModal";
 import { Suspense } from "react";
 
-import { PageReveal } from "@/components/layout/PageReveal";
 
 
 import { ConfirmProvider } from "@/components/ui/Overlay/ConfirmProvider";
+import { getSports } from "@/lib/queries/sports";
+import { SportsProvider } from "@/components/features/sports/SportsProvider";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const sports = await getSports();
+
   return (
     <html
       lang="cs"
@@ -49,7 +52,8 @@ export default function RootLayout({
         <AppSessionProvider>
           <ToastProvider>
             <ConfirmProvider>
-              <AuthModalProvider>
+              <SportsProvider initialSports={sports}>
+                <AuthModalProvider>
                 <NavBar />
                 <main className="grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
                   {children}
@@ -60,7 +64,8 @@ export default function RootLayout({
                   <SetPasswordModal />
                   <GlobalDetailHandler />
                 </Suspense>
-              </AuthModalProvider>
+                </AuthModalProvider>
+              </SportsProvider>
             </ConfirmProvider>
           </ToastProvider>
         </AppSessionProvider>

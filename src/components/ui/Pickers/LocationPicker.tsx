@@ -17,7 +17,12 @@ interface LocationResult {
     village?: string;
     suburb?: string;
     postcode?: string;
+    amenity?: string;
+    leisure?: string;
+    building?: string;
+    sport?: string;
   };
+  name?: string;
 }
 
 interface LocationPickerProps {
@@ -69,14 +74,14 @@ export const LocationPicker = ({
   }, [query, value]);
 
   const getCleanName = (item: LocationResult) => {
-    const name = (item as any).name || (item as any).address?.amenity || (item as any).address?.leisure || (item as any).address?.building || (item as any).address?.sport;
+    const name = item.name || item.address?.amenity || item.address?.leisure || item.address?.building || item.address?.sport;
     const { road, house_number, city, town, village, suburb } = item.address;
     const place = city || town || village || suburb || "";
-    
+
     if (name && road) {
       return `${name}, ${road} ${house_number || ""}, ${place}`.replace(/ ,/g, ",").replace(/,,/g, ",").trim();
     }
-    
+
     const street = [road, house_number].filter(Boolean).join(" ");
     return name || [street, place].filter(Boolean).join(", ");
   };

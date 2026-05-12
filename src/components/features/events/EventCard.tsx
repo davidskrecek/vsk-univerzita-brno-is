@@ -26,6 +26,8 @@ export const EventCard = ({ id, day, month, category, title, location, isInline 
     }
   }
 
+  params.delete('postId');
+  params.delete('edit');
   params.set('eventId', id);
 
   const detailHref = `?${params.toString()}`;
@@ -67,7 +69,7 @@ export const EventCard = ({ id, day, month, category, title, location, isInline 
 
       <div
         data-export-trigger="true"
-        className="flex-shrink-0 self-center max-[450px]:hidden pr-6"
+        className="hidden sm:flex flex-shrink-0 self-center pr-6"
       >
         <CalendarExport
           title={title}

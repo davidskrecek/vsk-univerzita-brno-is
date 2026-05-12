@@ -81,7 +81,7 @@ export async function updateEventAction(
           entityType: "event",
           entityId: eventId,
           action: "update",
-          payload: body as any,
+          payload: JSON.parse(JSON.stringify(body)),
         }
       });
 
@@ -93,10 +93,11 @@ export async function updateEventAction(
     revalidatePath(`/events`);
 
     return { success: true, data: { id: updated.id } };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[EVENTS] updateEvent error:", e);
     if (e instanceof AuthError) return { error: e.message };
     return { error: "Nepodařilo se aktualizovat událost." };
   }
 }
+
 

@@ -2,9 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession, AuthError } from "@/lib/session";
-import { requirePermission } from "@/lib/rbac";
+import { requirePermission, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
-import { UserRole, isEditorialRole } from "@/lib/constants/roles";
 
 export async function deleteEventAction(eventId: number): Promise<{ success?: boolean; error?: string }> {
   try {
@@ -23,16 +22,7 @@ export async function deleteEventAction(eventId: number): Promise<{ success?: bo
     if (!existing) return { error: "Událost nebyla nalezena." };
 
     // AUTHORIZATION CHECK
-    let canDelete = false;
-    if (session.user.role === UserRole.SUPERADMIN) {
-      canDelete = true;
-    } else if (existing.authorPersonnelId === Number(session.user.personnelId)) {
-      canDelete = true;
-    } else if (isEditorialRole(session.user.role) && session.user.managedSportIds.includes(existing.sportId)) {
-      canDelete = true;
-    }
-
-    if (!canDelete) throw new AuthError(403, "Nemáte oprávnění ke smazání této události.");
+    requireSportScope(session, existing.sportId);
 
     await prisma.$transaction(async (tx) => {
       await tx.event.delete({ where: { id: eventId } });
@@ -51,10 +41,11 @@ export async function deleteEventAction(eventId: number): Promise<{ success?: bo
     revalidatePath(`/events`);
 
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[EVENTS] deleteEvent error:", e);
     if (e instanceof AuthError) return { error: e.message };
     return { error: "Nepodařilo se smazat událost." };
   }
 }
+
 

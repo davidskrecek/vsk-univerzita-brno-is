@@ -1,12 +1,19 @@
 import AppButton from "@/components/ui/Actions/AppButton";
 import { useUserInvitation } from "@/hooks/useUserInvitation";
-import { useOptimistic } from "react";
+import { useOptimistic, startTransition } from "react";
+
+interface SecurityInvitation {
+    id: number;
+    expiresAt: Date | string;
+    usedAt?: Date | string | null;
+    isOptimistic?: boolean;
+}
 
 type AccountSecuritySectionProps = {
     userId: number;
     email: string;
-    editor?: any;
-    invitations?: any[];
+    editor?: { passwordHash: string } | null;
+    invitations?: SecurityInvitation[];
     onResult: () => void;
 };
 
@@ -19,9 +26,9 @@ export const AccountSecuritySection = ({
 }: AccountSecuritySectionProps) => {
     const { handleResend: originalHandleResend, isPending } = useUserInvitation(userId, email, onResult);
 
-    const [optimisticInvitations, addOptimisticInvitation] = useOptimistic(
+    const [optimisticInvitations, addOptimisticInvitation] = useOptimistic<SecurityInvitation[], null>(
         invitations || [],
-        (state: any[]) => [
+        (state) => [
             {
                 id: -1,
                 expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
@@ -32,8 +39,10 @@ export const AccountSecuritySection = ({
     );
 
     const handleResend = () => {
-        addOptimisticInvitation(null);
-        originalHandleResend();
+        startTransition(() => {
+            addOptimisticInvitation(null);
+            originalHandleResend();
+        });
     };
 
     if (!editor) return null;

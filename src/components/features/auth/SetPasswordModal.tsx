@@ -11,29 +11,23 @@ export const SetPasswordModal = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
-    const isReset = searchParams.get("reset") === "true";
 
     const [userData, setUserData] = useState<{ email: string; hasPassword: boolean; isFirstTime?: boolean } | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [isOpen, setIsOpen] = useState(false);
+    const [loading, setLoading] = useState(!!token);
+    const isOpen = !!token;
 
     useEffect(() => {
         if (token) {
-            setIsOpen(true);
-            setLoading(true);
             getUserByInvitationToken(token).then((data) => {
                 setUserData(data);
                 setLoading(false);
             }).catch(() => {
                 setLoading(false);
             });
-        } else {
-            setIsOpen(false);
         }
     }, [token]);
 
     const closeModal = () => {
-        setIsOpen(false);
         // Remove token from URL
         const params = new URLSearchParams(searchParams.toString());
         params.delete("token");

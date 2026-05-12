@@ -3,18 +3,18 @@
 import LabeledInput from "@/components/ui/Forms/LabeledInput";
 import { IoAdd, IoTrashOutline } from "react-icons/io5";
 
-interface PostLinkDraft {
+export interface LinkDraft {
   url: string;
   alias: string;
 }
 
-interface PostLinksSectionProps {
-  links: PostLinkDraft[];
-  onChange: (links: PostLinkDraft[]) => void;
+interface LinksSectionProps {
+  links: LinkDraft[];
+  onChange: (links: LinkDraft[]) => void;
 }
 
-export const PostLinksSection = ({ links, onChange }: PostLinksSectionProps) => {
-  const updateLink = (index: number, field: keyof PostLinkDraft, value: string) => {
+export const LinksSection = ({ links, onChange }: LinksSectionProps) => {
+  const updateLink = (index: number, field: keyof LinkDraft, value: string) => {
     const updated = links.map((link, i) => (i === index ? { ...link, [field]: value } : link));
     onChange(updated);
   };
@@ -57,7 +57,7 @@ export const PostLinksSection = ({ links, onChange }: PostLinksSectionProps) => 
               <button
                 type="button"
                 onClick={() => removeLink(index)}
-                className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant/10 bg-surface-container-high text-on-surface/40 opacity-0 transition-all hover:text-red-500 hover:scale-[1.1] group-hover:opacity-100 shadow-lg z-10"
+                className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full border border-outline-variant/10 bg-surface-container-high text-on-surface/40 opacity-100 transition-all hover:text-red-500 hover:scale-[1.1] shadow-lg z-10"
                 title="Odstranit odkaz"
               >
                 <IoTrashOutline size={14} />

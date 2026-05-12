@@ -2,9 +2,6 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
-import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
-import { parseDateKey } from '@/components/features/events/eventUtils';
 import { CalendarEvent } from '@/types/events';
 
 interface CalendarProps {

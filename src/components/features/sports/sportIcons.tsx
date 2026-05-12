@@ -44,7 +44,7 @@ export const sportIcons: Record<string, React.ReactNode> = {
   "ČASPV": <Users size={14} />,
 };
 
-export const getSportIcon = (name: string, size = 14) => {
+export const getSportIcon = (name: string) => {
     const icon = sportIcons[name];
     if (!icon) return null;
     

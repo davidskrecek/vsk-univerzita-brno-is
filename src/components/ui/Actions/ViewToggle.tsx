@@ -12,9 +12,9 @@ interface ViewToggleProps<T extends string> {
   className?: string;
 }
 
-export const ViewToggle = <T extends string>({ 
-  options, 
-  activeId, 
+export const ViewToggle = <T extends string>({
+  options,
+  activeId,
   onChange,
   className = ""
 }: ViewToggleProps<T>) => {
@@ -23,7 +23,10 @@ export const ViewToggle = <T extends string>({
       {options.map((option) => (
         <button
           key={option.id}
-          onClick={() => onChange(option.id)}
+          onClick={() => {
+            if (activeId === option.id) return;
+            onChange(option.id)
+          }}
           className={`px-6 py-2 text-[10px] font-display font-bold uppercase tracking-widest rounded-md transition-all duration-300 cursor-pointer
             ${activeId === option.id
               ? 'bg-surface-container-high text-on-surface shadow-sm'

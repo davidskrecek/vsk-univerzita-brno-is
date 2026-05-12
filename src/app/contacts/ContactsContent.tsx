@@ -7,35 +7,29 @@ import ViewToggle from "@/components/ui/Actions/ViewToggle";
 import SportFilter from "@/components/ui/Filters/SportFilter";
 import ContactSection from "@/components/features/contacts/ContactSection";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import {
   buildContactSections,
-  extractSports,
   type ContactItem,
 } from "@/components/features/contacts/contactUtils";
-import { Sport } from "@/lib/queries/sports";
 import { Role } from "@/lib/queries/roles";
 
 interface ContactsContentProps {
   initialContacts: ContactItem[];
-  allAvailableContacts: ContactItem[];
-  canEdit: boolean;
   isSuperAdmin: boolean;
   roles: Role[];
-  allSports: Sport[];
   currentSport?: string;
   currentShowInactive: boolean;
 }
 
 export default function ContactsContent({
   initialContacts,
-  allAvailableContacts,
-  canEdit,
   isSuperAdmin,
   roles,
-  allSports,
   currentSport,
   currentShowInactive
 }: ContactsContentProps) {
+  const { sports: allSports } = useSports();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -70,7 +64,7 @@ export default function ContactsContent({
 
   return (
     <div className={`flex flex-col gap-8 transition-opacity duration-300 ${isPending ? "opacity-50" : "opacity-100"}`}>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-row flex-wrap justify-between gap-6">
         <SportFilter
           sports={sortedSports}
           selectedSport={currentSport || null}
@@ -98,7 +92,6 @@ export default function ContactsContent({
             title={section.title}
             contacts={section.contacts}
             roles={roles}
-            sports={allSports}
             user={session?.user}
           />
         ))

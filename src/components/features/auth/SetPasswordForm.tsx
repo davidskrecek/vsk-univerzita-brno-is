@@ -24,7 +24,6 @@ export default function SetPasswordForm({ token, onSuccess, showOldPassword }: S
     const [showPassword, setShowPassword] = useState(false);
 
     const {
-        register,
         handleSubmit,
         formState: { errors, isSubmitting },
         watch,

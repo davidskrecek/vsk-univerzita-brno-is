@@ -49,6 +49,12 @@ services:
       # Named volumes avoid permission issues that often occur with bind mounts on Linux.
       - db-data:/var/lib/postgresql/data/
 
+  redis:
+    image: "redis:alpine"
+    ports:
+      - 6379:6379
+    restart: always
+
 # Define the named volume at the top-level
 volumes:
   db-data:

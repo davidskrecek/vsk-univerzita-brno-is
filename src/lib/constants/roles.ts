@@ -17,3 +17,4 @@ export const isEditorialRole = (role?: string | null): boolean => {
 };
 
 export const isSuperAdminRole = (role?: string | null): boolean => role === UserRole.SUPERADMIN;
+
