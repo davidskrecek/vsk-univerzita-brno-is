@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { type UiEvent } from "@/components/features/events/eventUtils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { UserRole } from "@/lib/constants/roles";
+import { UserRole, isSuperAdminRole } from "@/lib/constants/roles";
+import { sessionHasPermission } from "@/lib/permissions";
 
 export async function getEventDetail(id: number): Promise<UiEvent | null> {
   if (!Number.isInteger(id) || id <= 0) {
@@ -28,16 +29,20 @@ export async function getEventDetail(id: number): Promise<UiEvent | null> {
 
   // Server-side authorization check
   let canEdit = false;
+  let canDelete = false;
   if (session?.user) {
-    if (session.user.role === UserRole.SUPERADMIN) {
+    const isSuperAdmin = isSuperAdminRole(session.user.role);
+    const isTargetSportManaged = session.user.managedSportIds?.includes(event.sportId);
+
+    if (isSuperAdmin) {
       canEdit = true;
-    } else if (event.authorPersonnelId === Number(session.user.personnelId)) {
-      canEdit = true;
-    } else if (
-      (session.user.role === UserRole.SPORT_MANAGER || session.user.role === UserRole.EDITOR) && 
-      session.user.managedSportIds?.includes(event.sportId)
-    ) {
-      canEdit = true;
+      canDelete = true;
+    } else if (isTargetSportManaged) {
+      if (sessionHasPermission(session, "events:write")) canEdit = true;
+      if (sessionHasPermission(session, "events:full")) {
+        canEdit = true;
+        canDelete = true;
+      }
     }
   }
 
@@ -57,6 +62,7 @@ export async function getEventDetail(id: number): Promise<UiEvent | null> {
     description: event.description ?? undefined,
     startTimeIso: event.startTime.toISOString(),
     canEdit,
+    canDelete,
     links: event.links.map(l => ({ url: l.url, alias: l.alias })),
   };
 }

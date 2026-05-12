@@ -42,6 +42,7 @@ interface EventCreateFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
   onDeleted?: () => void;
+  canDelete?: boolean;
 }
 
 const DEFAULT_ERROR = "Akci se nepodařilo uložit.";
@@ -69,6 +70,7 @@ export const EventCreateForm = ({
   onSuccess,
   onCancel,
   onDeleted,
+  canDelete = false,
 }: EventCreateFormProps) => {
   const router = useRouter();
   const toast = useToast();
@@ -274,8 +276,8 @@ export const EventCreateForm = ({
           </div>
 
           <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
-            <div className={`flex flex-row items-center gap-2 ${isEditing ? "justify-between" : "justify-end"}`}>
-              {isEditing && (
+            <div className={`flex flex-row items-center gap-2 ${isEditing && canDelete ? "justify-between" : "justify-end"}`}>
+              {isEditing && canDelete && (
                 <AppButton
                   type="button"
                   variant="danger"

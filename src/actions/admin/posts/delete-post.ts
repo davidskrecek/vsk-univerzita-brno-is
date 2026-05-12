@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession, AuthError } from "@/lib/session";
-import { requirePermission } from "@/lib/rbac";
+import { requirePermission, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { unlink } from "fs/promises";
 import path from "path";
@@ -25,16 +25,7 @@ export async function deletePostAction(postId: number): Promise<{ success?: bool
     if (!existing) return { error: "Příspěvek nebyl nalezen." };
 
     // AUTHORIZATION CHECK
-    let canDelete = false;
-    if (session.user.role === "superadmin") {
-      canDelete = true;
-    } else if (existing.authorPersonnelId === Number(session.user.personnelId)) {
-      canDelete = true;
-    } else if (session.user.managedSportIds.includes(existing.sportId)) {
-      canDelete = true;
-    }
-
-    if (!canDelete) throw new AuthError(403, "Nemáte oprávnění ke smazání tohoto příspěvku.");
+    requireSportScope(session, existing.sportId);
 
     // Clean up image file
     if (existing.imageUrl?.startsWith("/uploads/post-images/")) {

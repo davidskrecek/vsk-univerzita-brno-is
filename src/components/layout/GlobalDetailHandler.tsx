@@ -128,7 +128,9 @@ export default function GlobalDetailHandler() {
   }, [session, availableSports, isEditing, postDetail, eventDetail]);
 
   const canEditPost = postDetail?.canEdit ?? false;
+  const canDeletePost = postDetail?.canDelete ?? false;
   const canEditEvent = eventDetail?.canEdit ?? false;
+  const canDeleteEvent = eventDetail?.canDelete ?? false;
 
   return (
     <>
@@ -183,6 +185,7 @@ export default function GlobalDetailHandler() {
                   publishedAt: postDetail.publishedAt,
                   links: postDetail.links,
                 }}
+                canDelete={canDeletePost}
                 onCancel={() => toggleEdit(false)}
                 onDeleted={closeDetail}
                 onSuccess={closeDetail}
@@ -201,6 +204,7 @@ export default function GlobalDetailHandler() {
                   startTime: eventDetail.startTimeIso,
                   links: eventDetail.links,
                 }}
+                canDelete={canDeleteEvent}
                 onCancel={() => toggleEdit(false)}
                 onDeleted={closeDetail}
                 onSuccess={closeDetail}

@@ -21,6 +21,7 @@ export interface UiEvent extends CalendarEvent {
   description?: string;
   startTimeIso: string;
   canEdit?: boolean;
+  canDelete?: boolean;
   links?: Array<{ url: string; alias: string | null }>;
 }
 

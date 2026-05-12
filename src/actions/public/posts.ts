@@ -3,7 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { UserRole } from "@/lib/constants/roles";
+import { UserRole, isSuperAdminRole } from "@/lib/constants/roles";
+import { sessionHasPermission } from "@/lib/permissions";
 
 export interface PostDetailData {
   id: number;
@@ -22,6 +23,7 @@ export interface PostDetailData {
   }>;
   links: Array<{ url: string; alias: string | null }>;
   canEdit: boolean;
+  canDelete: boolean;
 }
 
 export async function getPostDetail(id: number): Promise<PostDetailData | null> {
@@ -48,16 +50,20 @@ export async function getPostDetail(id: number): Promise<PostDetailData | null> 
 
   // Server-side authorization check
   let canEdit = false;
+  let canDelete = false;
   if (session?.user) {
-    if (session.user.role === UserRole.SUPERADMIN) {
+    const isSuperAdmin = isSuperAdminRole(session.user.role);
+    const isTargetSportManaged = session.user.managedSportIds?.includes(post.sportId);
+
+    if (isSuperAdmin) {
       canEdit = true;
-    } else if (post.authorPersonnelId === Number(session.user.personnelId)) {
-      canEdit = true;
-    } else if (
-      (session.user.role === UserRole.SPORT_MANAGER || session.user.role === UserRole.EDITOR) && 
-      session.user.managedSportIds?.includes(post.sportId)
-    ) {
-      canEdit = true;
+      canDelete = true;
+    } else if (isTargetSportManaged) {
+      if (sessionHasPermission(session, "posts:write")) canEdit = true;
+      if (sessionHasPermission(session, "posts:full")) {
+        canEdit = true;
+        canDelete = true;
+      }
     }
   }
 
@@ -66,6 +72,7 @@ export async function getPostDetail(id: number): Promise<PostDetailData | null> 
     publishedAt: post.publishedAt?.toISOString() ?? null,
     createdAt: post.createdAt.toISOString(),
     canEdit,
+    canDelete,
   };
 }
 
