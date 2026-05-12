@@ -29,16 +29,17 @@ async function createAndSendInvitation(personnelId: number, email: string, creat
     type: "invitation",
     email,
     link: invitationLink,
-  }, {
-    attempts: 3,
-    backoff: {
-      type: "exponential",
-      delay: 5000,
-    }
-  });
+  }//, {
+  //   attempts: 3,
+  //   backoff: {
+  //     type: "exponential",
+  //     delay: 5000,
+  //   }
+  // }
+  );
 }
 
-export async function createUserAction(_prevState: any, formData: FormData): Promise<UserActionState> {
+export async function createUserAction(formData: FormData): Promise<UserActionState> {
   try {
     const session = await getRequiredSession();
     requirePermission(session, "users:manage");
