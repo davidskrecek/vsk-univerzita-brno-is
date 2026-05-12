@@ -11,17 +11,13 @@ interface ModalProps {
 }
 
 let activeModalLocks = 0;
-let lockedScrollY = 0;
 
 export const Modal = ({ children, onClose, contentClassName = "", className = "" }: ModalProps) => {
   useEffect(() => {
     const body = document.body;
-    const html = document.documentElement;
 
     const previousBodyOverflow = body.style.overflow;
-    
-    // We only need to lock overflow. 
-    // Layout shifts are handled by scrollbar-gutter: stable in globals.css
+
     if (activeModalLocks === 0) {
       body.style.overflow = "hidden";
     }
@@ -47,8 +43,8 @@ export const Modal = ({ children, onClose, contentClassName = "", className = ""
         className="fixed inset-0 bg-black/60 backdrop-blur-[2px]"
         onClick={onClose}
       />
-      
-      <div 
+
+      <div
         className={`relative w-full h-full flex items-center justify-center overflow-y-auto p-4 sm:p-6 md:p-10 ${className}`}
         style={{ scrollbarGutter: 'stable both-edges' }}
         onClick={onClose}
@@ -57,9 +53,9 @@ export const Modal = ({ children, onClose, contentClassName = "", className = ""
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ 
-            type: "spring", 
-            damping: 20, 
+          transition={{
+            type: "spring",
+            damping: 20,
             stiffness: 500,
             opacity: { duration: 0.12 }
           }}

@@ -12,6 +12,7 @@ import LabeledTextarea from "@/components/ui/Forms/LabeledTextarea";
 import { SportPicker } from "@/components/ui/Pickers/SportPicker";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/useToast";
+import { useConfirm } from "@/hooks/useConfirm";
 import { IoClose, IoCalendarOutline, IoTimeOutline } from "react-icons/io5";
 import { DatePicker } from "@/components/ui/Pickers/DatePicker";
 import { TimePicker } from "@/components/ui/Pickers/TimePicker";
@@ -71,6 +72,7 @@ export const EventCreateForm = ({
 }: EventCreateFormProps) => {
   const router = useRouter();
   const toast = useToast();
+  const confirm = useConfirm();
   const isEditing = mode === "edit" && typeof initialValues?.id === "number";
 
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -100,7 +102,13 @@ export const EventCreateForm = ({
   const handleDelete = async () => {
     if (!isEditing || !initialValues?.id) return;
 
-    const confirmed = window.confirm("Opravdu chcete tuto akci smazat?");
+    const confirmed = await confirm({
+      title: "Smazat akci",
+      message: "Opravdu chcete tuto akci smazat? Tato operace je nevratná.",
+      confirmLabel: "Smazat",
+      cancelLabel: "Zrušit",
+      type: "danger"
+    });
     if (!confirmed) return;
 
     setLoading(true);
