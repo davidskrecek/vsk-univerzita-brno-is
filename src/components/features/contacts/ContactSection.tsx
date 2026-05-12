@@ -18,7 +18,7 @@ export const ContactSection = ({ title, contacts, roles, user }: ContactSectionP
     if (!user) return false;
     if (user.role === "superadmin") return true;
     if (user.role === "sport_manager") {
-      return contact.sportId !== null && user.managedSportIds?.includes(contact.sportId);
+      return !!(contact.sportId !== null && user.managedSportIds?.includes(contact.sportId));
     }
     return false;
   };

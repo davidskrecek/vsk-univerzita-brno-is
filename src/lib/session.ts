@@ -8,6 +8,7 @@ export type AppSession = {
     personnelId: number;
     role: string;
     managedSportIds: number[];
+    permissions?: Record<string, boolean>;
   };
 };
 

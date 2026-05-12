@@ -190,13 +190,15 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
                                     sportId={sportId}
                                     isActive={isActive}
                                 >
-                                    <AccountSecuritySection
-                                        userId={user?.id}
-                                        email={user?.email}
-                                        editor={user?.editor}
-                                        invitations={user?.invitationsReceived}
-                                        onResult={onResult}
-                                    />
+                                    {user && (
+                                        <AccountSecuritySection
+                                            userId={user.id}
+                                            email={user.email}
+                                            editor={user.editor}
+                                            invitations={user.invitationsReceived}
+                                            onResult={onResult}
+                                        />
+                                    )}
                                 </EditorFields>
                             </fieldset>
                         </fieldset>
