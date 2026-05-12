@@ -43,7 +43,7 @@ export async function getPublicEvents(sportName?: string, year?: number, month?:
     take: limit,
   });
 
-  return events.map((event) => ({
+  const mapped = events.map((event) => ({
     id: String(event.id),
     title: event.title,
     date: new Intl.DateTimeFormat("en-CA", {
@@ -64,6 +64,13 @@ export async function getPublicEvents(sportName?: string, year?: number, month?:
     description: event.description ?? undefined,
     startTimeIso: event.startTime.toISOString(),
   }));
+
+  if (year && month) {
+    const prefix = `${year}-${String(month).padStart(2, '0')}`;
+    return mapped.filter(e => e.date.startsWith(prefix));
+  }
+
+  return mapped;
 }
 
 export type PublicEvent = Awaited<ReturnType<typeof getPublicEvents>>[number];

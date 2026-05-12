@@ -2,7 +2,6 @@
 
 import { ReactNode } from "react";
 import { IoClose, IoLinkOutline } from "react-icons/io5";
-import Modal from "@/components/ui/Overlay/Modal";
 
 export interface DetailLink {
   url: string;
@@ -33,10 +32,7 @@ export const DetailLayout = ({
   contentClassName = "max-w-2xl",
 }: DetailLayoutProps) => {
   return (
-    <Modal
-      onClose={onClose}
-      contentClassName={`${contentClassName} bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col`}
-    >
+    <div className={`${contentClassName} bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col w-full`}>
       {/* HEADER SECTION (Image or Map) */}
       <div className="relative h-48 sm:h-56 md:h-64 bg-surface-container-high overflow-hidden flex-shrink-0">
         {headerContent}
@@ -107,7 +103,7 @@ export const DetailLayout = ({
           </div>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 };
 

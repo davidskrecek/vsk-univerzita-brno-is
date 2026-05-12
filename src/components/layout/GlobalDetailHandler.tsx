@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { getPostDetail, type PostDetailResult } from "@/actions/public/posts";
 import { getEventDetail } from "@/actions/public/events";
 import { useSports } from "@/components/features/sports/SportsProvider";
@@ -35,59 +35,43 @@ export default function GlobalDetailHandler() {
   const activeEventId = searchParams.get("eventId");
   const isEditing = searchParams.get("edit") === "true";
 
-  // Handle Post Detail
+  // Unified State Synchronizer for Post and Event Detail
   useEffect(() => {
     let ignore = false;
+
+    // Hard deterministic cache purge on ANY context shift
     setPostDetail(null);
-    if (!activePostId) return;
-
-    const id = Number(activePostId);
-    if (isNaN(id)) return;
-
-    async function load() {
-      setIsLoading(true);
-      try {
-        const detail = await getPostDetail(id);
-        if (!ignore) {
-          setPostDetail(detail);
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        if (!ignore) setIsLoading(false);
-      }
-    }
-    load();
-
-    return () => { ignore = true; };
-  }, [activePostId]);
-
-  // Handle Event Detail
-  useEffect(() => {
-    let ignore = false;
     setEventDetail(null);
-    if (!activeEventId) return;
 
-    const id = Number(activeEventId);
-    if (isNaN(id)) return;
+    const pid = activePostId ? Number(activePostId) : null;
+    const eid = activeEventId ? Number(activeEventId) : null;
+
+    if (!pid && !eid) {
+      setIsLoading(false);
+      return;
+    }
 
     async function load() {
       setIsLoading(true);
       try {
-        const detail = await getEventDetail(id);
-        if (!ignore) {
-          setEventDetail(detail);
+        if (pid && !isNaN(pid)) {
+          const detail = await getPostDetail(pid);
+          if (!ignore) setPostDetail(detail);
+        } else if (eid && !isNaN(eid)) {
+          const detail = await getEventDetail(eid);
+          if (!ignore) setEventDetail(detail);
         }
       } catch (e) {
-        console.error(e);
+        console.error("Global Detail Load Error:", e);
       } finally {
         if (!ignore) setIsLoading(false);
       }
     }
+
     load();
 
     return () => { ignore = true; };
-  }, [activeEventId]);
+  }, [activePostId, activeEventId]);
 
   const closeDetail = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -96,6 +80,11 @@ export default function GlobalDetailHandler() {
     params.delete("edit");
     const query = params.toString();
     router.push(query ? `?${query}` : window.location.pathname, { scroll: false });
+
+    // Immediate deterministic cache purge on explicit user dismissal
+    setPostDetail(null);
+    setEventDetail(null);
+    setIsLoading(false);
   }, [router, searchParams]);
 
   const toggleEdit = useCallback((edit: boolean) => {
@@ -136,43 +125,61 @@ export default function GlobalDetailHandler() {
   return (
     <>
       <AnimatePresence>
-        {isLoading && !isEditing && (activePostId || activeEventId) && (
-          <DetailLayout
-            key="shared-detail-loading"
-            title="..."
-            category="Načítání"
+        {(activePostId || activeEventId) && !isEditing && (
+          <Modal
+            key="persistent-global-modal"
             onClose={closeDetail}
+            contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col"
           >
-            <div className="py-12 flex flex-col items-center justify-center space-y-6 min-h-[300px]">
-              <Loading />
-              <p className="text-on-surface/40 font-display text-sm font-medium tracking-widest uppercase animate-pulse">
-                Stahování podrobností
-              </p>
+            <div className="relative w-full min-h-[400px] flex flex-col">
+              <AnimatePresence initial={false} mode="wait">
+                {isLoading ? (
+                  <motion.div
+                    key="loading-stage"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center p-24"
+                  >
+                    <Loading />
+                  </motion.div>
+                ) : postDetail ? (
+                  <motion.div
+                    key={`post-stage-${postDetail.id}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="w-full flex flex-col"
+                  >
+                    <PostDetail
+                      title={postDetail.title}
+                      category={postDetail.sport.name.toUpperCase()}
+                      date={postDetail.publishedAt ?? postDetail.createdAt}
+                      content={postDetail.content}
+                      imageUrl={postDetail.imageUrl}
+                      links={mapPostDetailLinks(postDetail)}
+                      actions={canEditPost ? <EditButton onClick={() => toggleEdit(true)} /> : null}
+                      onClose={closeDetail}
+                    />
+                  </motion.div>
+                ) : eventDetail ? (
+                  <motion.div
+                    key={`event-stage-${eventDetail.id}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="w-full flex flex-col"
+                  >
+                    <EventDetail
+                      {...eventDetail}
+                      actions={canEditEvent ? <EditButton onClick={() => toggleEdit(true)} /> : null}
+                      onClose={closeDetail}
+                    />
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
             </div>
-          </DetailLayout>
-        )}
-
-        {postDetail && !isEditing && !isLoading && (
-          <PostDetail
-            key={`post-${postDetail.id}`}
-            title={postDetail.title}
-            category={postDetail.sport.name.toUpperCase()}
-            date={postDetail.publishedAt ?? postDetail.createdAt}
-            content={postDetail.content}
-            imageUrl={postDetail.imageUrl}
-            links={mapPostDetailLinks(postDetail)}
-            actions={canEditPost ? <EditButton onClick={() => toggleEdit(true)} /> : null}
-            onClose={closeDetail}
-          />
-        )}
-
-        {eventDetail && !isEditing && !isLoading && (
-          <EventDetail
-            key={`event-${eventDetail.id}`}
-            {...eventDetail}
-            actions={canEditEvent ? <EditButton onClick={() => toggleEdit(true)} /> : null}
-            onClose={closeDetail}
-          />
+          </Modal>
         )}
       </AnimatePresence>
 

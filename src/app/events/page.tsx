@@ -39,10 +39,9 @@ export default async function EventsPage({
 }) {
   const { sport, view, month, year } = await searchParams;
 
-  const isCalendar = view !== "list";
   const now = new Date();
-  const currentMonth = Number(month) || (isCalendar ? now.getMonth() + 1 : undefined);
-  const currentYear = Number(year) || (isCalendar ? now.getFullYear() : undefined);
+  const currentMonth = Number(month) || now.getMonth() + 1;
+  const currentYear = Number(year) || now.getFullYear();
 
   const session = await getServerSession(authOptions);
   const canCreate = session?.user && (session.user.permissions?.["events:write"] === true || isSuperAdminRole(session.user.role));
