@@ -100,20 +100,17 @@ export default function Home() {
       {/* STATS SECTION */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mx-auto pt-(--spacing-editorial) border-t border-outline-variant/10">
         <div className="bg-surface-container-low p-8 rounded-md group hover:bg-surface-container transition-colors">
-          <div className="stat-block-number">24</div>
+          <div className="stat-block-number">21</div>
           <div className="stat-block-label">Aktivních sportů</div>
-          <p className="mt-4 text-on-surface/40 text-sm font-sans">Široká škála sportovních disciplín pro každého studenta.</p>
         </div>
         <div className="bg-surface-container-low p-8 rounded-md group hover:bg-surface-container transition-colors">
-          <div className="stat-block-number">150+</div>
+          <div className="stat-block-number">1000+</div>
           <div className="stat-block-label">Členů klubu</div>
-          <p className="mt-4 text-on-surface/40 text-sm font-sans">Silná komunita sportovců a akademických pracovníků.</p>
         </div>
 
         <div className="bg-surface-container-low p-8 rounded-md group hover:bg-surface-container transition-colors">
           <div className="stat-block-number">1962</div>
           <div className="stat-block-label">Rok založení</div>
-          <p className="mt-4 text-on-surface/40 text-sm font-sans">Dlouholetá tradice brněnského vysokoškolského sportu.</p>
         </div>
       </section>
     </div>
