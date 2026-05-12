@@ -150,12 +150,14 @@ export default function GlobalDetailHandler() {
 
       <AnimatePresence>
         {isEditing && (
-          <Modal onClose={() => toggleEdit(false)} contentClassName="w-[95vw] md:w-[85vw] lg:w-full max-w-5xl">
+          <>
             {isPending ? (
-              <div className="p-12 flex flex-col items-center justify-center space-y-4">
-                <Loading />
-                <p className="text-on-surface/60 font-sans">Ověřování oprávnění...</p>
-              </div>
+              <Modal onClose={() => toggleEdit(false)} contentClassName="max-w-md w-full">
+                <div className="p-12 flex flex-col items-center justify-center space-y-4 bg-surface-container-low rounded-xl">
+                  <Loading />
+                  <p className="text-on-surface/60 font-sans">Ověřování oprávnění...</p>
+                </div>
+              </Modal>
             ) : postDetail && canEditPost ? (
               <PostCreateForm
                 mode="edit"
@@ -191,9 +193,11 @@ export default function GlobalDetailHandler() {
                 onSuccess={closeDetail}
               />
             ) : (
-              <AccessDenied onBack={closeDetail} />
+              <Modal onClose={closeDetail} contentClassName="max-w-md w-full">
+                <AccessDenied onBack={closeDetail} />
+              </Modal>
             )}
-          </Modal>
+          </>
         )}
       </AnimatePresence>
     </>

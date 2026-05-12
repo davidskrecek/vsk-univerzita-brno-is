@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Modal } from "@/components/ui/Overlay/Modal";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
 
 interface CreateFormButtonProps {
@@ -30,9 +29,7 @@ export const CreateFormButton = ({ label, FormComponent, sports, requiredPermiss
 
       <AnimatePresence>
         {isOpen && (
-          <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
-            <FormComponent sports={sports} onCancel={handleClose} onSuccess={handleClose} />
-          </Modal>
+          <FormComponent sports={sports} onCancel={handleClose} onSuccess={handleClose} />
         )}
       </AnimatePresence>
     </>

@@ -102,23 +102,21 @@ function EventsContentInner({ initialEvents, availableSports, year, month }: Eve
 
       <AnimatePresence>
         {isEditOpen && pendingEditEvent && (
-          <Modal onClose={closeEditModal} contentClassName="max-w-4xl w-full">
-            <EventCreateForm
-              mode="edit"
-              sports={accessibleSports}
-              initialValues={{
-                id: Number(pendingEditEvent.id),
-                sportId: pendingEditEvent.sportId,
-                title: pendingEditEvent.title,
-                description: pendingEditEvent.description ?? null,
-                location: pendingEditEvent.location ?? null,
-                startTime: pendingEditEvent.startTimeIso,
-              }}
-              onCancel={closeEditModal}
-              onDeleted={closeEditModal}
-              onSuccess={closeEditModal}
-            />
-          </Modal>
+          <EventCreateForm
+            mode="edit"
+            sports={accessibleSports}
+            initialValues={{
+              id: Number(pendingEditEvent.id),
+              sportId: pendingEditEvent.sportId,
+              title: pendingEditEvent.title,
+              description: pendingEditEvent.description ?? null,
+              location: pendingEditEvent.location ?? null,
+              startTime: pendingEditEvent.startTimeIso,
+            }}
+            onCancel={closeEditModal}
+            onDeleted={closeEditModal}
+            onSuccess={closeEditModal}
+          />
         )}
       </AnimatePresence>
     </div>

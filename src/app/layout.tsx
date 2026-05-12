@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 import { AuthModalProvider } from "@/components/features/auth/AuthModalProvider";
 import { AuthModal } from "@/components/features/auth/AuthModal";
 import { AppSessionProvider } from "@/components/features/auth/AppSessionProvider";
-import GlobalDetailHandler from "@/components/features/admin/GlobalDetailHandler";
+import GlobalDetailHandler from "@/components/layout/GlobalDetailHandler";
 import { SetPasswordModal } from "@/components/features/auth/SetPasswordModal";
 import { Suspense } from "react";
 

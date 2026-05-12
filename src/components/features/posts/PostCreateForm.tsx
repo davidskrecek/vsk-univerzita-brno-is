@@ -10,13 +10,14 @@ import AppButton from "@/components/ui/Actions/AppButton";
 import LabeledField from "@/components/ui/Forms/LabeledField";
 import LabeledInput from "@/components/ui/Forms/LabeledInput";
 import LabeledTextarea from "@/components/ui/Forms/LabeledTextarea";
-import { PostLinksSection } from "@/components/features/posts/PostLinksSection";
+import { LinksSection, LinkDraft } from "@/components/ui/Forms/LinksSection";
 import { SportPicker } from "@/components/ui/Pickers/SportPicker";
 import { useToast } from "@/hooks/useToast";
 import { useConfirm } from "@/hooks/useConfirm";
 import { IoClose } from "react-icons/io5";
 import { DatePicker } from "@/components/ui/Pickers/DatePicker";
 import { format } from "date-fns";
+import Modal from "@/components/ui/Overlay/Modal";
 
 interface SportOption {
   id: number;
@@ -76,7 +77,7 @@ export const PostCreateForm = ({
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedImageName, setSelectedImageName] = useState<string>(initialValues?.imageUrl ? "Aktuální obrázek" : "");
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(initialValues?.imageUrl ?? null);
-  const [links, setLinks] = useState<PostLinkDraft[]>(
+  const [links, setLinks] = useState<LinkDraft[]>(
     initialValues?.links?.map((link) => ({ url: link.url, alias: link.alias ?? "" })) ?? []
   );
   const [loading, setLoading] = useState(false);
@@ -211,144 +212,145 @@ export const PostCreateForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
-      {onCancel ? (
-        <button
-          type="button"
-          onClick={onCancel}
-          className="absolute right-4 top-4 z-20 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
-          aria-label="Zavřít formulář"
-        >
-          <IoClose size={20} />
-        </button>
-      ) : null}
-
-      <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
-        <div className="px-6 py-6 sm:px-8 bg-surface-container-low border-b border-outline-variant/5">
-          <h2 className="text-xl sm:text-2xl font-display font-bold uppercase tracking-wider text-on-surface">
-            {isEditing ? "Upravit příspěvek" : "Nový příspěvek"}
-          </h2>
-          <p className="text-[11px] font-sans uppercase tracking-widest text-on-surface/30 mt-1">
-            {isEditing ? "Administrace obsahu" : "Vytvoření obsahu"}
-          </p>
-        </div>
-
-        <div
-          className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar"
-          style={{ scrollbarGutter: 'stable both-edges' }}
-        >
-          <LabeledInput
-            label="Titulek příspěvku"
-            value={title}
-            onChange={setTitle}
-            placeholder="Zadejte poutavý nadpis..."
-          />
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <LabeledField label="Sportovní kategorie">
-              <SportPicker
-                sports={availableSports}
-                selectedId={sportId}
-                onSelect={setSportId}
-                disabled={availableSports.length <= 1}
-              />
-            </LabeledField>
-            <LabeledField label="Datum publikace">
-              <DatePicker
-                date={publishedAt ? new Date(publishedAt) : undefined}
-                onDateChange={(d) => setPublishedAt(d ? format(d, "yyyy-MM-dd") : "")}
-                disabled={true}
-              />
-            </LabeledField>
+    <Modal onClose={onCancel} contentClassName="max-w-4xl w-full">
+      <form onSubmit={handleSubmit} className="relative w-full h-full">
+        {onCancel ? (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="absolute right-4 top-4 z-20 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
+            aria-label="Zavřít formulář"
+          >
+            <IoClose size={20} />
+          </button>
+        ) : null}
+        <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
+          <div className="px-6 py-6 sm:px-8 bg-surface-container-low border-b border-outline-variant/5">
+            <h2 className="text-xl sm:text-2xl font-display font-bold uppercase tracking-wider text-on-surface">
+              {isEditing ? "Upravit příspěvek" : "Nový příspěvek"}
+            </h2>
+            <p className="text-[11px] font-sans uppercase tracking-widest text-on-surface/30 mt-1">
+              {isEditing ? "Administrace obsahu" : "Vytvoření obsahu"}
+            </p>
           </div>
 
-          <LabeledField label="Náhledový obrázek (pouze náhled)">
-            <div className="space-y-3">
-              <label className="flex min-h-13 cursor-pointer items-center justify-between gap-3 rounded-md border border-dashed border-outline-variant/20 bg-surface-container-high px-4 py-3 text-sm font-sans text-on-surface/60 transition-colors hover:border-primary/40 hover:text-on-surface/80">
-                <span className="truncate">
-                  {selectedImageName || "Vyberte soubor z počítače"}
-                </span>
-                <span className="shrink-0 text-xs uppercase tracking-widest text-on-surface/40">
-                  Procházet
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="sr-only"
+          <div
+            className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar"
+            style={{ scrollbarGutter: 'stable both-edges' }}
+          >
+            <LabeledInput
+              label="Titulek příspěvku"
+              value={title}
+              onChange={setTitle}
+              placeholder="Zadejte poutavý nadpis..."
+            />
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <LabeledField label="Sportovní kategorie">
+                <SportPicker
+                  sports={availableSports}
+                  selectedId={sportId}
+                  onSelect={setSportId}
+                  disabled={availableSports.length <= 1}
                 />
-              </label>
-
-              {selectedImagePreview ? (
-                <div className="overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container-low">
-                  <Image
-                    src={selectedImagePreview}
-                    alt={selectedImageName || "Náhled obrázku"}
-                    width={960}
-                    height={384}
-                    unoptimized
-                    className="h-48 w-full object-cover"
-                  />
-                </div>
-              ) : null}
+              </LabeledField>
+              <LabeledField label="Datum publikace">
+                <DatePicker
+                  date={publishedAt ? new Date(publishedAt) : undefined}
+                  onDateChange={(d) => setPublishedAt(d ? format(d, "yyyy-MM-dd") : "")}
+                  disabled={true}
+                />
+              </LabeledField>
             </div>
-          </LabeledField>
 
-          <LabeledTextarea
-            label="Obsah příspěvku"
-            value={content}
-            onChange={setContent}
-            placeholder="Začněte psát o novinkách z vašeho týmu..."
-            rows={10}
-          />
+            <LabeledField label="Náhledový obrázek (pouze náhled)">
+              <div className="space-y-3">
+                <label className="flex min-h-13 cursor-pointer items-center justify-between gap-3 rounded-md border border-dashed border-outline-variant/20 bg-surface-container-high px-4 py-3 text-sm font-sans text-on-surface/60 transition-colors hover:border-primary/40 hover:text-on-surface/80">
+                  <span className="truncate">
+                    {selectedImageName || "Vyberte soubor z počítače"}
+                  </span>
+                  <span className="shrink-0 text-xs uppercase tracking-widest text-on-surface/40">
+                    Procházet
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="sr-only"
+                  />
+                </label>
 
-          <PostLinksSection links={links} onChange={updateLinks} />
-        </div>
+                {selectedImagePreview ? (
+                  <div className="overflow-hidden rounded-xl border border-outline-variant/10 bg-surface-container-low">
+                    <Image
+                      src={selectedImagePreview}
+                      alt={selectedImageName || "Náhled obrázku"}
+                      width={960}
+                      height={384}
+                      unoptimized
+                      className="h-48 w-full object-cover"
+                    />
+                  </div>
+                ) : null}
+              </div>
+            </LabeledField>
 
-        <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
-          <div className={`flex flex-row items-center gap-2 ${isEditing ? "justify-between" : "justify-end"}`}>
-            {isEditing && (
-              <AppButton
-                type="button"
-                variant="danger"
-                isUppercase
-                onClick={handleDelete}
-                isLoading={loading}
-                className="px-3 sm:px-6"
-              >
-                Smazat<span className="hidden sm:inline">&nbsp;příspěvek</span>
-              </AppButton>
-            )}
+            <LabeledTextarea
+              label="Obsah příspěvku"
+              value={content}
+              onChange={setContent}
+              placeholder="Začněte psát o novinkách z vašeho týmu..."
+              rows={10}
+            />
 
-            <div className="flex flex-row gap-2">
-              <AppButton
-                type="button"
-                variant="tertiary"
-                isUppercase
-                onClick={onCancel}
-                className="px-3 sm:px-6"
-              >
-                Zrušit
-              </AppButton>
-              <AppButton
-                type="submit"
-                variant="primary"
-                isUppercase
-                isLoading={loading}
-                disabled={!canSubmit}
-                className="px-3 sm:px-6"
-              >
-                {isEditing ? (
-                  <>Uložit<span className="hidden sm:inline">&nbsp;změny</span></>
-                ) : (
-                  <>Publikovat<span className="hidden sm:inline">&nbsp;příspěvek</span></>
-                )}
-              </AppButton>
+            <LinksSection links={links} onChange={setLinks} />
+          </div>
+
+          <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
+            <div className={`flex flex-row items-center gap-2 ${isEditing ? "justify-between" : "justify-end"}`}>
+              {isEditing && (
+                <AppButton
+                  type="button"
+                  variant="danger"
+                  isUppercase
+                  onClick={handleDelete}
+                  isLoading={loading}
+                  className="px-3 sm:px-6"
+                >
+                  Smazat<span className="hidden sm:inline">&nbsp;příspěvek</span>
+                </AppButton>
+              )}
+
+              <div className="flex flex-row gap-2">
+                <AppButton
+                  type="button"
+                  variant="tertiary"
+                  isUppercase
+                  onClick={onCancel}
+                  className="px-3 sm:px-6"
+                >
+                  Zrušit
+                </AppButton>
+                <AppButton
+                  type="submit"
+                  variant="primary"
+                  isUppercase
+                  isLoading={loading}
+                  disabled={!canSubmit}
+                  className="px-3 sm:px-6"
+                >
+                  {isEditing ? (
+                    <>Uložit<span className="hidden sm:inline">&nbsp;změny</span></>
+                  ) : (
+                    <>Publikovat<span className="hidden sm:inline">&nbsp;příspěvek</span></>
+                  )}
+                </AppButton>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </Modal>
   );
 };
 

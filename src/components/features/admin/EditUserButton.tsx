@@ -82,11 +82,13 @@ export const EditUserButton = ({ label, roles, sports, userId, iconOnly, childre
 
             <AnimatePresence>
                 {isOpen && (
-                    <Modal onClose={() => setIsOpen(false)} contentClassName="max-w-4xl w-full">
+                    <>
                         {loading ? (
-                            <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-12 flex justify-center">
-                                <MiniSpinner />
-                            </div>
+                            <Modal onClose={() => setIsOpen(false)} contentClassName="max-w-md w-full">
+                                <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-12 flex justify-center">
+                                    <MiniSpinner />
+                                </div>
+                            </Modal>
                         ) : (
                             <CreateUserForm
                                 user={user ?? undefined}
@@ -96,7 +98,7 @@ export const EditUserButton = ({ label, roles, sports, userId, iconOnly, childre
                                 sports={sports}
                             />
                         )}
-                    </Modal>
+                    </>
                 )}
             </AnimatePresence>
         </>
