@@ -31,9 +31,7 @@ async function PostListContainer() {
 }
 
 async function UpcomingEventsContainer() {
-  const upcomingEvents = (await getPublicEvents()).slice(0, 3).sort(
-    (a, b) => new Date(a.startTimeIso).getTime() - new Date(b.startTimeIso).getTime()
-  );
+  const upcomingEvents = await getPublicEvents(undefined, undefined, undefined, 3);
 
   return (
     <PageReveal>

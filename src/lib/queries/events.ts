@@ -3,8 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import type { UiEvent } from "@/components/features/events/eventUtils";
 
-export async function getPublicEvents(sportName?: string, year?: number, month?: number): Promise<UiEvent[]> {
-  const where: Prisma.EventWhereInput = {
+export async function getPublicEvents(sportName?: string, year?: number, month?: number, limit?: number): Promise<UiEvent[]> {
+  const where: any = {
     isPublic: true,
     isCancelled: false,
     sport: sportName ? { name: sportName } : undefined
@@ -36,6 +36,7 @@ export async function getPublicEvents(sportName?: string, year?: number, month?:
       sport: { select: { id: true, name: true } },
     },
     orderBy: { startTime: "asc" },
+    take: limit,
   });
 
   return events.map((event) => ({
