@@ -174,7 +174,7 @@ export async function updateUserAction(formData: FormData): Promise<UserActionSt
     return { success: true };
   } catch (e) {
     console.error("[AUTH] updateUser error:", e);
-    if (e.code === "P2002") return { error: "Uživatel s tímto e-mailem již v systému existuje." };
+    if ((e as { code?: string }).code === "P2002") return { error: "Uživatel s tímto e-mailem již v systému existuje." };
     return { error: "Nepodařilo se aktualizovat uživatele." };
   }
 }

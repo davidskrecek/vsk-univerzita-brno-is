@@ -136,7 +136,7 @@ export async function createUserAction(formData: FormData): Promise<UserActionSt
     return { success: true, data: { personnelId: personnel.id } };
   } catch (e) {
     console.error("[AUTH] createUser error:", e);
-    if (e.code === "P2002") return { error: "Uživatel s tímto e-mailem již v systému existuje." };
+    if ((e as { code?: string }).code === "P2002") return { error: "Uživatel s tímto e-mailem již v systému existuje." };
     return { error: "Nepodařilo se vytvořit uživatele." };
   }
 }
