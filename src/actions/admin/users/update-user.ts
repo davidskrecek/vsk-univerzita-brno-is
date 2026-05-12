@@ -56,7 +56,7 @@ export async function updateUserAction(formData: FormData): Promise<UserActionSt
     if (!parsed.success) {
       return {
         error: "Validace selhala.",
-        fieldErrors: parsed.error.flatten().fieldErrors as any,
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
       };
     }
 
@@ -156,7 +156,7 @@ export async function updateUserAction(formData: FormData): Promise<UserActionSt
           entityType: "personnel",
           entityId: id,
           action: "update",
-          payload: body as any,
+          payload: JSON.parse(JSON.stringify(body)),
         }
       });
     });
@@ -172,10 +172,11 @@ export async function updateUserAction(formData: FormData): Promise<UserActionSt
     }
 
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[AUTH] updateUser error:", e);
     if (e.code === "P2002") return { error: "Uživatel s tímto e-mailem již v systému existuje." };
     return { error: "Nepodařilo se aktualizovat uživatele." };
   }
 }
+
 

@@ -11,13 +11,6 @@ export interface PostListItem {
   };
 }
 
-export interface PostsResponse {
-  data: PostListItem[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
 export interface PostMediaItem {
   id: number;
   mediaUrl: string;
@@ -55,9 +48,4 @@ export const mapPostDetailLinks = (postDetail: PostDetailResponse | null): PostD
   }));
 };
 
-export const extractPostSports = (posts: PostListItem[]) =>
-  Array.from(new Set(posts.map((post) => post.sport.name))).sort((a, b) => a.localeCompare(b, "cs"));
-
-export const filterPostsBySport = (posts: PostListItem[], selectedSport: string | null): PostListItem[] =>
-  selectedSport ? posts.filter((post) => post.sport.name === selectedSport) : posts;
 

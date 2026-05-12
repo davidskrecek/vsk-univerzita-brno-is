@@ -3,14 +3,12 @@
 import React, { useState } from "react";
 import AppButton from "@/components/ui/Actions/AppButton";
 import { IoClose } from "react-icons/io5";
-import { Sport } from "@/lib/queries/sports";
+import { FullUser } from "@/actions/admin/users/schemas";
 import { Role } from "@/lib/queries/roles";
 import { createUserAction } from "@/actions/admin/users/create-user";
 import { updateUserAction } from "@/actions/admin/users/update-user";
 import { deleteUserAction, activateUserAction } from "@/actions/admin/users/delete-user";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useToast } from "@/hooks/useToast";
-import { useSession } from "next-auth/react";
 
 import { BasicInfoFields } from "./UserForm/BasicInfoFields";
 import { TrainerFields } from "./UserForm/TrainerFields";
@@ -23,13 +21,11 @@ type CreateUserFormProps = {
     onResult: (error?: string) => void;
     onCancel?: () => void;
     roles: Role[];
-    user?: any;
+    user?: FullUser;
 };
 
 export default function CreateUserForm({ onResult, onCancel, roles, user }: CreateUserFormProps) {
     const { sports } = useSports();
-    const toast = useToast();
-    const { data: session } = useSession();
     const confirm = useConfirm();
 
     // State
@@ -107,7 +103,7 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
         formData.append("isEditor", String(hasAccess));
 
         if (hasAccess) {
-            let roleName = editorType === "admin" ? "sport_manager" : "editor";
+            const roleName = editorType === "admin" ? "sport_manager" : "editor";
             const targetRole = roles.find(r => r.name === roleName);
             if (targetRole) formData.append("editorRoleId", String(targetRole.id));
 

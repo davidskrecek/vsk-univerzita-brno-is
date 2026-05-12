@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const PageReveal = ({ children }: { children: React.ReactNode }) => {

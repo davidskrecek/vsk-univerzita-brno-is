@@ -10,15 +10,12 @@ import EmptyState from "@/components/ui/Feedback/EmptyState";
 import { useSports } from "@/components/features/sports/SportsProvider";
 import {
   buildContactSections,
-  extractSports,
   type ContactItem,
 } from "@/components/features/contacts/contactUtils";
 import { Role } from "@/lib/queries/roles";
 
 interface ContactsContentProps {
   initialContacts: ContactItem[];
-  allAvailableContacts: ContactItem[];
-  canEdit: boolean;
   isSuperAdmin: boolean;
   roles: Role[];
   currentSport?: string;
@@ -27,8 +24,6 @@ interface ContactsContentProps {
 
 export default function ContactsContent({
   initialContacts,
-  allAvailableContacts,
-  canEdit,
   isSuperAdmin,
   roles,
   currentSport,

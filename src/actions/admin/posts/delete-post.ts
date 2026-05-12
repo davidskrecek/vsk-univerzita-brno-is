@@ -54,10 +54,11 @@ export async function deletePostAction(postId: number): Promise<{ success?: bool
     revalidatePath("/posts");
 
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[POSTS] deletePost error:", e);
     if (e instanceof AuthError) return { error: e.message };
     return { error: "Nepodařilo se smazat příspěvek." };
   }
 }
+
 

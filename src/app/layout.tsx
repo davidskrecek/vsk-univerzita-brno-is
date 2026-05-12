@@ -30,7 +30,6 @@ import GlobalDetailHandler from "@/components/layout/GlobalDetailHandler";
 import { SetPasswordModal } from "@/components/features/auth/SetPasswordModal";
 import { Suspense } from "react";
 
-import { PageReveal } from "@/components/layout/PageReveal";
 
 
 import { ConfirmProvider } from "@/components/ui/Overlay/ConfirmProvider";

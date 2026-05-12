@@ -32,7 +32,7 @@ export async function deleteUserAction({ id }: { id: number }) {
     revalidatePath("/admin/users");
     revalidatePath("/contacts");
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error(e);
     return { error: e.message || "Failed to deactivate user" };
   }
@@ -64,9 +64,10 @@ export async function activateUserAction({ id }: { id: number }) {
 
     revalidatePath("/admin/users");
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error(e);
     return { error: e.message || "Failed to activate user" };
   }
 }
+
 

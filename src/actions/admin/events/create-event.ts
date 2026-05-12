@@ -2,10 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession, AuthError } from "@/lib/session";
-import { requirePermission } from "@/lib/rbac";
+import { requirePermission, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { CreateEventSchema, EventActionState } from "./schemas";
-import { UserRole } from "@/lib/constants/roles";
 
 export async function createEventAction(
   _prevState: EventActionState,
@@ -27,10 +26,7 @@ export async function createEventAction(
 
     const body = parsed.data;
     
-    // Check sport scope
-    if (session.user.role !== UserRole.SUPERADMIN && !session.user.managedSportIds.includes(body.sportId)) {
-      throw new AuthError(403, "Nemáte oprávnění pro tento sport.");
-    }
+    requireSportScope(session, body.sportId);
 
     const endTime = body.endTime === "" || body.endTime === null ? null : new Date(body.endTime!);
     const ticketUrl = body.ticketUrl === "" ? undefined : body.ticketUrl || undefined;
@@ -60,7 +56,7 @@ export async function createEventAction(
           entityType: "event",
           entityId: e.id,
           action: "create",
-          payload: body as any,
+          payload: JSON.parse(JSON.stringify(body)),
         }
       });
 
@@ -71,10 +67,11 @@ export async function createEventAction(
     revalidatePath(`/events`);
 
     return { success: true, data: { id: event.id } };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[EVENTS] createEvent error:", e);
     if (e instanceof AuthError) return { error: e.message };
     return { error: "Nepodařilo se vytvořit událost." };
   }
 }
+
 

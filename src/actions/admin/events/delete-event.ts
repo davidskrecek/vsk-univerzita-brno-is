@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { getRequiredSession, AuthError } from "@/lib/session";
 import { requirePermission, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
-import { UserRole, isEditorialRole } from "@/lib/constants/roles";
 
 export async function deleteEventAction(eventId: number): Promise<{ success?: boolean; error?: string }> {
   try {
@@ -42,10 +41,11 @@ export async function deleteEventAction(eventId: number): Promise<{ success?: bo
     revalidatePath(`/events`);
 
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[EVENTS] deleteEvent error:", e);
     if (e instanceof AuthError) return { error: e.message };
     return { error: "Nepodařilo se smazat událost." };
   }
 }
+
 

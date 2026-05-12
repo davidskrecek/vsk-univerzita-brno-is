@@ -42,17 +42,3 @@ export async function getPublishedPosts(sportName?: string, page = 1, limit = 50
   };
 }
 
-export async function getPostById(id: number) {
-  return prisma.post.findFirst({
-    where: { id, isPublished: true },
-    include: {
-      sport: { select: { id: true, name: true } },
-      author: { select: { id: true, firstName: true, lastName: true } },
-      media: { orderBy: { sortOrder: "asc" } },
-      links: { select: { url: true, alias: true } },
-    },
-  });
-}
-
-export type PostDetail = Awaited<ReturnType<typeof getPostById>>;
-

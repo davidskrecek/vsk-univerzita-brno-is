@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createEventAction } from "@/actions/admin/events/create-event";
 import { updateEventAction } from "@/actions/admin/events/update-event";
@@ -13,7 +13,7 @@ import { SportPicker } from "@/components/ui/Pickers/SportPicker";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/useToast";
 import { useConfirm } from "@/hooks/useConfirm";
-import { IoClose, IoCalendarOutline, IoTimeOutline } from "react-icons/io5";
+import { IoClose } from "react-icons/io5";
 import { DatePicker } from "@/components/ui/Pickers/DatePicker";
 import { TimePicker } from "@/components/ui/Pickers/TimePicker";
 import { LocationPicker } from "@/components/ui/Pickers/LocationPicker";

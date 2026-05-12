@@ -38,7 +38,7 @@ export const EditUserButton = ({ label, roles, userId, iconOnly, children }: Edi
                 setLoading(true);
                 const loadedUser = (await getUserById(Number(userId))) as User;
                 setUser(loadedUser);
-            } catch (e) {
+            } catch {
                 toast.error("Nepodařilo se načíst kontakt");
                 setIsOpen(false);
             } finally {
@@ -74,7 +74,7 @@ export const EditUserButton = ({ label, roles, userId, iconOnly, children }: Edi
             ) : iconOnly ? (
                 <Pencil size={14} onClick={openModal} className="absolute bottom-10 right-4 text-primary/70 transition-colors hover:text-primary cursor-pointer" />
             ) : (
-                <SectionActionButton label={label ?? ""} onClick={openModal} requiredRoles={["superadmin"]} />
+                <SectionActionButton label={label ?? ""} onClick={openModal} requiredPermission="users:manage" />
             )}
 
             <AnimatePresence>

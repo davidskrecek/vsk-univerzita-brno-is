@@ -10,7 +10,7 @@ import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
 import { getRoles, Role } from "@/lib/queries/roles";
 import { EditUserButton } from "@/components/features/admin/EditUserButton";
 
-async function ContactsListContainer({ canEdit, roles, isSuperAdmin, sport, showInactive }: { canEdit: boolean, roles: Role[], isSuperAdmin: boolean, sport?: string, showInactive: boolean }) {
+async function ContactsListContainer({ roles, isSuperAdmin, sport, showInactive }: { roles: Role[], isSuperAdmin: boolean, sport?: string, showInactive: boolean }) {
   const allContacts = await getContacts(isSuperAdmin && showInactive);
   const filteredContacts = sport ? allContacts.filter(c => c.sportName === sport) : allContacts;
 
@@ -18,8 +18,6 @@ async function ContactsListContainer({ canEdit, roles, isSuperAdmin, sport, show
     <PageReveal>
       <ContactsContent
         initialContacts={filteredContacts}
-        allAvailableContacts={allContacts}
-        canEdit={canEdit}
         roles={roles}
         isSuperAdmin={isSuperAdmin}
         currentSport={sport}
@@ -52,7 +50,6 @@ export default async function ContactsPage({
       } />
       <Suspense fallback={<Loading />}>
         <ContactsListContainer
-          canEdit={canCreate ?? false}
           roles={roles}
           isSuperAdmin={isSuperAdmin}
           sport={sport}

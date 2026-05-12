@@ -1,12 +1,6 @@
 import { AppSession, AuthError } from "@/lib/session";
 import { sessionHasPermission, Permission } from "./permissions";
 
-export function requireRole(session: AppSession, ...roles: string[]) {
-  if (!roles.includes(session.user.role)) {
-    throw new AuthError(403, "Forbidden");
-  }
-}
-
 export function requirePermission(session: AppSession, permission: Permission) {
   if (!sessionHasPermission(session, permission)) {
     throw new AuthError(403, `Forbidden: missing permission ${permission}`);

@@ -1,9 +1,10 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import type { UiEvent } from "@/components/features/events/eventUtils";
 
 export async function getPublicEvents(sportName?: string, year?: number, month?: number): Promise<UiEvent[]> {
-  const where: any = {
+  const where: Prisma.EventWhereInput = {
     isPublic: true,
     isCancelled: false,
     sport: sportName ? { name: sportName } : undefined
@@ -53,17 +54,6 @@ export async function getPublicEvents(sportName?: string, year?: number, month?:
     description: event.description ?? undefined,
     startTimeIso: event.startTime.toISOString(),
   }));
-}
-
-export async function getEventById(id: number) {
-  return prisma.event.findFirst({
-    where: { id, isPublic: true },
-    include: {
-      sport: { select: { id: true, name: true } },
-      author: { select: { id: true, firstName: true, lastName: true } },
-      links: { select: { url: true, alias: true } },
-    },
-  });
 }
 
 export type PublicEvent = Awaited<ReturnType<typeof getPublicEvents>>[number];

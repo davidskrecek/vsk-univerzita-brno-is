@@ -2,10 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession, AuthError } from "@/lib/session";
-import { requirePermission } from "@/lib/rbac";
+import { requirePermission, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { CreatePostSchema, PostActionState } from "./schemas";
-import { z } from "zod";
 
 export async function createPostAction(
   _prevState: PostActionState,
@@ -13,7 +12,6 @@ export async function createPostAction(
 ): Promise<PostActionState> {
   try {
     const session = await getRequiredSession();
-    // Use the new permission check
     requirePermission(session, "posts:write");
 
     const rawData = Object.fromEntries(formData.entries());
@@ -28,10 +26,7 @@ export async function createPostAction(
 
     const body = parsed.data;
     
-    // Check sport scope (if not superadmin, must manage this sport)
-    if (session.user.role !== "superadmin" && !session.user.managedSportIds.includes(body.sportId)) {
-      throw new AuthError(403, "Nemáte oprávnění pro tento sport.");
-    }
+    requireSportScope(session, body.sportId);
 
     const isPublished = body.isPublished ?? true;
     const imageUrl = body.imageUrl === "" ? undefined : body.imageUrl || undefined;
@@ -58,7 +53,7 @@ export async function createPostAction(
           entityType: "post",
           entityId: p.id,
           action: "create",
-          payload: body as any,
+          payload: JSON.parse(JSON.stringify(body)),
         }
       });
 
@@ -69,7 +64,7 @@ export async function createPostAction(
     revalidatePath(`/posts`);
 
     return { success: true, data: { id: post.id } };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[POSTS] createPost error:", e);
     if (e instanceof AuthError) return { error: e.message };
     return { error: "Nepodařilo se vytvořit příspěvek." };

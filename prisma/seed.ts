@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaClient, Sport } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
@@ -40,7 +40,7 @@ async function main() {
     "Šerm", "Sportovní aerobik", "Tenis", "Turistika"
   ];
 
-  const sportsMap: Record<string, any> = {};
+  const sportsMap: Record<string, Sport> = {};
 
   for (const name of competitiveSports) {
     sportsMap[name] = await prisma.sport.upsert({

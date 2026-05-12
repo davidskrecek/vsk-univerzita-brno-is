@@ -1,23 +1,17 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useSports } from "@/components/features/sports/SportsProvider";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
-import { Modal } from "@/components/ui/Overlay/Modal";
 import { Calendar } from "@/components/features/events/Calendar/Calendar";
 import { EventCard } from "@/components/features/events/EventCard";
-import EventDetail from "@/components/features/events/EventDetail";
-import EditButton from "@/components/ui/Actions/EditButton";
 import EventCreateForm from "@/components/features/events/EventCreateForm";
-import Loading from "@/app/loading";
-import ViewToggle from "@/components/ui/Actions/ViewToggle";
 import {
   getCzechMonthShort,
   getEventDayOfMonth,
-  findEventById,
   type UiEvent,
 } from "@/components/features/events/eventUtils";
 

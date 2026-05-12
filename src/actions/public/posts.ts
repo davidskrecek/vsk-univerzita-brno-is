@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { UserRole, isSuperAdminRole } from "@/lib/constants/roles";
+import { isSuperAdminRole } from "@/lib/constants/roles";
 import { sessionHasPermission } from "@/lib/permissions";
 
 export interface PostDetailData {
@@ -48,7 +48,6 @@ export async function getPostDetail(id: number): Promise<PostDetailData | null> 
     return null;
   }
 
-  // Server-side authorization check
   let canEdit = false;
   let canDelete = false;
   if (session?.user) {

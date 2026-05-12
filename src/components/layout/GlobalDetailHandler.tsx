@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
@@ -17,7 +17,7 @@ import PostCreateForm from "@/components/features/posts/PostCreateForm";
 import EventCreateForm from "@/components/features/events/EventCreateForm";
 import AccessDenied from "@/components/ui/Feedback/AccessDenied";
 import Loading from "@/app/loading";
-import { UserRole } from "@/lib/constants/roles";
+import { sessionHasPermission } from "@/lib/permissions";
 
 
 
@@ -110,7 +110,7 @@ export default function GlobalDetailHandler() {
   const accessibleSports = useMemo(() => {
     if (!session?.user || availableSports.length === 0) return [];
 
-    let sports = session.user.role === UserRole.SUPERADMIN
+    let sports = sessionHasPermission(session, "sports:manage")
       ? availableSports
       : availableSports.filter(s => session.user.managedSportIds?.includes(s.id));
 

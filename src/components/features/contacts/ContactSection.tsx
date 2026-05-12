@@ -6,7 +6,7 @@ interface ContactSectionProps {
   title: string;
   contacts: ContactPerson[];
   roles: Role[];
-  user: any;
+  user: { role?: string | null; managedSportIds?: number[] | null } | null | undefined;
 }
 
 export const ContactSection = ({ title, contacts, roles, user }: ContactSectionProps) => {

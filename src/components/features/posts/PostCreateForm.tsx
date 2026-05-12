@@ -45,11 +45,6 @@ interface PostCreateFormProps {
   canDelete?: boolean;
 }
 
-interface PostLinkDraft {
-  url: string;
-  alias: string;
-}
-
 const DEFAULT_ERROR = "Příspěvek se nepodařilo uložit.";
 
 const toDateInputValue = (dateValue?: string | null) => {
@@ -116,9 +111,6 @@ export const PostCreateForm = ({
     setSelectedImageName(file?.name ?? "");
   };
 
-  const updateLinks = (updatedLinks: PostLinkDraft[]) => {
-    setLinks(updatedLinks);
-  };
 
 
   const handleDelete = async () => {

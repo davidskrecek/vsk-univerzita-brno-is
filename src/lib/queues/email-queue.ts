@@ -1,4 +1,4 @@
-import { Queue, Worker, Job } from "bullmq";
+import { Worker, Job } from "bullmq";
 import { redisConnection } from "../redis";
 import { sendInvitationEmail } from "../mailer";
 
@@ -19,7 +19,6 @@ const QUEUE_NAME = "email-queue";
 
 const emailQueue = {
   add: async (_name: string, data: EmailJobData) => {
-    // directly send email without background queue
     if(data.type === "invitation") {
       await sendInvitationEmail(data.email, data.link);
     }
@@ -35,8 +34,9 @@ export interface EmailJobData {
   link: string;
 }
 
-// Singleton for the worker
-if (process.env.NODE_ENV === "production" || !(global as any).emailWorker) {
+const globalRef = globalThis as unknown as { emailWorker?: Worker };
+
+if (process.env.NODE_ENV === "production" || !globalRef.emailWorker) {
   const worker = new Worker(
     QUEUE_NAME,
     async (job: Job<EmailJobData>) => {
@@ -49,7 +49,7 @@ if (process.env.NODE_ENV === "production" || !(global as any).emailWorker) {
         console.log(`[QUEUE] Job ${job.id} completed successfully`);
       } catch (error) {
         console.error(`[QUEUE] Job ${job.id} failed:`, error);
-        throw error; // Let BullMQ handle retries
+        throw error;
       }
     },
     { 
@@ -60,7 +60,7 @@ if (process.env.NODE_ENV === "production" || !(global as any).emailWorker) {
   );
 
   if (process.env.NODE_ENV !== "production") {
-    (global as any).emailWorker = worker;
+    globalRef.emailWorker = worker;
   }
 
   worker.on("failed", (job, err) => {

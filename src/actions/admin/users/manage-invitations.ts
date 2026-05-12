@@ -36,9 +36,10 @@ export async function resendInvitationAction({ personnelId, email }: { personnel
 
     await createAndSendInvitation(personnelId, email, session.user.personnelId);
     return { success: true };
-  } catch (e: any) {
+  } catch (e) {
     console.error("[AUTH] resendInvitation error:", e);
     return { error: e.message || "Nepodařilo se odeslat pozvánku." };
   }
 }
+
 

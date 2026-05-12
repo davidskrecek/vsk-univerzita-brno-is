@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { type UiEvent } from "@/components/features/events/eventUtils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { UserRole, isSuperAdminRole } from "@/lib/constants/roles";
+import { isSuperAdminRole } from "@/lib/constants/roles";
 import { sessionHasPermission } from "@/lib/permissions";
 
 export async function getEventDetail(id: number): Promise<UiEvent | null> {

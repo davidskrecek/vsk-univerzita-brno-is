@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
 import { useSports } from "@/components/features/sports/SportsProvider";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
-import { isSuperAdminRole } from "@/lib/constants/roles";
+import { sessionHasPermission } from "@/lib/permissions";
 
 interface CreateFormButtonProps {
   label: string;
@@ -25,7 +25,7 @@ export const CreateFormButton = ({ label, requiredPermission, FormComponent }: C
   const handleClose = () => setIsOpen(false);
 
   const availableSports =
-    isSuperAdminRole(session?.user?.role)
+    sessionHasPermission(session, "sports:manage")
       ? sports
       : sports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
 
