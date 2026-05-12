@@ -140,6 +140,16 @@ export const EventCreateForm = ({
       return;
     }
 
+    if (isEditing) {
+      const isConfirmed = await confirm({
+        title: "Uložit změny",
+        message: "Opravdu chcete uložit provedené změny v akci?",
+        confirmLabel: "Uložit",
+        type: "primary"
+      });
+      if (!isConfirmed) return;
+    }
+
     const formData = new FormData();
     const cleanedLinks = links
       .map((link) => ({

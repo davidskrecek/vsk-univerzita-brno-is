@@ -27,6 +27,9 @@ export const PostCard = ({
   const getHref = () => {
     const params = new URLSearchParams(searchParams.toString());
 
+    params.delete('eventId');
+    params.delete('edit');
+
     if (postId) {
       params.set("postId", String(postId));
     } else if (href) {

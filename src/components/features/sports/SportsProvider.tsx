@@ -32,7 +32,7 @@ export const SportsProvider = ({
 export const useSports = () => {
   const context = useContext(SportsContext);
   if (context === undefined) {
-    throw new Error("useSports must be used within a SportsProvider");
+    return { sports: [] };
   }
   return context;
 };
