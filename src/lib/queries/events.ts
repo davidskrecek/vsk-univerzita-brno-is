@@ -32,7 +32,6 @@ export async function getPublicEvents(sportName?: string, year?: number, month?:
       title: true,
       description: true,
       startTime: true,
-      endTime: true,
       location: true,
       eventType: true,
       isPublic: true,

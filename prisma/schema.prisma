@@ -151,7 +151,6 @@ model Event {
   title             String    @db.VarChar(255)
   description       String?   @db.Text
   startTime         DateTime  @map("start_time")
-  endTime           DateTime? @map("end_time")
   location          String?   @db.VarChar(255)
   eventType         String?   @map("event_type") @db.VarChar(50)
   ticketUrl         String?   @map("ticket_url") @db.VarChar(1024)

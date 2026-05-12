@@ -28,9 +28,8 @@ export async function createEventAction(
     
     requireSportScope(session, body.sportId);
 
-    const endTime = body.endTime === "" || body.endTime === null ? null : new Date(body.endTime!);
-    const ticketUrl = body.ticketUrl === "" ? undefined : body.ticketUrl || undefined;
-    const mapUrl = body.mapUrl === "" ? undefined : body.mapUrl || undefined;
+    const ticketUrl = body.ticketUrl || null;
+    const mapUrl = body.mapUrl || null;
 
     const event = await prisma.$transaction(async (tx) => {
       const e = await tx.event.create({
@@ -39,12 +38,10 @@ export async function createEventAction(
           title: body.title,
           description: body.description,
           startTime: new Date(body.startTime),
-          endTime,
           location: body.location,
-          eventType: body.eventType,
+          eventType: body.eventType || null,
           ticketUrl,
           mapUrl,
-          isPublic: body.isPublic,
           links: body.links ? { create: body.links } : undefined,
           authorPersonnelId: session.user.personnelId,
         },

@@ -10,8 +10,6 @@ interface CalendarExportProps {
   description?: string;
   date?: string;
   time?: string;
-  endDate?: string;
-  endTime?: string;
   className?: string;
 }
 
@@ -30,9 +28,7 @@ const toLocalDateTime = (date: string, time: string) => new Date(`${date}T${norm
 const buildDateRange = ({
   date,
   time,
-  endDate,
-  endTime,
-}: Pick<CalendarExportProps, "date" | "time" | "endDate" | "endTime">) => {
+}: Pick<CalendarExportProps, "date" | "time">) => {
   if (!date) return undefined;
 
   if (!time) {
@@ -47,15 +43,7 @@ const buildDateRange = ({
 
   const start = toLocalDateTime(date, time);
 
-  let end: Date;
-  if (endDate && endTime) {
-    end = toLocalDateTime(endDate, endTime);
-  } else if (endTime) {
-    end = toLocalDateTime(date, endTime);
-  } else {
-    // Fallback to one-hour event when end is not provided.
-    end = new Date(start.getTime() + 60 * 60 * 1000);
-  }
+  const end = new Date(start.getTime() + 60 * 60 * 1000);
 
   return `${toGoogleDateTime(start)}/${toGoogleDateTime(end)}`;
 };
@@ -75,9 +63,7 @@ const buildIcsPayload = ({
   description,
   date,
   time,
-  endDate,
-  endTime,
-}: Pick<CalendarExportProps, "title" | "location" | "description" | "date" | "time" | "endDate" | "endTime">) => {
+}: Pick<CalendarExportProps, "title" | "location" | "description" | "date" | "time">) => {
   const uid = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}@vskuniverzitabrno`;
   const stamp = toIcsUtc(new Date());
 
@@ -107,12 +93,7 @@ const buildIcsPayload = ({
   }
 
   const start = date && time ? toLocalDateTime(date, time) : new Date();
-  let end: Date;
-  if (date && endTime) {
-    end = toLocalDateTime(endDate || date, endTime);
-  } else {
-    end = new Date(start.getTime() + 60 * 60 * 1000);
-  }
+  const end = new Date(start.getTime() + 60 * 60 * 1000);
 
   return [
     "BEGIN:VCALENDAR",
@@ -139,13 +120,11 @@ export const CalendarExport = ({
   description,
   date,
   time,
-  endDate,
-  endTime,
   className = "",
 }: CalendarExportProps) => {
-  const dateRange = buildDateRange({ date, time, endDate, endTime });
+  const dateRange = buildDateRange({ date, time });
   const handleAppleExport = () => {
-    const ics = buildIcsPayload({ title, location, description, date, time, endDate, endTime });
+    const ics = buildIcsPayload({ title, location, description, date, time });
     const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");

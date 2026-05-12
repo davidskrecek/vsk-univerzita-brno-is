@@ -44,12 +44,6 @@ export async function updateEventAction(
     if (!canEdit) throw new AuthError(403, "Nemáte oprávnění k úpravě této události.");
 
     const startTime = body.startTime ? new Date(body.startTime) : undefined;
-    const endTime =
-      body.endTime === "" || body.endTime === null
-        ? null
-        : body.endTime
-          ? new Date(body.endTime)
-          : undefined;
 
     const description = body.description === "" ? null : body.description;
     const location = body.location === "" ? null : body.location;
@@ -64,7 +58,6 @@ export async function updateEventAction(
           title: body.title,
           description,
           startTime,
-          endTime,
           location,
           eventType,
           ticketUrl,

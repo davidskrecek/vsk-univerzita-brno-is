@@ -17,7 +17,6 @@ export const CreateEventSchema = z.object({
   title: z.string().min(1, "Titulek je povinný").max(255),
   description: z.string().optional().nullable().or(z.literal("")),
   startTime: z.string().datetime("Neplatný čas zahájení"),
-  endTime: z.string().datetime().optional().nullable().or(z.literal("")),
   location: z.string().max(255).optional().nullable().or(z.literal("")),
   eventType: z.string().max(50).optional().nullable().or(z.literal("")),
   ticketUrl: z.string().url().optional().nullable().or(z.literal("")),
