@@ -23,19 +23,28 @@ export const SportFilter = ({ sports, selectedSport, onSportChange }: SportFilte
     {
       key: "all",
       label: "Všechny sporty",
-      onSelect: () => onSportChange(null),
+      onSelect: () => {
+        if (selectedSport === null) return;
+        onSportChange(null)
+      },
       icon: <Trophy size={14} className="text-on-surface/30" />
     },
     ...competitive.map(s => ({
       key: s.name,
       label: s.name,
-      onSelect: () => onSportChange(s.name),
+      onSelect: () => {
+        if (selectedSport === s.name) return;
+        onSportChange(s.name)
+      },
       icon: <div className="text-primary">{sportIcons[s.name] || <Circle size={10} />}</div>
     })),
     ...nonCompetitive.map(s => ({
       key: s.name,
       label: s.name,
-      onSelect: () => onSportChange(s.name),
+      onSelect: () => {
+        if (selectedSport === s.name) return;
+        onSportChange(s.name)
+      },
       icon: <div className="text-on-surface/40">{sportIcons[s.name] || <Circle size={10} />}</div>
     }))
   ];
