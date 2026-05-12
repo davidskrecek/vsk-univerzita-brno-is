@@ -35,15 +35,17 @@ export const EditorFields = ({
         { label: "Plná správa (včetně mazání)", value: "full" },
     ];
 
+    const isFieldDisabled = !sportId || !isActive || disabled;
+
     return (
         <CollapsibleSection title="Administrace a Editor" icon={Shield} defaultOpen={editorType !== "none"}>
             <div className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                     <LabeledField label="Systémová role">
                         <ActionDropdown
-                            disabled={!sportId || !isActive}
+                            disabled={isFieldDisabled}
                             trigger={
-                                <button type="button" className="flex w-full items-center justify-between bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors">
+                                <button type="button" disabled={isFieldDisabled} className="flex w-full items-center justify-between bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span className={editorType === "none" ? "text-on-surface/30" : "text-primary font-bold uppercase text-[11px] tracking-widest"}>
                                         {editorType === "none" ? "Žádný přístup" : editorType === "admin" ? "Správce sportu" : "Editor obsahu"}
                                     </span>
@@ -66,9 +68,9 @@ export const EditorFields = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-surface-container-high/30 rounded-xl border border-outline-variant/5">
                             <LabeledField label="Práva k příspěvkům">
                                 <ActionDropdown
-                                    disabled={!sportId || !isActive}
+                                    disabled={isFieldDisabled}
                                     trigger={
-                                        <button type="button" className="flex w-full items-center justify-between bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors">
+                                        <button type="button" disabled={isFieldDisabled} className="flex w-full items-center justify-between bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             <span>{rightsOptions.find(r => r.value === permissions.posts)?.label}</span>
                                             <IoChevronDown size={16} className="text-on-surface/40" />
                                         </button>
@@ -80,9 +82,9 @@ export const EditorFields = ({
                             </LabeledField>
                             <LabeledField label="Práva k akcím">
                                 <ActionDropdown
-                                    disabled={!sportId || !isActive}
+                                    disabled={isFieldDisabled}
                                     trigger={
-                                        <button type="button" className="flex w-full items-center justify-between bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors">
+                                        <button type="button" disabled={isFieldDisabled} className="flex w-full items-center justify-between bg-surface-container-high rounded-md px-4 py-3 text-sm font-sans text-on-surface/70 outline-none border border-outline-variant/10 focus:border-primary/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             <span>{rightsOptions.find(r => r.value === permissions.events)?.label}</span>
                                             <IoChevronDown size={16} className="text-on-surface/40" />
                                         </button>

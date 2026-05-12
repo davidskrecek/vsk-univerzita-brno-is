@@ -20,6 +20,7 @@ interface ActionDropdownProps {
   sideOffset?: number;
   contentClassName?: string;
   itemClassName?: string;
+  disabled?: boolean;
 }
 
 export const ActionDropdown = ({
@@ -29,13 +30,19 @@ export const ActionDropdown = ({
   sideOffset = 8,
   contentClassName = "",
   itemClassName = "",
+  disabled = false,
 }: ActionDropdownProps) => {
   const baseItemClassName =
     "flex w-full items-center gap-3 rounded-md px-3 py-2 text-xs font-medium text-on-surface/80 outline-none transition-colors hover:bg-primary/10 hover:text-primary cursor-pointer";
 
   return (
     <DropdownMenu.Root modal={false}>
-      <DropdownMenu.Trigger asChild onClick={(e) => {
+      <DropdownMenu.Trigger disabled={disabled} asChild onClick={(e) => {
+        if (disabled) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
         e.preventDefault();
         e.stopPropagation();
       }}>
