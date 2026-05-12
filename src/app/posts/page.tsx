@@ -25,19 +25,19 @@ async function PostsListContainer({ sport, sports, page }: { sport?: string; spo
 async function NewPostButton() {
   const session = await getServerSession(authOptions);
   const allSports = await getSports();
-  
+
   const availableSports = session?.user?.role === "superadmin"
     ? allSports
     : allSports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
-  
+
   return (
-      <CreateFormButton
-        label="Nový příspěvek"
-        FormComponent={PostCreateForm}
-        sports={availableSports}
-        requiredPermission="posts:write"
-      />
-    );
+    <CreateFormButton
+      label="Nový příspěvek"
+      FormComponent={PostCreateForm}
+      sports={availableSports}
+      requiredPermission="posts:write"
+    />
+  );
 }
 
 export default async function PostsPage({
@@ -50,7 +50,7 @@ export default async function PostsPage({
   const sports = await getSports();
 
   const session = await getServerSession(authOptions);
-  const canCreate = session?.user && (session?.user.permissions["posts:write"] === true || isSuperAdminRole(session.user.role));
+  const canCreate = session?.user && (session.user.permissions?.["posts:write"] === true || isSuperAdminRole(session.user.role));
 
   return (
     <div className="stack-page">

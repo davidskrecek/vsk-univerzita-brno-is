@@ -26,11 +26,11 @@ async function EventsListContainer({ sport, sports, year, month }: { sport?: str
 async function NewEventButton() {
   const session = await getServerSession(authOptions);
   const allSports = await getSports();
-  
+
   const availableSports = session?.user?.role === "superadmin"
     ? allSports
     : allSports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
-  
+
   return (
     <CreateFormButton
       label="Nová akce"
@@ -55,7 +55,7 @@ export default async function EventsPage({
   const currentYear = Number(year) || (isCalendar ? now.getFullYear() : undefined);
 
   const session = await getServerSession(authOptions);
-  const canCreate = session?.user && (session?.user.permissions["posts:write"] === true || isSuperAdminRole(session.user.role));
+  const canCreate = session?.user && (session.user.permissions?.["events:write"] === true || isSuperAdminRole(session.user.role));
 
   return (
     <div className="stack-page">
