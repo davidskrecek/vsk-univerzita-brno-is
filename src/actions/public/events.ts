@@ -49,7 +49,12 @@ export async function getEventDetail(id: number): Promise<UiEvent | null> {
   return {
     id: String(event.id),
     title: event.title,
-    date: new Date(event.startTime).toISOString().split("T")[0],
+    date: new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Prague",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(event.startTime)),
     time: new Intl.DateTimeFormat("cs-CZ", {
       timeZone: "Europe/Prague",
       hour: "2-digit",

@@ -9,6 +9,7 @@ import { getEventDetail } from "@/actions/public/events";
 import { useSports } from "@/components/features/sports/SportsProvider";
 import PostDetail from "@/components/features/posts/PostDetail";
 import EventDetail from "@/components/features/events/EventDetail";
+import DetailLayout from "@/components/layout/DetailLayout";
 import { mapPostDetailLinks } from "@/components/features/posts/postUtils";
 import { type UiEvent } from "@/components/features/events/eventUtils";
 import EditButton from "@/components/ui/Actions/EditButton";
@@ -135,7 +136,23 @@ export default function GlobalDetailHandler() {
   return (
     <>
       <AnimatePresence>
-        {postDetail && !isEditing && (
+        {isLoading && !isEditing && (activePostId || activeEventId) && (
+          <DetailLayout
+            key="shared-detail-loading"
+            title="..."
+            category="Načítání"
+            onClose={closeDetail}
+          >
+            <div className="py-12 flex flex-col items-center justify-center space-y-6 min-h-[300px]">
+              <Loading />
+              <p className="text-on-surface/40 font-display text-sm font-medium tracking-widest uppercase animate-pulse">
+                Stahování podrobností
+              </p>
+            </div>
+          </DetailLayout>
+        )}
+
+        {postDetail && !isEditing && !isLoading && (
           <PostDetail
             key={`post-${postDetail.id}`}
             title={postDetail.title}
@@ -148,10 +165,8 @@ export default function GlobalDetailHandler() {
             onClose={closeDetail}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
-        {eventDetail && !isEditing && (
+        {eventDetail && !isEditing && !isLoading && (
           <EventDetail
             key={`event-${eventDetail.id}`}
             {...eventDetail}
