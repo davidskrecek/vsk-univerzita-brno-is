@@ -1,17 +1,15 @@
 import ContactCard from "@/components/features/contacts/ContactCard";
 import { ContactPerson } from "@/types/contacts";
 import {Role} from "@/lib/queries/roles";
-import {Sport} from "@/lib/queries/sports";
 
 interface ContactSectionProps {
   title: string;
   contacts: ContactPerson[];
   roles: Role[];
-  sports: Sport[];
   user: any;
 }
 
-export const ContactSection = ({ title, contacts, roles, sports, user }: ContactSectionProps) => {
+export const ContactSection = ({ title, contacts, roles, user }: ContactSectionProps) => {
   if (contacts.length === 0) {
     return null;
   }
@@ -40,7 +38,6 @@ export const ContactSection = ({ title, contacts, roles, sports, user }: Contact
             contact={contact} 
             canEdit={checkCanEdit(contact)} 
             roles={roles} 
-            sports={sports}
             isSuperAdmin={user?.role === "superadmin"}
           />
         ))}

@@ -4,16 +4,14 @@ import {Mail, Phone} from "lucide-react";
 import { ContactPerson } from "@/types/contacts";
 import {EditUserButton} from "@/components/features/admin/EditUserButton";
 import {Role} from "@/lib/queries/roles";
-import {Sport} from "@/lib/queries/sports";
 interface ContactCardProps {
   contact: ContactPerson;
   canEdit: boolean;
   roles: Role[];
-  sports: Sport[];
   isSuperAdmin?: boolean;
 }
 
-export const ContactCard = ({ contact, canEdit, roles, sports, isSuperAdmin }: ContactCardProps) => {
+export const ContactCard = ({ contact, canEdit, roles, isSuperAdmin }: ContactCardProps) => {
 
   const cardContent = (
     <article className={`relative rounded-md border border-outline-variant/10 bg-surface-container-low p-5 shadow-ambient transition-all hover:bg-surface-container ${!contact.isActive ? "opacity-50 grayscale-[0.5]" : ""}`}>
@@ -60,7 +58,7 @@ export const ContactCard = ({ contact, canEdit, roles, sports, isSuperAdmin }: C
 
   if (canEdit) {
     return (
-        <EditUserButton userId={contact.id} roles={roles} sports={sports}>
+        <EditUserButton userId={contact.id} roles={roles}>
             {cardContent}
         </EditUserButton>
     );

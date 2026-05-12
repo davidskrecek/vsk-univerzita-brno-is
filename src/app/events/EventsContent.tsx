@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useMemo, useState } from "react";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
@@ -24,7 +25,6 @@ type ViewMode = "calendar" | "list";
 
 interface EventsContentProps {
   initialEvents: UiEvent[];
-  availableSports: Array<{ id: number; name: string }>;
   year?: number;
   month?: number;
 }
@@ -55,7 +55,8 @@ const EventsListContent = ({ events }: EventsListContentProps) => {
   );
 };
 
-function EventsContentInner({ initialEvents, availableSports, year, month }: EventsContentProps) {
+function EventsContentInner({ initialEvents, year, month }: EventsContentProps) {
+  const { sports: availableSports } = useSports();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
 
@@ -123,7 +124,7 @@ function EventsContentInner({ initialEvents, availableSports, year, month }: Eve
   );
 }
 
-export default function EventsContent({ initialEvents, availableSports, year, month }: EventsContentProps) {
-  return <EventsContentInner initialEvents={initialEvents} availableSports={availableSports} year={year} month={month} />;
+export default function EventsContent({ initialEvents, year, month }: EventsContentProps) {
+  return <EventsContentInner initialEvents={initialEvents} year={year} month={month} />;
 }
 

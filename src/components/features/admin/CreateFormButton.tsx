@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
+import { isSuperAdminRole } from "@/lib/constants/roles";
 
 interface CreateFormButtonProps {
   label: string;
@@ -11,25 +14,38 @@ interface CreateFormButtonProps {
     onCancel: () => void;
     onSuccess: () => void;
   }>;
-  sports: Array<{ id: number; name: string }>;
-  requiredPermission?: string;
 }
 
-export const CreateFormButton = ({ label, FormComponent, sports, requiredPermission }: CreateFormButtonProps) => {
+export const CreateFormButton = ({ label, FormComponent }: CreateFormButtonProps) => {
+  const { sports } = useSports();
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+
   const handleClose = () => setIsOpen(false);
+
+  const availableSports =
+    isSuperAdminRole(session?.user?.role)
+      ? sports
+      : sports.filter((sport) => session?.user?.managedSportIds?.includes(sport.id));
+
+  if (!availableSports.length) {
+    return null;
+  }
 
   return (
     <>
       <SectionActionButton
         label={label}
         onClick={() => setIsOpen(true)}
-        requiredPermission={requiredPermission}
       />
 
       <AnimatePresence>
         {isOpen && (
-          <FormComponent sports={sports} onCancel={handleClose} onSuccess={handleClose} />
+          <FormComponent
+            sports={availableSports}
+            onCancel={handleClose}
+            onSuccess={handleClose}
+          />
         )}
       </AnimatePresence>
     </>
@@ -37,4 +53,3 @@ export const CreateFormButton = ({ label, FormComponent, sports, requiredPermiss
 };
 
 export default CreateFormButton;
-

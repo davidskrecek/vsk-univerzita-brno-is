@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
 import { getPostDetail, type PostDetailResult } from "@/actions/public/posts";
 import { getEventDetail } from "@/actions/public/events";
-import { getAvailableSports } from "@/actions/public/sports";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import PostDetail from "@/components/features/posts/PostDetail";
 import EventDetail from "@/components/features/events/EventDetail";
 import { mapPostDetailLinks } from "@/components/features/posts/postUtils";
@@ -29,18 +29,13 @@ export default function GlobalDetailHandler() {
 
   const [postDetail, setPostDetail] = useState<PostDetailResult>(null);
   const [eventDetail, setEventDetail] = useState<UiEvent | null>(null);
-  const [availableSports, setAvailableSports] = useState<Array<{ id: number; name: string }>>([]);
+  const { sports: availableSports } = useSports();
 
   const activePostId = searchParams.get("postId");
   const activeEventId = searchParams.get("eventId");
   const isEditing = searchParams.get("edit") === "true";
 
-  // Fetch available sports if user is logged in
-  useEffect(() => {
-    if (session?.user) {
-      getAvailableSports().then(setAvailableSports);
-    }
-  }, [session]);
+
 
   // Handle Post Detail
   useEffect(() => {
