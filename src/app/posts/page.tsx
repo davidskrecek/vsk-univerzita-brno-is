@@ -21,8 +21,14 @@ async function PostsListContainer({ sport, page }: { sport?: string; page: numbe
   );
 }
 
-async function NewPostButton() {
-  return <CreateFormButton label="Nový příspěvek" FormComponent={PostCreateForm} />;
+function NewPostButton() {
+  return (
+    <CreateFormButton
+      label="Nový příspěvek"
+      requiredPermission="posts:write"
+      FormComponent={PostCreateForm}
+    />
+  );
 }
 
 export default async function PostsPage({

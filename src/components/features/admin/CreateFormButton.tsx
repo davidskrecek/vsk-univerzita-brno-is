@@ -9,6 +9,7 @@ import { isSuperAdminRole } from "@/lib/constants/roles";
 
 interface CreateFormButtonProps {
   label: string;
+  requiredPermission: string;
   FormComponent: React.ComponentType<{
     sports: Array<{ id: number; name: string }>;
     onCancel: () => void;
@@ -16,7 +17,7 @@ interface CreateFormButtonProps {
   }>;
 }
 
-export const CreateFormButton = ({ label, FormComponent }: CreateFormButtonProps) => {
+export const CreateFormButton = ({ label, requiredPermission, FormComponent }: CreateFormButtonProps) => {
   const { sports } = useSports();
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -36,15 +37,16 @@ export const CreateFormButton = ({ label, FormComponent }: CreateFormButtonProps
     <>
       <SectionActionButton
         label={label}
+        requiredPermission={requiredPermission}
         onClick={() => setIsOpen(true)}
       />
 
       <AnimatePresence>
         {isOpen && (
-          <FormComponent 
-            sports={availableSports} 
-            onCancel={handleClose} 
-            onSuccess={handleClose} 
+          <FormComponent
+            sports={availableSports}
+            onCancel={handleClose}
+            onSuccess={handleClose}
           />
         )}
       </AnimatePresence>

@@ -26,6 +26,7 @@ function NewEventButton() {
   return (
     <CreateFormButton
       label="Nová akce"
+      requiredPermission="events:write"
       FormComponent={EventCreateForm}
     />
   );
