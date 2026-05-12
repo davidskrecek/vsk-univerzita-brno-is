@@ -16,6 +16,7 @@ import { BasicInfoFields } from "./UserForm/BasicInfoFields";
 import { TrainerFields } from "./UserForm/TrainerFields";
 import { EditorFields } from "./UserForm/EditorFields";
 import { AccountSecuritySection } from "./UserForm/AccountSecuritySection";
+import Modal from "@/components/ui/Overlay/Modal";
 
 type CreateUserFormProps = {
     onResult: (error?: string) => void;
@@ -123,96 +124,97 @@ export default function CreateUserForm({ onResult, onCancel, sports, roles, user
     const isActive = user?.isActive ?? true;
 
     return (
-        <form onSubmit={handleSubmit} className="relative">
-            {onCancel && (
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="absolute right-4 top-4 z-20 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
-                    aria-label="Zavřít formulář"
-                >
-                    <IoClose size={20} />
-                </button>
-            )}
-
-            <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
-                <div className="px-6 py-6 sm:px-8 bg-surface-container-low border-b border-outline-variant/5 flex justify-between items-center">
-                    <div>
-                        <h2 className="text-xl sm:text-2xl font-display font-bold uppercase tracking-wider text-on-surface">
-                            {user ? "Upravit uživatele" : "Nový uživatel"}
-                        </h2>
-                        <p className="text-[11px] font-sans uppercase tracking-widest text-on-surface/30 mt-1">
-                            {user ? "Administrace uživatelského účtu" : "Vytvoření nového kontaktu"}
-                        </p>
+        <Modal onClose={onCancel} contentClassName="max-w-4xl w-full">
+            <form onSubmit={handleSubmit} className="relative w-full h-full">
+                {onCancel && (
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="absolute right-4 top-4 z-20 rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50"
+                        aria-label="Zavřít formulář"
+                    >
+                        <IoClose size={20} />
+                    </button>
+                )}
+                <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
+                    <div className="px-6 py-6 sm:px-8 bg-surface-container-low border-b border-outline-variant/5 flex justify-between items-center">
+                        <div>
+                            <h2 className="text-xl sm:text-2xl font-display font-bold uppercase tracking-wider text-on-surface">
+                                {user ? "Upravit uživatele" : "Nový uživatel"}
+                            </h2>
+                            <p className="text-[11px] font-sans uppercase tracking-widest text-on-surface/30 mt-1">
+                                {user ? "Administrace uživatelského účtu" : "Vytvoření nového kontaktu"}
+                            </p>
+                        </div>
                     </div>
-                </div>
 
-                <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 custom-scrollbar" style={{ scrollbarGutter: 'stable both-edges' }}>
-                    <fieldset disabled={!isActive} className="space-y-8">
-                        <BasicInfoFields
-                            fullName={fullName} setFullName={setFullName}
-                            email={email} setEmail={setEmail}
-                            phone={phone} setPhone={setPhone}
-                            sportId={sportId} setSportId={setSportId}
-                            sports={sports}
-                            disabled={!isActive}
-                        />
-
-                        <fieldset disabled={!sportId || !isActive} className="space-y-4">
-                            <TrainerFields
-                                category={trainerCategory}
-                                setCategory={setTrainerCategory}
-                                defaultOpen={!!user?.trainer}
+                    <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 custom-scrollbar" style={{ scrollbarGutter: 'stable both-edges' }}>
+                        <fieldset disabled={!isActive} className="space-y-8">
+                            <BasicInfoFields
+                                fullName={fullName} setFullName={setFullName}
+                                email={email} setEmail={setEmail}
+                                phone={phone} setPhone={setPhone}
+                                sportId={sportId} setSportId={setSportId}
+                                sports={sports}
                                 disabled={!isActive}
                             />
 
-                            <EditorFields
-                                editorType={editorType}
-                                setEditorType={setEditorType}
-                                permissions={permissions}
-                                setPermissions={setPermissions}
-                                sportId={sportId}
-                                isActive={isActive}
-                            >
-                                <AccountSecuritySection
-                                    userId={user?.id}
-                                    email={user?.email}
-                                    editor={user?.editor}
-                                    invitations={user?.invitationsReceived}
-                                    onResult={onResult}
+                            <fieldset disabled={!sportId || !isActive} className="space-y-4">
+                                <TrainerFields
+                                    category={trainerCategory}
+                                    setCategory={setTrainerCategory}
+                                    defaultOpen={!!user?.trainer}
+                                    disabled={!isActive}
                                 />
-                            </EditorFields>
-                        </fieldset>
-                    </fieldset>
-                </div>
 
-                <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
-                    <div className={`flex flex-row items-center gap-3 ${user ? "justify-between" : "justify-end"}`}>
-                        {user && (
-                            isActive ? (
-                                <AppButton type="button" variant="danger" onClick={handleDelete} isUppercase className="px-6">
-                                    Smazat kontakt
-                                </AppButton>
-                            ) : (
-                                <AppButton type="button" variant="primary" onClick={handleActivate} isUppercase className="px-6">
-                                    Aktivovat kontakt
-                                </AppButton>
-                            )
-                        )}
-                        <div className="flex gap-3">
-                            <AppButton type="button" variant="tertiary" onClick={onCancel} isUppercase className="px-6">
-                                {user && !user.isActive ? "Zavřít" : "Zrušit"}
-                            </AppButton>
-                            {isActive && (
-                                <AppButton type="submit" variant="primary" isUppercase className="px-6" disabled={!fullName || !email || !sportId}>
-                                    {user ? "Uložit změny" : "Vytvořit kontakt"}
-                                </AppButton>
+                                <EditorFields
+                                    editorType={editorType}
+                                    setEditorType={setEditorType}
+                                    permissions={permissions}
+                                    setPermissions={setPermissions}
+                                    sportId={sportId}
+                                    isActive={isActive}
+                                >
+                                    <AccountSecuritySection
+                                        userId={user?.id}
+                                        email={user?.email}
+                                        editor={user?.editor}
+                                        invitations={user?.invitationsReceived}
+                                        onResult={onResult}
+                                    />
+                                </EditorFields>
+                            </fieldset>
+                        </fieldset>
+                    </div>
+
+                    <div className="p-4 sm:p-6 bg-surface-container-low border-t border-outline-variant/5">
+                        <div className={`flex flex-row items-center gap-3 ${user ? "justify-between" : "justify-end"}`}>
+                            {user && (
+                                isActive ? (
+                                    <AppButton type="button" variant="danger" onClick={handleDelete} isUppercase className="px-6">
+                                        Smazat kontakt
+                                    </AppButton>
+                                ) : (
+                                    <AppButton type="button" variant="primary" onClick={handleActivate} isUppercase className="px-6">
+                                        Aktivovat kontakt
+                                    </AppButton>
+                                )
                             )}
+                            <div className="flex gap-3">
+                                <AppButton type="button" variant="tertiary" onClick={onCancel} isUppercase className="px-6">
+                                    {user && !user.isActive ? "Zavřít" : "Zrušit"}
+                                </AppButton>
+                                {isActive && (
+                                    <AppButton type="submit" variant="primary" isUppercase className="px-6" disabled={!fullName || !email || !sportId}>
+                                        {user ? "Uložit změny" : "Vytvořit kontakt"}
+                                    </AppButton>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </Modal>
     );
 }
 

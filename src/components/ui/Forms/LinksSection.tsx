@@ -3,18 +3,18 @@
 import LabeledInput from "@/components/ui/Forms/LabeledInput";
 import { IoAdd, IoTrashOutline } from "react-icons/io5";
 
-interface PostLinkDraft {
+export interface LinkDraft {
   url: string;
   alias: string;
 }
 
-interface PostLinksSectionProps {
-  links: PostLinkDraft[];
-  onChange: (links: PostLinkDraft[]) => void;
+interface LinksSectionProps {
+  links: LinkDraft[];
+  onChange: (links: LinkDraft[]) => void;
 }
 
-export const PostLinksSection = ({ links, onChange }: PostLinksSectionProps) => {
-  const updateLink = (index: number, field: keyof PostLinkDraft, value: string) => {
+export const LinksSection = ({ links, onChange }: LinksSectionProps) => {
+  const updateLink = (index: number, field: keyof LinkDraft, value: string) => {
     const updated = links.map((link, i) => (i === index ? { ...link, [field]: value } : link));
     onChange(updated);
   };

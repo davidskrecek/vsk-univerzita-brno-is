@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
-import { Modal } from "@/components/ui/Overlay/Modal";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
 
 interface CreateFormButtonProps {
@@ -41,9 +40,7 @@ export const CreateFormButton = ({ label, FormComponent, sports }: CreateFormBut
 
       <AnimatePresence>
         {isOpen && (
-          <Modal onClose={handleClose} contentClassName="max-w-4xl w-full">
-            <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
-          </Modal>
+          <FormComponent sports={availableSports} onCancel={handleClose} onSuccess={handleClose} />
         )}
       </AnimatePresence>
     </>
