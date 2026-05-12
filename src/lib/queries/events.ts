@@ -12,7 +12,11 @@ export async function getPublicEvents(sportName?: string, year?: number, month?:
 
   if (year && month) {
     const startOfMonth = new Date(year, month - 1, 1);
+    startOfMonth.setDate(startOfMonth.getDate() - 1);
+
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+    endOfMonth.setDate(endOfMonth.getDate() + 2);
+
     where.startTime = {
       gte: startOfMonth,
       lte: endOfMonth
@@ -42,7 +46,12 @@ export async function getPublicEvents(sportName?: string, year?: number, month?:
   return events.map((event) => ({
     id: String(event.id),
     title: event.title,
-    date: new Date(event.startTime).toISOString().split("T")[0],
+    date: new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Prague",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(event.startTime)),
     time: new Intl.DateTimeFormat("cs-CZ", {
       timeZone: "Europe/Prague",
       hour: "2-digit",
