@@ -6,7 +6,7 @@ import { getPublicEvents } from "@/lib/queries/events";
 import EventsContent from "./EventsContent";
 import EventsFilter from "@/components/features/events/EventsFilter";
 import Loading from "@/app/loading";
-import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
+import Spinner from "@/components/ui/Feedback/Spinner";
 import { PageReveal } from "@/components/layout/PageReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -53,7 +53,7 @@ export default async function EventsPage({
         as="h1"
         rightContent={
           canCreate ? (
-            <Suspense fallback={<MiniSpinner />}>
+            <Suspense fallback={<Spinner />}>
               <NewEventButton />
             </Suspense>
           ) : null
@@ -72,3 +72,4 @@ export default async function EventsPage({
     </div>
   );
 }
+

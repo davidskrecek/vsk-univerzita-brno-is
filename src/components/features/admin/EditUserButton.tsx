@@ -8,7 +8,7 @@ import Modal from "@/components/ui/Overlay/Modal";
 import { Role } from "@/lib/queries/roles";
 import { useToast } from "@/hooks/useToast";
 import { Pencil } from "lucide-react";
-import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
+import Spinner from "@/components/ui/Feedback/Spinner";
 import { getUserById } from "@/actions/admin/users/get-user";
 import { FullUser as User } from "@/actions/admin/users/schemas";
 
@@ -83,7 +83,7 @@ export const EditUserButton = ({ label, roles, userId, iconOnly, children }: Edi
                         {loading ? (
                             <Modal onClose={() => setIsOpen(false)} contentClassName="max-w-md w-full">
                                 <div className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-12 flex justify-center">
-                                    <MiniSpinner />
+                                    <Spinner size="lg" />
                                 </div>
                             </Modal>
                         ) : (
@@ -100,4 +100,5 @@ export const EditUserButton = ({ label, roles, userId, iconOnly, children }: Edi
         </>
     );
 };
+
 

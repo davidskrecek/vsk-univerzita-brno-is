@@ -17,7 +17,7 @@ import { Modal } from "@/components/ui/Overlay/Modal";
 import PostCreateForm from "@/components/features/posts/PostCreateForm";
 import EventCreateForm from "@/components/features/events/EventCreateForm";
 import AccessDenied from "@/components/ui/Feedback/AccessDenied";
-import Loading from "@/app/loading";
+import Spinner from "@/components/ui/Feedback/Spinner";
 import { sessionHasPermission } from "@/lib/permissions";
 
 
@@ -141,7 +141,7 @@ export default function GlobalDetailHandler() {
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 flex flex-col items-center justify-center p-24"
                   >
-                    <Loading />
+                    <Spinner size="lg" />
                   </motion.div>
                 ) : postDetail ? (
                   <motion.div
@@ -189,7 +189,7 @@ export default function GlobalDetailHandler() {
             {isLoading ? (
               <Modal key="loading" onClose={() => toggleEdit(false)} contentClassName="max-w-md w-full bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col">
                 <div className="p-12 flex flex-col items-center justify-center space-y-4">
-                  <Loading />
+                  <Spinner size="lg" />
                   <p className="text-on-surface/60 font-sans">Ověřování oprávnění...</p>
                 </div>
               </Modal>
@@ -242,4 +242,5 @@ export default function GlobalDetailHandler() {
     </>
   );
 }
+
 

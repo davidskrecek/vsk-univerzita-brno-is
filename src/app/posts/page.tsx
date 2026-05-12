@@ -6,7 +6,7 @@ import { getPublishedPosts } from "@/lib/queries/posts";
 import PostsContent from "./PostsContent";
 import PostsFilter from "@/components/features/posts/PostsFilter";
 import Loading from "@/app/loading";
-import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
+import Spinner from "@/components/ui/Feedback/Spinner";
 import { PageReveal } from "@/components/layout/PageReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -49,7 +49,7 @@ export default async function PostsPage({
         as="h1"
         rightContent={
           canCreate ? (
-            <Suspense fallback={<MiniSpinner />}>
+            <Suspense fallback={<Spinner />}>
               <NewPostButton />
             </Suspense>
           ) : null
@@ -62,3 +62,4 @@ export default async function PostsPage({
     </div>
   );
 }
+

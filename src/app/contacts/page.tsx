@@ -6,7 +6,7 @@ import { PageReveal } from "@/components/layout/PageReveal";
 import Loading from "@/app/loading";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
+import Spinner from "@/components/ui/Feedback/Spinner";
 import { getRoles, Role } from "@/lib/queries/roles";
 import { EditUserButton } from "@/components/features/admin/EditUserButton";
 
@@ -43,7 +43,7 @@ export default async function ContactsPage({
     <div className="stack-page">
       <SectionHeader title="Kontakty" as="h1" rightContent={
         canCreate ? (
-          <Suspense fallback={<MiniSpinner />}>
+          <Suspense fallback={<Spinner />}>
             <EditUserButton label="Vytvořit kontakt" roles={roles} />
           </Suspense>
         ) : null
@@ -59,4 +59,5 @@ export default async function ContactsPage({
     </div>
   );
 }
+
 
