@@ -112,14 +112,14 @@ export const NavBar = () => {
             </DropdownMenu.Root>
           </div>
           <NextLink
-            href="https://facebook.com"
+            href="https://www.facebook.com/VSKUniverzitaBrno"
             target="_blank"
             className="hidden lg:inline-flex text-on-surface/40 hover:text-primary transition-colors"
           >
             <FaFacebookF size={18} />
           </NextLink>
           <NextLink
-            href="https://instagram.com"
+            href="https://www.instagram.com/vskunibrno/"
             target="_blank"
             className="hidden lg:inline-flex text-on-surface/40 hover:text-primary transition-colors"
           >
