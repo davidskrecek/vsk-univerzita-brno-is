@@ -3,20 +3,20 @@
 import { useSession } from "next-auth/react";
 import { IoAdd } from "react-icons/io5";
 import AppButton from "@/components/ui/Actions/AppButton";
+import { isSuperAdminRole } from "@/lib/constants/roles";
 
 interface SectionActionButtonProps {
   label: string;
   onClick: () => void;
   requiredRoles?: string[];
-  requiredSportIds?: number[];
+  requiredPermission?: string;
   isUppercase?: boolean;
 }
 
 export const SectionActionButton = ({
   label,
   onClick,
-  requiredRoles = ["sport_manager"],
-  requiredSportIds,
+  requiredPermission,
   isUppercase = true,
 }: SectionActionButtonProps) => {
   const { data: session, status } = useSession();
@@ -25,16 +25,11 @@ export const SectionActionButton = ({
     return null;
   }
 
-  const userRole = session?.user?.role;
-  if (!requiredRoles.includes(userRole)) {
-    return null;
-  }
-
-  if (requiredSportIds && requiredSportIds.length > 0) {
-    const hasAccess = requiredSportIds.some((sportId) =>
-      session?.user?.managedSportIds?.includes(sportId)
-    );
-    if (!hasAccess) {
+  const userPermissions = session?.user?.permissions || {};
+  
+  // If requiredPermission provided, ensure we meet criteria (Permission true OR SuperAdmin overrides)
+  if (requiredPermission && !isSuperAdminRole(session?.user?.role)) {
+    if (userPermissions[requiredPermission] !== true) {
       return null;
     }
   }
@@ -58,4 +53,3 @@ export const SectionActionButton = ({
 };
 
 export default SectionActionButton;
-

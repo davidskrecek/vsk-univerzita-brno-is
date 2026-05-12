@@ -15,63 +15,60 @@ import { isSuperAdminRole } from "@/lib/constants/roles";
 async function EventsListContainer({ sport, year, month }: { sport?: string; year?: number; month?: number }) {
   const initialEvents = await getPublicEvents(sport, year, month);
 
-  async function EventsListContainer({ sport, year, month }: { sport?: string; year?: number; month?: number }) {
-    const initialEvents = await getPublicEvents(sport, year, month);
+  return (
+    <PageReveal>
+      <EventsContent initialEvents={initialEvents} year={year} month={month} />
+    </PageReveal>
+  );
+}
 
-    return (
-      <PageReveal>
-        <EventsContent initialEvents={initialEvents} year={year} month={month} />
-      </PageReveal>
-    );
-  }
+function NewEventButton() {
+  return (
+    <CreateFormButton
+      label="Nová akce"
+      FormComponent={EventCreateForm}
+    />
+  );
+}
 
-  function NewEventButton() {
-    return (
-      <CreateFormButton
-        label="Nová akce"
-        FormComponent={EventCreateForm}
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sport?: string; view?: string; month?: string; year?: string }>;
+}) {
+  const { sport, view, month, year } = await searchParams;
+
+  const isCalendar = view !== "list";
+  const now = new Date();
+  const currentMonth = Number(month) || (isCalendar ? now.getMonth() + 1 : undefined);
+  const currentYear = Number(year) || (isCalendar ? now.getFullYear() : undefined);
+
+  const session = await getServerSession(authOptions);
+  const canCreate = session?.user && (session.user.permissions?.["events:write"] === true || isSuperAdminRole(session.user.role));
+
+  return (
+    <div className="stack-page">
+      <SectionHeader
+        title="Kalendář akcí"
+        as="h1"
+        rightContent={
+          canCreate ? (
+            <Suspense fallback={<MiniSpinner />}>
+              <NewEventButton />
+            </Suspense>
+          ) : null
+        }
       />
-    );
-  }
 
-  export default async function EventsPage({
-    searchParams,
-  }: {
-    searchParams: Promise<{ sport?: string; month?: string; year?: string }>;
-  }) {
-    const { sport, month, year } = await searchParams;
+      <EventsFilter />
 
-    const now = new Date();
-    const currentMonth = Number(month) || now.getMonth() + 1;
-    const currentYear = Number(year) || now.getFullYear();
-
-    const session = await getServerSession(authOptions);
-    const canCreate = session?.user && (session.user.permissions?.["events:write"] === true || isSuperAdminRole(session.user.role));
-
-    return (
-      <div className="stack-page">
-        <SectionHeader
-          title="Kalendář akcí"
-          as="h1"
-          rightContent={
-            canCreate ? (
-              <Suspense fallback={<MiniSpinner />}>
-                <NewEventButton />
-              </Suspense>
-            ) : null
-          }
+      <Suspense fallback={<Loading />}>
+        <EventsListContainer
+          sport={sport}
+          year={currentYear}
+          month={currentMonth}
         />
-
-        <EventsFilter />
-
-        <Suspense fallback={<Loading />}>
-          <EventsListContainer
-            sport={sport}
-            year={currentYear}
-            month={currentMonth}
-          />
-        </Suspense>
-      </div>
-    );
-  }
-
+      </Suspense>
+    </div>
+  );
+}

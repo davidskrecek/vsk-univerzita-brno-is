@@ -10,7 +10,7 @@ import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
 import { PageReveal } from "@/components/layout/PageReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { isEditorialRole } from "@/lib/constants/roles";
+import { isSuperAdminRole } from "@/lib/constants/roles";
 
 async function PostsListContainer({ sport, page }: { sport?: string; page: number }) {
   const { posts, total } = await getPublishedPosts(sport, page, 10);
@@ -34,7 +34,7 @@ export default async function PostsPage({
   const currentPage = Number(page) || 1;
 
   const session = await getServerSession(authOptions);
-  const canCreate = isEditorialRole(session?.user?.role);
+  const canCreate = session?.user && (session.user.permissions?.["posts:write"] === true || isSuperAdminRole(session.user.role));
 
   return (
     <div className="stack-page">
@@ -56,4 +56,3 @@ export default async function PostsPage({
     </div>
   );
 }
-
