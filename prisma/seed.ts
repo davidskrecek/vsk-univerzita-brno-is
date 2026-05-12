@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient, Sport } from "../src/generated/prisma/client";
+import { PrismaClient, Sport } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
