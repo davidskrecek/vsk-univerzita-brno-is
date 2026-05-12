@@ -231,11 +231,11 @@ export default function GlobalDetailHandler() {
                 onDeleted={closeDetail}
                 onSuccess={closeDetail}
               />
-            ) : (
+            ) : (postDetail || eventDetail) ? (
               <Modal key="denied" onClose={closeDetail} contentClassName="max-w-md w-full bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col">
                 <AccessDenied onBack={closeDetail} />
               </Modal>
-            )}
+            ) : null}
           </>
         )}
       </AnimatePresence>
