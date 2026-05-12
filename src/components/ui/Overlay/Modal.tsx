@@ -55,7 +55,7 @@ export const Modal = ({ children, onClose, contentClassName = "", className = ""
             opacity: { duration: 0.12 }
           }}
           onClick={(e) => e.stopPropagation()}
-          className={`relative w-full max-h-fit flex flex-col ${contentClassName}`}
+          className={`relative w-full flex flex-col ${contentClassName}`}
         >
           {children}
         </motion.div>

@@ -32,7 +32,7 @@ export const DetailLayout = ({
   contentClassName = "max-w-2xl",
 }: DetailLayoutProps) => {
   return (
-    <div className={`${contentClassName} bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col w-full`}>
+    <div className={`${contentClassName} bg-surface-container-low flex flex-col w-full h-full min-h-0 overflow-hidden`}>
       {/* HEADER SECTION (Image or Map) */}
       <div className="relative h-48 sm:h-56 md:h-64 bg-surface-container-high overflow-hidden flex-shrink-0">
         {headerContent}
@@ -55,7 +55,7 @@ export const DetailLayout = ({
       </div>
 
       {/* CONTENT SECTION */}
-      <div className="p-6 sm:p-8 md:p-10 flex flex-col items-center text-center space-y-6 sm:space-y-8">
+      <div className="p-6 sm:p-8 md:p-10 flex flex-col items-center text-center space-y-6 sm:space-y-8 overflow-y-auto flex-1 custom-scrollbar min-h-0">
         <div className="meta-badge uppercase">
           {category}
         </div>

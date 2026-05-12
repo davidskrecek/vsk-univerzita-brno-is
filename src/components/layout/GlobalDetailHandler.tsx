@@ -129,9 +129,9 @@ export default function GlobalDetailHandler() {
           <Modal
             key="persistent-global-modal"
             onClose={closeDetail}
-            contentClassName="max-w-2xl bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col"
+            contentClassName="max-w-2xl w-full bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col max-h-[85vh]"
           >
-            <div className="relative w-full min-h-[400px] flex flex-col">
+            <div className="relative w-full min-h-[400px] flex flex-col flex-1 min-h-0">
               <AnimatePresence initial={false} mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -149,7 +149,7 @@ export default function GlobalDetailHandler() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="w-full flex flex-col"
+                    className="w-full flex flex-col flex-1 min-h-0"
                   >
                     <PostDetail
                       title={postDetail.title}
@@ -168,7 +168,7 @@ export default function GlobalDetailHandler() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="w-full flex flex-col"
+                    className="w-full flex flex-col flex-1 min-h-0"
                   >
                     <EventDetail
                       {...eventDetail}
