@@ -13,6 +13,7 @@ import LabeledTextarea from "@/components/ui/Forms/LabeledTextarea";
 import { PostLinksSection } from "@/components/features/posts/PostLinksSection";
 import { SportPicker } from "@/components/ui/Pickers/SportPicker";
 import { useToast } from "@/hooks/useToast";
+import { useConfirm } from "@/hooks/useConfirm";
 import { IoClose } from "react-icons/io5";
 import { DatePicker } from "@/components/ui/Pickers/DatePicker";
 import { format } from "date-fns";
@@ -64,6 +65,7 @@ export const PostCreateForm = ({
 }: PostCreateFormProps) => {
   const router = useRouter();
   const toast = useToast();
+  const confirm = useConfirm();
   const isEditing = mode === "edit" && typeof initialValues?.id === "number";
 
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -119,7 +121,13 @@ export const PostCreateForm = ({
   const handleDelete = async () => {
     if (!isEditing || !initialValues?.id) return;
 
-    const confirmed = window.confirm("Opravdu chcete tento příspěvek smazat?");
+    const confirmed = await confirm({
+      title: "Smazat příspěvek",
+      message: "Opravdu chcete tento příspěvek smazat? Tato akce je nevratná.",
+      confirmLabel: "Smazat",
+      cancelLabel: "Zrušit",
+      type: "danger"
+    });
     if (!confirmed) return;
 
     setLoading(true);
