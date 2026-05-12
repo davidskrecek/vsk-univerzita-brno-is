@@ -15,60 +15,63 @@ import { isSuperAdminRole } from "@/lib/constants/roles";
 async function EventsListContainer({ sport, year, month }: { sport?: string; year?: number; month?: number }) {
   const initialEvents = await getPublicEvents(sport, year, month);
 
-  return (
-    <PageReveal>
-      <EventsContent initialEvents={initialEvents} year={year} month={month} />
-    </PageReveal>
-  );
-}
+  async function EventsListContainer({ sport, year, month }: { sport?: string; year?: number; month?: number }) {
+    const initialEvents = await getPublicEvents(sport, year, month);
 
-function NewEventButton() {
-  return (
-    <CreateFormButton
-      label="Nová akce"
-      FormComponent={EventCreateForm}
-    />
-  );
-}
+    return (
+      <PageReveal>
+        <EventsContent initialEvents={initialEvents} year={year} month={month} />
+      </PageReveal>
+    );
+  }
 
-export default async function EventsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ sport?: string; month?: string; year?: string }>;
-}) {
-  const { sport, month, year } = await searchParams;
-
-  const now = new Date();
-  const currentMonth = Number(month) || now.getMonth() + 1;
-  const currentYear = Number(year) || now.getFullYear();
-
-  const session = await getServerSession(authOptions);
-  const canCreate = session?.user && (session.user.permissions?.["events:write"] === true || isSuperAdminRole(session.user.role));
-
-  return (
-    <div className="stack-page">
-      <SectionHeader
-        title="Kalendář akcí"
-        as="h1"
-        rightContent={
-          canCreate ? (
-            <Suspense fallback={<MiniSpinner />}>
-              <NewEventButton />
-            </Suspense>
-          ) : null
-        }
+  function NewEventButton() {
+    return (
+      <CreateFormButton
+        label="Nová akce"
+        FormComponent={EventCreateForm}
       />
+    );
+  }
 
-      <EventsFilter />
+  export default async function EventsPage({
+    searchParams,
+  }: {
+    searchParams: Promise<{ sport?: string; month?: string; year?: string }>;
+  }) {
+    const { sport, month, year } = await searchParams;
 
-      <Suspense fallback={<Loading />}>
-        <EventsListContainer
-          sport={sport}
-          year={currentYear}
-          month={currentMonth}
+    const now = new Date();
+    const currentMonth = Number(month) || now.getMonth() + 1;
+    const currentYear = Number(year) || now.getFullYear();
+
+    const session = await getServerSession(authOptions);
+    const canCreate = session?.user && (session.user.permissions?.["events:write"] === true || isSuperAdminRole(session.user.role));
+
+    return (
+      <div className="stack-page">
+        <SectionHeader
+          title="Kalendář akcí"
+          as="h1"
+          rightContent={
+            canCreate ? (
+              <Suspense fallback={<MiniSpinner />}>
+                <NewEventButton />
+              </Suspense>
+            ) : null
+          }
         />
-      </Suspense>
-    </div>
-  );
-}
+
+        <EventsFilter />
+
+        <Suspense fallback={<Loading />}>
+          <EventsListContainer
+            sport={sport}
+            year={currentYear}
+            month={currentMonth}
+          />
+        </Suspense>
+      </div>
+    );
+  }
 

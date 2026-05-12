@@ -16,4 +16,3 @@ export const isEditorialRole = (role?: string | null): boolean => {
   return [UserRole.SUPERADMIN, UserRole.SPORT_MANAGER, UserRole.EDITOR].includes(role as UserRole);
 };
 
-export const isSuperAdminRole = (role?: string | null): boolean => role === UserRole.SUPERADMIN;
