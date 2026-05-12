@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Personnel, Editor, EditorRole, Trainer, Official, AccountInvitation, Sport } from "@/generated/prisma/client";
+import { Personnel, Editor, EditorRole, Trainer, Official, AccountInvitation, Sport } from "@prisma/client";
 
 export const UserFormSchema = z.object({
   personnelId: z.coerce.number().optional(),
