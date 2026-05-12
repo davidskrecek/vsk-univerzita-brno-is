@@ -70,7 +70,7 @@ export default function ContactsContent({
 
   return (
     <div className={`flex flex-col gap-8 transition-opacity duration-300 ${isPending ? "opacity-50" : "opacity-100"}`}>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-row flex-wrap justify-between gap-6">
         <SportFilter
           sports={sortedSports}
           selectedSport={currentSport || null}

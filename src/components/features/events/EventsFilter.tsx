@@ -68,7 +68,7 @@ export default function EventsFilter({ availableSports }: EventsFilterProps) {
   const monthName = new Intl.DateTimeFormat("cs-CZ", { month: "long", year: "numeric" }).format(new Date(currentYear, currentMonth - 1));
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-3 items-center gap-6 transition-opacity duration-300 ${isPending ? "opacity-50" : "opacity-100"}`}>
+    <div className={`grid grid-cols-2 md:grid-cols-3 items-center gap-6 transition-opacity duration-300 ${isPending ? "opacity-50" : "opacity-100"}`}>
       <div className="flex justify-start">
         <SportFilter
           sports={availableSports}
@@ -78,7 +78,7 @@ export default function EventsFilter({ availableSports }: EventsFilterProps) {
       </div>
 
       <div className="flex justify-center">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-0.5 md:gap-2">
           <button
             onClick={() => updateMonth(-1)}
             className="p-2 hover:bg-primary/10 text-on-surface/40 hover:text-primary rounded-full transition-all"
@@ -86,7 +86,7 @@ export default function EventsFilter({ availableSports }: EventsFilterProps) {
           >
             <IoChevronBack size={18} />
           </button>
-          <span className="text-[11px] font-display font-bold uppercase tracking-[0.2em] px-4 min-w-[150px] text-center text-on-surface/70">
+          <span className="text-[11px] font-display font-bold uppercase tracking-[0.2em] px-4 min-w-[3rem] text-center text-on-surface/70">
             {monthName}
           </span>
           <button

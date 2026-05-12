@@ -4,17 +4,27 @@ import { sendInvitationEmail } from "../mailer";
 
 const QUEUE_NAME = "email-queue";
 
-// Singleton for the queue
-let emailQueue: Queue;
+// // Singleton for the queue
+// let emailQueue: Queue;
 
-if (process.env.NODE_ENV === "production") {
-  emailQueue = new Queue(QUEUE_NAME, { connection: redisConnection });
-} else {
-  // Prevent multiple instances in development during hot reloads
-  if (!(global as any).emailQueue) {
-    (global as any).emailQueue = new Queue(QUEUE_NAME, { connection: redisConnection });
+// if (process.env.NODE_ENV === "production") {
+//   emailQueue = new Queue(QUEUE_NAME, { connection: redisConnection });
+// } else {
+//   // Prevent multiple instances in development during hot reloads
+//   if (!(global as any).emailQueue) {
+//     (global as any).emailQueue = new Queue(QUEUE_NAME, { connection: redisConnection });
+//   }
+//   emailQueue = (global as any).emailQueue;
+// }
+
+const emailQueue = {
+  add: async (_name: string, data: EmailJobData) => {
+    // directly send email without background queue
+    if(data.type === "invitation") {
+      await sendInvitationEmail(data.email, data.link);
+    }
+    return Promise.resolve();
   }
-  emailQueue = (global as any).emailQueue;
 }
 
 export { emailQueue };

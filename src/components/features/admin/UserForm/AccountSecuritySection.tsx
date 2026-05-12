@@ -1,6 +1,6 @@
 import AppButton from "@/components/ui/Actions/AppButton";
 import { useUserInvitation } from "@/hooks/useUserInvitation";
-import { useOptimistic } from "react";
+import { useOptimistic, startTransition } from "react";
 
 type AccountSecuritySectionProps = {
     userId: number;
@@ -32,8 +32,10 @@ export const AccountSecuritySection = ({
     );
 
     const handleResend = () => {
-        addOptimisticInvitation(null);
-        originalHandleResend();
+        startTransition(() => {
+            addOptimisticInvitation(null);
+            originalHandleResend();
+        });
     };
 
     if (!editor) return null;
