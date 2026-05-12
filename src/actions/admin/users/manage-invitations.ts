@@ -38,7 +38,7 @@ export async function resendInvitationAction({ personnelId, email }: { personnel
     return { success: true };
   } catch (e) {
     console.error("[AUTH] resendInvitation error:", e);
-    return { error: e.message || "Nepodařilo se odeslat pozvánku." };
+    return { error: e instanceof Error ? e.message : "Nepodařilo se odeslat pozvánku." };
   }
 }
 

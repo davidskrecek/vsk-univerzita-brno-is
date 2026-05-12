@@ -34,7 +34,7 @@ export async function deleteUserAction({ id }: { id: number }) {
     return { success: true };
   } catch (e) {
     console.error(e);
-    return { error: e.message || "Failed to deactivate user" };
+    return { error: e instanceof Error ? e.message : "Failed to deactivate user" };
   }
 }
 
@@ -66,7 +66,7 @@ export async function activateUserAction({ id }: { id: number }) {
     return { success: true };
   } catch (e) {
     console.error(e);
-    return { error: e.message || "Failed to activate user" };
+    return { error: e instanceof Error ? e.message : "Failed to activate user" };
   }
 }
 
