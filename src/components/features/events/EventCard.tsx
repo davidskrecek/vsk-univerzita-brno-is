@@ -26,6 +26,8 @@ export const EventCard = ({ id, day, month, category, title, location, isInline 
     }
   }
 
+  params.delete('postId');
+  params.delete('edit');
   params.set('eventId', id);
 
   const detailHref = `?${params.toString()}`;

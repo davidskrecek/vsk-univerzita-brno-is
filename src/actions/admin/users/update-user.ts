@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getRequiredSession } from "@/lib/session";
-import { requirePermission } from "@/lib/rbac";
+import { requirePermission, requireSportScope } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { UserFormSchema, UserActionState } from "@/actions/admin/users/schemas";
 import crypto from "crypto";
@@ -48,6 +48,9 @@ export async function updateUserAction(formData: FormData): Promise<UserActionSt
     if (rawData.managedSportIds) {
         processedData.managedSportIds = JSON.parse(rawData.managedSportIds as string);
     }
+    if (rawData.permissions) {
+        processedData.permissions = JSON.parse(rawData.permissions as string);
+    }
 
     const parsed = UserFormSchema.safeParse(processedData);
     if (!parsed.success) {
@@ -64,6 +67,23 @@ export async function updateUserAction(formData: FormData): Promise<UserActionSt
       where: { id },
       include: { editor: true }
     });
+
+    if (!existingUser) return { error: "Uživatel nebyl nalezen." };
+
+    // VERIFY OLD SCOPE
+    if (existingUser.sportId) {
+      requireSportScope(session, existingUser.sportId);
+    }
+
+    // VERIFY NEW SCOPE
+    if (body.sportId) {
+      requireSportScope(session, body.sportId);
+    }
+
+    // VERIFY ROLES SCOPE
+    if (body.managedSportIds && body.managedSportIds.length > 0) {
+      body.managedSportIds.forEach((sportId: number) => requireSportScope(session, sportId));
+    }
 
     await prisma.$transaction(async (tx) => {
       await tx.personnel.update({
@@ -86,12 +106,14 @@ export async function updateUserAction(formData: FormData): Promise<UserActionSt
               personnelId: id,
               passwordHash: "PENDING",
               editorRoleId: body.editorRoleId,
+              permissions: body.permissions || {},
               managedSports: {
                 create: body.managedSportIds.map((sportId) => ({ sportId })),
               },
             },
             update: {
               editorRoleId: body.editorRoleId,
+              permissions: body.permissions || {},
               managedSports: {
                 deleteMany: {},
                 create: body.managedSportIds.map((sportId) => ({ sportId })),

@@ -159,6 +159,16 @@ export const PostCreateForm = ({
       return;
     }
 
+    if (isEditing) {
+      const isConfirmed = await confirm({
+        title: "Uložit změny",
+        message: "Opravdu chcete uložit provedené změny v příspěvku?",
+        confirmLabel: "Uložit",
+        type: "primary"
+      });
+      if (!isConfirmed) return;
+    }
+
     const formData = new FormData();
     if (isEditing && initialValues?.id) {
       formData.set("id", String(initialValues.id));

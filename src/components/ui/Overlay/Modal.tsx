@@ -14,22 +14,22 @@ export const Modal = ({ children, onClose, contentClassName = "", className = ""
   const [isPresent] = usePresence();
 
   useEffect(() => {
-    const style = document.body.style;
-    const initialOverflow = style.overflow;
+    if (!isPresent) return;
 
-    if (isPresent) {
-      style.overflow = 'hidden';
-    } else {
-      style.overflow = initialOverflow;
-    }
+    document.body.style.overflow = 'hidden';
 
     return () => {
-      style.overflow = initialOverflow;
+      document.body.style.overflow = '';
     };
   }, [isPresent]);
 
   return (
-    <div className={`fixed inset-0 z-[100] flex items-center justify-center ${!isPresent ? "pointer-events-none" : ""}`}>
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.15 } }}
+      className={`fixed inset-0 z-[100] flex items-center justify-center ${!isPresent ? "pointer-events-none" : ""}`}
+    >
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -60,7 +60,7 @@ export const Modal = ({ children, onClose, contentClassName = "", className = ""
           {children}
         </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -25,8 +25,7 @@ export default function GlobalDetailHandler() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: session } = useSession();
-  const [isPending, startTransition] = useTransition();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [postDetail, setPostDetail] = useState<PostDetailResult>(null);
   const [eventDetail, setEventDetail] = useState<UiEvent | null>(null);
   const { sports: availableSports } = useSports();
@@ -35,38 +34,58 @@ export default function GlobalDetailHandler() {
   const activeEventId = searchParams.get("eventId");
   const isEditing = searchParams.get("edit") === "true";
 
-
-
   // Handle Post Detail
   useEffect(() => {
-    if (!activePostId) {
-      setPostDetail(null);
-      return;
-    }
+    let ignore = false;
+    setPostDetail(null);
+    if (!activePostId) return;
 
     const id = Number(activePostId);
     if (isNaN(id)) return;
 
-    startTransition(async () => {
-      const detail = await getPostDetail(id);
-      setPostDetail(detail);
-    });
+    async function load() {
+      setIsLoading(true);
+      try {
+        const detail = await getPostDetail(id);
+        if (!ignore) {
+          setPostDetail(detail);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+    load();
+
+    return () => { ignore = true; };
   }, [activePostId]);
 
   // Handle Event Detail
   useEffect(() => {
-    if (!activeEventId) {
-      setEventDetail(null);
-      return;
-    }
+    let ignore = false;
+    setEventDetail(null);
+    if (!activeEventId) return;
 
     const id = Number(activeEventId);
     if (isNaN(id)) return;
 
-    startTransition(async () => {
-      const detail = await getEventDetail(id);
-      setEventDetail(detail);
-    });
+    async function load() {
+      setIsLoading(true);
+      try {
+        const detail = await getEventDetail(id);
+        if (!ignore) {
+          setEventDetail(detail);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+    load();
+
+    return () => { ignore = true; };
   }, [activeEventId]);
 
   const closeDetail = useCallback(() => {
@@ -91,12 +110,10 @@ export default function GlobalDetailHandler() {
   const accessibleSports = useMemo(() => {
     if (!session?.user || availableSports.length === 0) return [];
 
-    // Start with sports the user manages
     let sports = session.user.role === UserRole.SUPERADMIN
       ? availableSports
       : availableSports.filter(s => session.user.managedSportIds?.includes(s.id));
 
-    // ALWAYS include the current item's sport if we are editing
     if (isEditing) {
       const currentSportId = postDetail?.sport.id || eventDetail?.sportId;
       if (currentSportId) {
@@ -113,11 +130,10 @@ export default function GlobalDetailHandler() {
   const canEditPost = postDetail?.canEdit ?? false;
   const canEditEvent = eventDetail?.canEdit ?? false;
 
-
   return (
     <>
-      <AnimatePresence mode="wait">
-        {postDetail && !activeEventId && !isEditing && (
+      <AnimatePresence>
+        {postDetail && !isEditing && (
           <PostDetail
             key={`post-${postDetail.id}`}
             title={postDetail.title}
@@ -132,8 +148,8 @@ export default function GlobalDetailHandler() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence mode="wait">
-        {eventDetail && !activePostId && !isEditing && (
+      <AnimatePresence>
+        {eventDetail && !isEditing && (
           <EventDetail
             key={`event-${eventDetail.id}`}
             {...eventDetail}
@@ -146,15 +162,16 @@ export default function GlobalDetailHandler() {
       <AnimatePresence>
         {isEditing && (
           <>
-            {isPending ? (
-              <Modal onClose={() => toggleEdit(false)} contentClassName="max-w-md w-full">
-                <div className="p-12 flex flex-col items-center justify-center space-y-4 bg-surface-container-low rounded-xl">
+            {isLoading ? (
+              <Modal key="loading" onClose={() => toggleEdit(false)} contentClassName="max-w-md w-full bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col">
+                <div className="p-12 flex flex-col items-center justify-center space-y-4">
                   <Loading />
                   <p className="text-on-surface/60 font-sans">Ověřování oprávnění...</p>
                 </div>
               </Modal>
             ) : postDetail && canEditPost ? (
               <PostCreateForm
+                key="form-post"
                 mode="edit"
                 sports={accessibleSports}
                 initialValues={{
@@ -172,6 +189,7 @@ export default function GlobalDetailHandler() {
               />
             ) : eventDetail && canEditEvent ? (
               <EventCreateForm
+                key="form-event"
                 mode="edit"
                 sports={accessibleSports}
                 initialValues={{
@@ -188,7 +206,7 @@ export default function GlobalDetailHandler() {
                 onSuccess={closeDetail}
               />
             ) : (
-              <Modal onClose={closeDetail} contentClassName="max-w-md w-full">
+              <Modal key="denied" onClose={closeDetail} contentClassName="max-w-md w-full bg-surface-container-low rounded-xl overflow-hidden shadow-2xl border border-outline-variant/10 flex flex-col">
                 <AccessDenied onBack={closeDetail} />
               </Modal>
             )}

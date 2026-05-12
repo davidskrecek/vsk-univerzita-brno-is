@@ -72,7 +72,6 @@ model Official {
 model EditorRole {
   id          Int    @id @default(autoincrement())
   name        String @unique @db.VarChar(50)
-  permissions Json   @default("{}")
 
   editors Editor[]
 
@@ -88,6 +87,7 @@ model Editor {
   lockedUntil         DateTime? @map("locked_until")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime? @updatedAt @map("updated_at")
+  permissions         Json      @default("{}")
 
   personnel     Personnel            @relation(fields: [personnelId], references: [id])
   editorRole    EditorRole           @relation(fields: [editorRoleId], references: [id])

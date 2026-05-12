@@ -40,9 +40,12 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
     const [editorType, setEditorType] = useState<"none" | "editor" | "admin">(
         user?.editor?.editorRole?.name === "sport_manager" ? "admin" : (user?.editor ? "editor" : "none")
     );
-    const [permissions, setPermissions] = useState({
-        posts: "write",
-        events: "write"
+    const [permissions, setPermissions] = useState(() => {
+        const existing = user?.editor?.permissions as Record<string, boolean> | undefined;
+        return {
+            posts: existing?.["posts:full"] ? "full" : existing?.["posts:write"] ? "write" : "write",
+            events: existing?.["events:full"] ? "full" : existing?.["events:write"] ? "write" : "write"
+        };
     });
     const [trainerCategory, setTrainerCategory] = useState(user?.trainer?.category || "");
 
@@ -107,9 +110,21 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
             let roleName = editorType === "admin" ? "sport_manager" : "editor";
             const targetRole = roles.find(r => r.name === roleName);
             if (targetRole) formData.append("editorRoleId", String(targetRole.id));
-            if (sportId) {
-                formData.append("managedSportIds", JSON.stringify([Number(sportId)]));
+
+            const finalPerms: Record<string, boolean> = {};
+            if (editorType === "admin") {
+                finalPerms["users:manage"] = true;
+                finalPerms["posts:write"] = true;
+                finalPerms["posts:full"] = true;
+                finalPerms["events:write"] = true;
+                finalPerms["events:full"] = true;
+            } else {
+                finalPerms["posts:write"] = true;
+                if (permissions.posts === "full") finalPerms["posts:full"] = true;
+                finalPerms["events:write"] = true;
+                if (permissions.events === "full") finalPerms["events:full"] = true;
             }
+            formData.append("permissions", JSON.stringify(finalPerms));
         }
 
         if (trainerCategory) {
@@ -118,8 +133,8 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
         }
 
         const result = user?.id
-            ? await updateUserAction(undefined, formData)
-            : await createUserAction(undefined, formData);
+            ? await updateUserAction(formData)
+            : await createUserAction(formData);
 
         if (result.success) onResult();
         else onResult(result.error);

@@ -63,7 +63,7 @@ export const authOptions: AuthOptions = {
           name: `${editor.personnel.firstName} ${editor.personnel.lastName}`,
           role: editor.editorRole.name,
           managedSportIds: editor.managedSports.map((ms) => ms.sportId),
-          permissions: (editor.editorRole.permissions as any) || {},
+          permissions: (editor.permissions as any) || {},
         };
       },
     }),
