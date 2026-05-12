@@ -3,15 +3,13 @@
 import { useCallback, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SportFilter from "@/components/ui/Filters/SportFilter";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import ViewToggle from "@/components/ui/Actions/ViewToggle";
 
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
-interface EventsFilterProps {
-  availableSports: Array<{ name: string; isCompetitive?: boolean }>;
-}
-
-export default function EventsFilter({ availableSports }: EventsFilterProps) {
+export default function EventsFilter() {
+  const { sports: availableSports } = useSports();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

@@ -17,16 +17,17 @@ import { TrainerFields } from "./UserForm/TrainerFields";
 import { EditorFields } from "./UserForm/EditorFields";
 import { AccountSecuritySection } from "./UserForm/AccountSecuritySection";
 import Modal from "@/components/ui/Overlay/Modal";
+import { useSports } from "@/components/features/sports/SportsProvider";
 
 type CreateUserFormProps = {
     onResult: (error?: string) => void;
     onCancel?: () => void;
-    sports: Sport[];
     roles: Role[];
     user?: any;
 };
 
-export default function CreateUserForm({ onResult, onCancel, sports, roles, user }: CreateUserFormProps) {
+export default function CreateUserForm({ onResult, onCancel, roles, user }: CreateUserFormProps) {
+    const { sports } = useSports();
     const toast = useToast();
     const { data: session } = useSession();
     const confirm = useConfirm();

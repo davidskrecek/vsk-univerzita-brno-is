@@ -26,12 +26,6 @@ async function createAndSendInvitation(personnelId: number, email: string, creat
     type: "invitation",
     email,
     link: invitationLink,
-  }, {
-    attempts: 3,
-    backoff: {
-      type: "exponential",
-      delay: 5000,
-    }
   });
 }
 

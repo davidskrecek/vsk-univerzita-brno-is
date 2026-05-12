@@ -3,12 +3,10 @@
 import { useCallback, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SportFilter from "@/components/ui/Filters/SportFilter";
+import { useSports } from "@/components/features/sports/SportsProvider";
 
-interface PostsFilterProps {
-  availableSports: Array<{ name: string; isCompetitive?: boolean }>;
-}
-
-export default function PostsFilter({ availableSports }: PostsFilterProps) {
+export default function PostsFilter() {
+  const { sports: availableSports } = useSports();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

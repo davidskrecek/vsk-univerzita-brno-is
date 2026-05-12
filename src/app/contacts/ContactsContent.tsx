@@ -7,12 +7,12 @@ import ViewToggle from "@/components/ui/Actions/ViewToggle";
 import SportFilter from "@/components/ui/Filters/SportFilter";
 import ContactSection from "@/components/features/contacts/ContactSection";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import {
   buildContactSections,
   extractSports,
   type ContactItem,
 } from "@/components/features/contacts/contactUtils";
-import { Sport } from "@/lib/queries/sports";
 import { Role } from "@/lib/queries/roles";
 
 interface ContactsContentProps {
@@ -21,7 +21,6 @@ interface ContactsContentProps {
   canEdit: boolean;
   isSuperAdmin: boolean;
   roles: Role[];
-  allSports: Sport[];
   currentSport?: string;
   currentShowInactive: boolean;
 }
@@ -32,10 +31,10 @@ export default function ContactsContent({
   canEdit,
   isSuperAdmin,
   roles,
-  allSports,
   currentSport,
   currentShowInactive
 }: ContactsContentProps) {
+  const { sports: allSports } = useSports();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -98,7 +97,6 @@ export default function ContactsContent({
             title={section.title}
             contacts={section.contacts}
             roles={roles}
-            sports={allSports}
             user={session?.user}
           />
         ))

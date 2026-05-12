@@ -3,7 +3,6 @@ import SectionHeader from "@/components/layout/SectionHeader";
 import CreateFormButton from "@/components/features/admin/CreateFormButton";
 import EventCreateForm from "@/components/features/events/EventCreateForm";
 import { getPublicEvents } from "@/lib/queries/events";
-import { getSports } from "@/lib/queries/sports";
 import EventsContent from "./EventsContent";
 import EventsFilter from "@/components/features/events/EventsFilter";
 import Loading from "@/app/loading";
@@ -12,23 +11,21 @@ import { PageReveal } from "@/components/layout/PageReveal";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-async function EventsListContainer({ sport, sports, year, month }: { sport?: string; sports: any[]; year?: number; month?: number }) {
+async function EventsListContainer({ sport, year, month }: { sport?: string; year?: number; month?: number }) {
   const initialEvents = await getPublicEvents(sport, year, month);
 
   return (
     <PageReveal>
-      <EventsContent initialEvents={initialEvents} availableSports={sports} year={year} month={month} />
+      <EventsContent initialEvents={initialEvents} year={year} month={month} />
     </PageReveal>
   );
 }
 
-async function NewEventButton() {
-  const sports = await getSports();
+function NewEventButton() {
   return (
     <CreateFormButton
       label="Nová akce"
       FormComponent={EventCreateForm}
-      sports={sports}
     />
   );
 }
@@ -39,7 +36,7 @@ export default async function EventsPage({
   searchParams: Promise<{ sport?: string; view?: string; month?: string; year?: string }>;
 }) {
   const { sport, view, month, year } = await searchParams;
-  const sports = await getSports();
+
 
   const isCalendar = view !== "list";
   const now = new Date();
@@ -63,12 +60,11 @@ export default async function EventsPage({
         }
       />
 
-      <EventsFilter availableSports={sports} />
+      <EventsFilter />
 
       <Suspense fallback={<Loading />}>
         <EventsListContainer
           sport={sport}
-          sports={sports}
           year={currentYear}
           month={currentMonth}
         />

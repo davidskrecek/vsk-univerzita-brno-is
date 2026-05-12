@@ -7,7 +7,6 @@ import CreateUserForm from "@/components/features/admin/CreateUserForm";
 import Modal from "@/components/ui/Overlay/Modal";
 import { Role } from "@/lib/queries/roles";
 import { useToast } from "@/hooks/useToast";
-import { Sport } from "@/lib/queries/sports";
 import { Pencil } from "lucide-react";
 import MiniSpinner from "@/components/ui/Feedback/MiniSpinner";
 import { getUserById } from "@/actions/admin/users/get-user";
@@ -16,14 +15,12 @@ import { FullUser as User } from "@/actions/admin/users/schemas";
 type EditUserButtonProps = {
     label?: string;
     roles: Role[];
-    sports: Sport[];
-
     userId?: string;
     iconOnly?: boolean;
     children?: React.ReactNode;
 }
 
-export const EditUserButton = ({ label, roles, sports, userId, iconOnly, children }: EditUserButtonProps) => {
+export const EditUserButton = ({ label, roles, userId, iconOnly, children }: EditUserButtonProps) => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState<User | null>();
@@ -95,7 +92,6 @@ export const EditUserButton = ({ label, roles, sports, userId, iconOnly, childre
                                 onResult={(error) => handleResult(error)}
                                 onCancel={() => setIsOpen(false)}
                                 roles={roles}
-                                sports={sports}
                             />
                         )}
                     </>

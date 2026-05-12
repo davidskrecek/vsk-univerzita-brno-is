@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
+import { useSports } from "@/components/features/sports/SportsProvider";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
 
 interface CreateFormButtonProps {
@@ -12,10 +13,10 @@ interface CreateFormButtonProps {
     onCancel: () => void;
     onSuccess: () => void;
   }>;
-  sports: Array<{ id: number; name: string }>;
 }
 
-export const CreateFormButton = ({ label, FormComponent, sports }: CreateFormButtonProps) => {
+export const CreateFormButton = ({ label, FormComponent }: CreateFormButtonProps) => {
+  const { sports } = useSports();
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
 

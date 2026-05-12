@@ -34,12 +34,16 @@ import { PageReveal } from "@/components/layout/PageReveal";
 
 
 import { ConfirmProvider } from "@/components/ui/Overlay/ConfirmProvider";
+import { getSports } from "@/lib/queries/sports";
+import { SportsProvider } from "@/components/features/sports/SportsProvider";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const sports = await getSports();
+
   return (
     <html
       lang="cs"
@@ -49,7 +53,8 @@ export default function RootLayout({
         <AppSessionProvider>
           <ToastProvider>
             <ConfirmProvider>
-              <AuthModalProvider>
+              <SportsProvider initialSports={sports}>
+                <AuthModalProvider>
                 <NavBar />
                 <main className="grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
                   {children}
@@ -60,7 +65,8 @@ export default function RootLayout({
                   <SetPasswordModal />
                   <GlobalDetailHandler />
                 </Suspense>
-              </AuthModalProvider>
+                </AuthModalProvider>
+              </SportsProvider>
             </ConfirmProvider>
           </ToastProvider>
         </AppSessionProvider>
