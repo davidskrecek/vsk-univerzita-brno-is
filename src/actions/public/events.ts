@@ -1,13 +1,27 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { type UiEvent } from "@/components/features/events/eventUtils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { isSuperAdminRole } from "@/lib/constants/roles";
 import { sessionHasPermission } from "@/lib/permissions";
 
-export async function getEventDetail(id: number): Promise<UiEvent | null> {
+export interface EventDetailData {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location?: string;
+  sport: string;
+  sportId: number;
+  description?: string;
+  startTimeIso: string;
+  canEdit: boolean;
+  canDelete: boolean;
+  links: Array<{ url: string; alias: string | null }>;
+}
+
+export async function getEventDetail(id: number): Promise<EventDetailData | null> {
   if (!Number.isInteger(id) || id <= 0) {
     return null;
   }

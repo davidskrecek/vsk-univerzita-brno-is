@@ -1,12 +1,12 @@
 "use client";
 
-import React, { createContext, useState, useCallback } from "react";
+import { createContext, useState, useCallback, type ReactNode } from "react";
 import { ConfirmOptions, ConfirmContextValue } from "@/types/feedback";
 import { ConfirmationDialog } from "@/components/ui/Overlay/ConfirmationDialog";
 
 export const ConfirmContext = createContext<ConfirmContextValue | null>(null);
 
-export const ConfirmProvider = ({ children }: { children: React.ReactNode }) => {
+export const ConfirmProvider = ({ children }: { children: ReactNode }) => {
     const [config, setConfig] = useState<ConfirmOptions | null>(null);
     const [resolveCallback, setResolveCallback] = useState<((value: boolean) => void) | null>(null);
 

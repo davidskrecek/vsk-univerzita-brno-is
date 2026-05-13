@@ -54,16 +54,16 @@ export default async function RootLayout({
             <ConfirmProvider>
               <SportsProvider initialSports={sports}>
                 <AuthModalProvider>
-                <NavBar />
-                <main className="grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
-                  {children}
-                </main>
-                <Footer />
-                <AuthModal />
-                <Suspense fallback={null}>
-                  <SetPasswordModal />
-                  <GlobalDetailHandler />
-                </Suspense>
+                  <NavBar />
+                  <main className="grow container mx-auto px-4 sm:px-6 pb-12 pt-0 max-w-6xl">
+                    {children}
+                  </main>
+                  <Footer />
+                  <AuthModal />
+                  <Suspense fallback={null}>
+                    <SetPasswordModal />
+                    <GlobalDetailHandler />
+                  </Suspense>
                 </AuthModalProvider>
               </SportsProvider>
             </ConfirmProvider>

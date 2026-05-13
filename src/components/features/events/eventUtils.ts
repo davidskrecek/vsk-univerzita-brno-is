@@ -3,13 +3,7 @@ import { CalendarEvent } from "@/types/events";
 export interface UiEvent extends CalendarEvent {
   description?: string;
   startTimeIso: string;
-  canEdit?: boolean;
-  canDelete?: boolean;
-  links?: Array<{ url: string; alias: string | null }>;
 }
-
-export const findEventById = (events: UiEvent[], eventId: string | null): UiEvent | null =>
-  eventId ? events.find((event) => event.id === eventId) ?? null : null;
 
 export const parseDateKey = (dateStr: string): { year: number; month: number; day: number } | null => {
   const [yearRaw, monthRaw, dayRaw] = dateStr.split("-");

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Modal from "@/components/ui/Overlay/Modal";
 import AppButton from "@/components/ui/Actions/AppButton";
 import { AlertTriangle, Info } from "lucide-react";

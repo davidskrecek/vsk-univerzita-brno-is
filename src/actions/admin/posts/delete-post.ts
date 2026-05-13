@@ -10,7 +10,6 @@ import path from "path";
 export async function deletePostAction(postId: number): Promise<{ success?: boolean; error?: string }> {
   try {
     const session = await getRequiredSession();
-    // For deleting, we might want a higher permission or 'full' access
     requirePermission(session, "posts:full");
 
     if (!Number.isInteger(postId) || postId <= 0) {
@@ -24,17 +23,13 @@ export async function deletePostAction(postId: number): Promise<{ success?: bool
 
     if (!existing) return { error: "Příspěvek nebyl nalezen." };
 
-    // AUTHORIZATION CHECK
     requireSportScope(session, existing.sportId);
 
-    // Clean up image file
     if (existing.imageUrl?.startsWith("/uploads/post-images/")) {
       const filePath = path.join(process.cwd(), "public", existing.imageUrl);
       try {
         await unlink(filePath);
-      } catch {
-        // Ignore missing files
-      }
+      } catch { }
     }
 
     await prisma.$transaction(async (tx) => {
@@ -50,8 +45,8 @@ export async function deletePostAction(postId: number): Promise<{ success?: bool
       });
     });
 
-    revalidatePath("/admin/posts");
     revalidatePath("/posts");
+    revalidatePath("/");
 
     return { success: true };
   } catch (e) {

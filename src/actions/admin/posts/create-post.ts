@@ -60,8 +60,8 @@ export async function createPostAction(
       return p;
     });
 
-    revalidatePath("/admin/posts");
-    revalidatePath(`/posts`);
+    revalidatePath("/posts");
+    revalidatePath("/");
 
     return { success: true, data: { id: post.id } };
   } catch (e) {

@@ -1,9 +1,11 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 
-export async function getRoles() {
+import { cache } from "react";
+
+export const getRoles = cache(async () => {
     return prisma.editorRole.findMany();
-}
+});
 
 export type Role = Awaited<ReturnType<typeof getRoles>>[number];
 

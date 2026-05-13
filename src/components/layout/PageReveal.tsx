@@ -1,10 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import React from "react";
+import { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export const PageReveal = ({ children }: { children: React.ReactNode }) => {
+export const PageReveal = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   return (
@@ -16,7 +16,7 @@ export const PageReveal = ({ children }: { children: React.ReactNode }) => {
         exit={{ opacity: 0, y: 10, scale: 0.99 }}
         transition={{
           duration: 0.5,
-          ease: [0.16, 1, 0.3, 1], // Custom quintic easing for premium feel
+          ease: [0.16, 1, 0.3, 1],
         }}
       >
         {children}

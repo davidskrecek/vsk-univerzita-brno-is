@@ -5,13 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getPostDetail, type PostDetailResult } from "@/actions/public/posts";
-import { getEventDetail } from "@/actions/public/events";
+import { getEventDetail, type EventDetailData } from "@/actions/public/events";
 import { useSports } from "@/components/features/sports/SportsProvider";
 import PostDetail from "@/components/features/posts/PostDetail";
 import EventDetail from "@/components/features/events/EventDetail";
-import DetailLayout from "@/components/layout/DetailLayout";
 import { mapPostDetailLinks } from "@/components/features/posts/postUtils";
-import { type UiEvent } from "@/components/features/events/eventUtils";
 import EditButton from "@/components/ui/Actions/EditButton";
 import { Modal } from "@/components/ui/Overlay/Modal";
 import PostCreateForm from "@/components/features/posts/PostCreateForm";
@@ -28,18 +26,16 @@ export default function GlobalDetailHandler() {
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [postDetail, setPostDetail] = useState<PostDetailResult>(null);
-  const [eventDetail, setEventDetail] = useState<UiEvent | null>(null);
+  const [eventDetail, setEventDetail] = useState<EventDetailData | null>(null);
   const { sports: availableSports } = useSports();
 
   const activePostId = searchParams.get("postId");
   const activeEventId = searchParams.get("eventId");
   const isEditing = searchParams.get("edit") === "true";
 
-  // Unified State Synchronizer for Post and Event Detail
   useEffect(() => {
     let ignore = false;
 
-    // Hard deterministic cache purge on ANY context shift
     setPostDetail(null);
     setEventDetail(null);
 
@@ -81,7 +77,6 @@ export default function GlobalDetailHandler() {
     const query = params.toString();
     router.push(query ? `?${query}` : window.location.pathname, { scroll: false });
 
-    // Immediate deterministic cache purge on explicit user dismissal
     setPostDetail(null);
     setEventDetail(null);
     setIsLoading(false);

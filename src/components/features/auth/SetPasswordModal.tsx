@@ -6,6 +6,7 @@ import SetPasswordForm from "@/components/features/auth/SetPasswordForm";
 import { getUserByInvitationToken } from "@/actions/auth/invitations";
 import { AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
+import AppButton from "@/components/ui/Actions/AppButton";
 
 export const SetPasswordModal = () => {
     const router = useRouter();
@@ -28,7 +29,6 @@ export const SetPasswordModal = () => {
     }, [token]);
 
     const closeModal = () => {
-        // Remove token from URL
         const params = new URLSearchParams(searchParams.toString());
         params.delete("token");
         params.delete("reset");
@@ -65,12 +65,12 @@ export const SetPasswordModal = () => {
 
                         {!loading && !userData && (
                             <div className="mt-4 flex justify-end">
-                                <button
+                                <AppButton
                                     onClick={closeModal}
-                                    className="text-sm font-medium text-primary hover:underline"
+                                    variant="secondary"
                                 >
                                     Zavřít
-                                </button>
+                                </AppButton>
                             </div>
                         )}
                     </div>

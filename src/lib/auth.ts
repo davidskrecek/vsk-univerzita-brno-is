@@ -16,7 +16,6 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
 
         const email = credentials.email.trim().toLowerCase();
-        console.log(`[AUTH] Attempting login for: ${email}`);
 
         const editor = await prisma.editor.findFirst({
           where: { personnel: { email } },
@@ -28,18 +27,13 @@ export const authOptions: AuthOptions = {
         });
 
         if (!editor) {
-          console.log(`[AUTH] User not found in DB: ${email}`);
           return null;
         }
-
-        console.log(`[AUTH] User found, checking password...`);
 
         if (editor.lockedUntil && editor.lockedUntil > new Date()) {
           throw new Error("AccountLocked");
         }
 
-        console.log(`[AUTH] Password length: ${credentials.password.length}`);
-        
         const valid = await bcrypt.compare(credentials.password, editor.passwordHash);
 
         if (!valid) {

@@ -7,11 +7,14 @@ import Loading from "@/app/loading";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Spinner from "@/components/ui/Feedback/Spinner";
-import { getRoles, Role } from "@/lib/queries/roles";
+import { getRoles } from "@/lib/queries/roles";
 import { EditUserButton } from "@/components/features/admin/EditUserButton";
 
-async function ContactsListContainer({ roles, isSuperAdmin, sport, showInactive }: { roles: Role[], isSuperAdmin: boolean, sport?: string, showInactive: boolean }) {
-  const allContacts = await getContacts(isSuperAdmin && showInactive);
+async function ContactsListContainer({ isSuperAdmin, sport, showInactive }: { isSuperAdmin: boolean, sport?: string, showInactive: boolean }) {
+  const [allContacts, roles] = await Promise.all([
+    getContacts(isSuperAdmin && showInactive),
+    getRoles()
+  ]);
   const filteredContacts = sport ? allContacts.filter(c => c.sportName === sport) : allContacts;
 
   return (
@@ -27,6 +30,11 @@ async function ContactsListContainer({ roles, isSuperAdmin, sport, showInactive 
   );
 }
 
+async function NewContactButton() {
+  const roles = await getRoles();
+  return <EditUserButton label="Vytvořit kontakt" roles={roles} />;
+}
+
 export default async function ContactsPage({
   searchParams,
 }: {
@@ -37,20 +45,17 @@ export default async function ContactsPage({
   const isSuperAdmin = session?.user?.role === "superadmin";
   const canCreate = session?.user && (isSuperAdmin || session.user.role === "sport_manager");
 
-  const roles = await getRoles();
-
   return (
     <div className="stack-page">
       <SectionHeader title="Kontakty" as="h1" rightContent={
         canCreate ? (
           <Suspense fallback={<Spinner />}>
-            <EditUserButton label="Vytvořit kontakt" roles={roles} />
+            <NewContactButton />
           </Suspense>
         ) : null
       } />
       <Suspense fallback={<Loading />}>
         <ContactsListContainer
-          roles={roles}
           isSuperAdmin={isSuperAdmin}
           sport={sport}
           showInactive={showInactive === "true"}

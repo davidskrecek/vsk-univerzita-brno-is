@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createPostAction } from "@/actions/admin/posts/create-post";
@@ -145,7 +145,7 @@ export const PostCreateForm = ({
     }
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
 
     if (!canSubmit) {
@@ -179,8 +179,6 @@ export const PostCreateForm = ({
       const localDate = new Date(year, month - 1, day);
       formData.set("publishedAt", localDate.toISOString());
     }
-
-    // Image is not stored anywhere as per requirements
 
     const cleanedLinks = links
       .map((link) => ({

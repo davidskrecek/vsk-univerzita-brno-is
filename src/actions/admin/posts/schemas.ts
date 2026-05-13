@@ -8,7 +8,7 @@ export type PostActionState = {
 };
 
 export const PostLinkSchema = z.object({
-  url: z.string().url("Neplatná URL"),
+  url: z.url("Neplatná URL"),
   alias: z.string().max(255).optional().nullable(),
 });
 

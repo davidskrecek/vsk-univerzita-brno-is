@@ -6,7 +6,6 @@ import dynamic from 'next/dynamic';
 import CalendarExport from './CalendarExport';
 import DetailLayout from '@/components/layout/DetailLayout';
 
-// Import LeafletMap dynamically to avoid SSR issues
 const LeafletMap = dynamic(() => import('./LeafletMap'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-surface-container-high animate-pulse" />

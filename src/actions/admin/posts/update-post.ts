@@ -77,9 +77,9 @@ export async function updatePostAction(
       return u;
     });
 
-    revalidatePath("/admin/posts");
     revalidatePath(`/posts/${postId}`);
     revalidatePath(`/posts`);
+    revalidatePath("/");
 
     return { success: true, data: { id: updated.id } };
   } catch (e) {
