@@ -1,6 +1,6 @@
 import { CalendarEvent } from "@/types/events";
 
-export interface UiEvent extends CalendarEvent {
+export interface CalendarListEvent extends CalendarEvent {
   description?: string;
   startTimeIso: string;
 }

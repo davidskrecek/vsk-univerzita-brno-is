@@ -12,19 +12,19 @@ import EventCreateForm from "@/components/features/events/EventCreateForm";
 import {
   getCzechMonthShort,
   getEventDayOfMonth,
-  type UiEvent,
+  type CalendarListEvent,
 } from "@/components/features/events/eventUtils";
 
 type ViewMode = "calendar" | "list";
 
 interface EventsContentProps {
-  initialEvents: UiEvent[];
+  initialEvents: CalendarListEvent[];
   year?: number;
   month?: number;
 }
 
 interface EventsListContentProps {
-  events: UiEvent[];
+  events: CalendarListEvent[];
 }
 
 const EventsListContent = ({ events }: EventsListContentProps) => {
@@ -69,7 +69,7 @@ function EventsContentInner({ initialEvents, year, month }: EventsContentProps) 
         : availableSports.filter((sport) => session.user.managedSportIds?.includes(sport.id));
 
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [pendingEditEvent, setPendingEditEvent] = useState<UiEvent | null>(null);
+  const [pendingEditEvent, setPendingEditEvent] = useState<CalendarListEvent | null>(null);
 
   const closeEditModal = useCallback(() => {
     setIsEditOpen(false);
