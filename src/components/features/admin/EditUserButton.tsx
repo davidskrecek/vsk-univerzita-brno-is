@@ -18,9 +18,10 @@ type EditUserButtonProps = {
     userId?: string;
     iconOnly?: boolean;
     children?: React.ReactNode;
+    disabled?: boolean;
 }
 
-export const EditUserButton = ({ label, roles, userId, iconOnly, children }: EditUserButtonProps) => {
+export const EditUserButton = ({ label, roles, userId, iconOnly, children, disabled }: EditUserButtonProps) => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState<User | null>();
@@ -68,9 +69,13 @@ export const EditUserButton = ({ label, roles, userId, iconOnly, children }: Edi
     return (
         <>
             {children ? (
-                <div onClick={openModal} className="cursor-pointer">
-                    {children}
-                </div>
+                disabled ? (
+                    children
+                ) : (
+                    <div onClick={openModal} className="cursor-pointer">
+                        {children}
+                    </div>
+                )
             ) : iconOnly ? (
                 <Pencil size={14} onClick={openModal} className="absolute bottom-10 right-4 text-primary/70 transition-colors hover:text-primary cursor-pointer" />
             ) : (
