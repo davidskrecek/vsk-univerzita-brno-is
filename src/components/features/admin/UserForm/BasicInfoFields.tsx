@@ -1,4 +1,3 @@
-import React from "react";
 import LabeledInput from "@/components/ui/Forms/LabeledInput";
 import LabeledField from "@/components/ui/Forms/LabeledField";
 import { SportPicker } from "@/components/ui/Pickers/SportPicker";
@@ -44,7 +43,7 @@ export const BasicInfoFields = ({
                         sports={sports}
                         selectedId={sportId}
                         onSelect={setSportId}
-                        disabled={disabled}
+                        disabled={disabled || sports.length === 1}
                     />
                 </LabeledField>
             </div>

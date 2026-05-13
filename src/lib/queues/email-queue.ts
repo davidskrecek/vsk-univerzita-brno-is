@@ -1,5 +1,5 @@
 import { Worker, Job } from "bullmq";
-import { redisConnection } from "../redis";
+// import { redisConnection } from "../redis";
 import { sendInvitationEmail } from "../mailer";
 
 const QUEUE_NAME = "email-queue";
@@ -34,37 +34,37 @@ export interface EmailJobData {
   link: string;
 }
 
-const globalRef = globalThis as unknown as { emailWorker?: Worker };
-
-if (process.env.NODE_ENV === "production" || !globalRef.emailWorker) {
-  const worker = new Worker(
-    QUEUE_NAME,
-    async (job: Job<EmailJobData>) => {
-      console.log(`[QUEUE] Processing job ${job.id} of type ${job.data.type}`);
-      
-      try {
-        if (job.data.type === "invitation") {
-          await sendInvitationEmail(job.data.email, job.data.link);
-        }
-        console.log(`[QUEUE] Job ${job.id} completed successfully`);
-      } catch (error) {
-        console.error(`[QUEUE] Job ${job.id} failed:`, error);
-        throw error;
-      }
-    },
-    { 
-      connection: redisConnection,
-      removeOnComplete: { count: 100 },
-      removeOnFail: { count: 1000 },
-    }
-  );
-
-  if (process.env.NODE_ENV !== "production") {
-    globalRef.emailWorker = worker;
-  }
-
-  worker.on("failed", (job, err) => {
-    console.error(`[QUEUE] Job ${job?.id} failed with error: ${err.message}`);
-  });
-}
+// const globalRef = globalThis as unknown as { emailWorker?: Worker };
+// 
+// if (process.env.NODE_ENV === "production" || !globalRef.emailWorker) {
+//   const worker = new Worker(
+//     QUEUE_NAME,
+//     async (job: Job<EmailJobData>) => {
+//       console.log(`[QUEUE] Processing job ${job.id} of type ${job.data.type}`);
+//       
+//       try {
+//         if (job.data.type === "invitation") {
+//           await sendInvitationEmail(job.data.email, job.data.link);
+//         }
+//         console.log(`[QUEUE] Job ${job.id} completed successfully`);
+//       } catch (error) {
+//         console.error(`[QUEUE] Job ${job.id} failed:`, error);
+//         throw error;
+//       }
+//     },
+//     { 
+//       connection: redisConnection,
+//       removeOnComplete: { count: 100 },
+//       removeOnFail: { count: 1000 },
+//     }
+//   );
+// 
+//   if (process.env.NODE_ENV !== "production") {
+//     globalRef.emailWorker = worker;
+//   }
+// 
+//   worker.on("failed", (job, err) => {
+//     console.error(`[QUEUE] Job ${job?.id} failed with error: ${err.message}`);
+//   });
+// }
 

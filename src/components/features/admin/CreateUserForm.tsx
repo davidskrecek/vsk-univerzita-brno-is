@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { isSuperAdminRole } from "@/lib/constants/roles";
 import AppButton from "@/components/ui/Actions/AppButton";
@@ -53,6 +53,12 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
         };
     });
     const [trainerCategory, setTrainerCategory] = useState(user?.trainer?.category || "");
+
+    useEffect(() => {
+        if (!user && !sportId && accessibleSports.length === 1) {
+            setSportId(String(accessibleSports[0].id));
+        }
+    }, [accessibleSports, user, sportId]);
 
     const handleDelete = async () => {
         if (!user?.id) return;
