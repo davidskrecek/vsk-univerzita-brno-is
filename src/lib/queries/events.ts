@@ -1,9 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
-import type { UiEvent } from "@/components/features/events/eventUtils";
+import type { CalendarListEvent } from "@/components/features/events/eventUtils";
 
-export async function getPublicEvents(sportName?: string, year?: number, month?: number, limit?: number): Promise<UiEvent[]> {
+export async function getPublicEvents(sportName?: string, year?: number, month?: number, limit?: number): Promise<CalendarListEvent[]> {
   const where: any = {
     isPublic: true,
     isCancelled: false,
