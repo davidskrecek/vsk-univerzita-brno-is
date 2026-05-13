@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
+import { useSession } from "next-auth/react";
+import { isSuperAdminRole } from "@/lib/constants/roles";
 import AppButton from "@/components/ui/Actions/AppButton";
 import { IoClose } from "react-icons/io5";
 import { FullUser } from "@/actions/admin/users/schemas";
@@ -25,10 +27,17 @@ type CreateUserFormProps = {
 };
 
 export default function CreateUserForm({ onResult, onCancel, roles, user }: CreateUserFormProps) {
+    const { data: session } = useSession();
     const { sports } = useSports();
     const confirm = useConfirm();
 
-    // State
+    const accessibleSports = useMemo(() => {
+        if (!session?.user) return [];
+        const isSuperAdmin = isSuperAdminRole(session.user.role);
+        if (isSuperAdmin) return sports;
+        return sports.filter(s => session.user.managedSportIds?.includes(s.id));
+    }, [sports, session]);
+
     const [fullName, setFullName] = useState(user ? `${user.firstName} ${user.lastName}` : "");
     const [email, setEmail] = useState(user?.email || "");
     const [phone, setPhone] = useState(user?.phone || "");
@@ -170,7 +179,7 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
                                 email={email} setEmail={setEmail}
                                 phone={phone} setPhone={setPhone}
                                 sportId={sportId} setSportId={setSportId}
-                                sports={sports}
+                                sports={accessibleSports}
                                 disabled={!isActive}
                             />
 
