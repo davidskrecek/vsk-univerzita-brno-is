@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import SectionActionButton from "@/components/ui/Actions/SectionActionButton";
 import { AnimatePresence } from "framer-motion";
 import CreateUserForm from "@/components/features/admin/CreateUserForm";
