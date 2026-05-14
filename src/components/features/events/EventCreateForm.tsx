@@ -33,10 +33,20 @@ interface SportOption {
   name: string;
 }
 
+interface EventInitialValues {
+  id?: number;
+  sportId: number;
+  title: string;
+  description: string;
+  location?: string;
+  startTimeIso: string;
+  links?: Array<{ url: string; alias: string | null }>;
+}
+
 interface EventCreateFormProps {
   sports: SportOption[];
   mode?: "create" | "edit";
-  initialValues?: EventFormData & { links?: Array<{ url: string; alias: string | null }> };
+  initialValues?: EventInitialValues;
   onSuccess?: () => void;
   onCancel?: () => void;
   onDeleted?: () => void;
@@ -81,8 +91,8 @@ export const EventCreateForm = ({
     sportId: initialValues?.sportId || (sports.length > 0 ? sports[0].id : 0),
     title: initialValues?.title || "",
     description: initialValues?.description || "",
-    startDate: initialValues ? toDateInputValue(initialValues.startTime) : new Date().toISOString().slice(0, 10),
-    startTime: initialValues ? toTimeInputValue(initialValues.startTime) : "",
+    startDate: initialValues ? toDateInputValue(initialValues.startTimeIso) : new Date().toISOString().slice(0, 10),
+    startTime: initialValues ? toTimeInputValue(initialValues.startTimeIso) : "",
     location: initialValues?.location || "",
     links: initialValues?.links?.map((link) => ({ url: link.url, alias: link.alias ?? "" })) || [],
   };

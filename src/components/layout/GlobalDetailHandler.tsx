@@ -216,9 +216,9 @@ export default function GlobalDetailHandler() {
                   id: Number(eventDetail.id),
                   sportId: eventDetail.sportId,
                   title: eventDetail.title,
-                  description: eventDetail.description,
+                  description: eventDetail.description ?? "",
                   location: eventDetail.location,
-                  startTime: eventDetail.startTimeIso,
+                  startTimeIso: eventDetail.startTimeIso,
                   links: eventDetail.links,
                 }}
                 canDelete={canDeleteEvent}
