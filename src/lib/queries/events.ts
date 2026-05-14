@@ -1,9 +1,10 @@
 import "server-only";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { CalendarListEvent } from "@/components/features/events/eventUtils";
 
 export async function getPublicEvents(sportName?: string, year?: number, month?: number, limit?: number): Promise<CalendarListEvent[]> {
-  const where: any = {
+  const where: Prisma.EventWhereInput = {
     isPublic: true,
     isCancelled: false,
     sport: sportName ? { name: sportName } : undefined

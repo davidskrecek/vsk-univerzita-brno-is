@@ -37,7 +37,7 @@ export default async function EventsPage({
 }: {
   searchParams: Promise<{ sport?: string; view?: string; month?: string; year?: string }>;
 }) {
-  const { sport, view, month, year } = await searchParams;
+  const { sport, month, year } = await searchParams;
 
   const now = new Date();
   const currentMonth = Number(month) || now.getMonth() + 1;

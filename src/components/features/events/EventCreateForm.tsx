@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
+import { z } from "zod";
 
 import { createEventAction } from "@/actions/admin/events/create-event";
 import { updateEventAction } from "@/actions/admin/events/update-event";
@@ -23,6 +24,9 @@ import Modal from "@/components/ui/Overlay/Modal";
 import { useToast } from "@/hooks/useToast";
 import { useConfirm } from "@/hooks/useConfirm";
 import { eventFormSchema, type EventFormData } from "@/schemas/events/eventFormSchema";
+
+type EventFormInput = z.input<typeof eventFormSchema>;
+type EventFormOutput = z.output<typeof eventFormSchema>;
 
 interface SportOption {
   id: number;
@@ -72,7 +76,7 @@ export const EventCreateForm = ({
   const isEditing = mode === "edit" && typeof initialValues?.id === "number";
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const defaultValues: EventFormData = {
+  const defaultValues: EventFormInput = {
     id: initialValues?.id,
     sportId: initialValues?.sportId || (sports.length > 0 ? sports[0].id : 0),
     title: initialValues?.title || "",
@@ -83,8 +87,8 @@ export const EventCreateForm = ({
     links: initialValues?.links?.map((link) => ({ url: link.url, alias: link.alias ?? "" })) || [],
   };
 
-  const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema) as any,
+  const form = useForm<EventFormInput, undefined, EventFormOutput>({
+    resolver: zodResolver(eventFormSchema),
     defaultValues,
     mode: "onChange",
   });
@@ -183,7 +187,7 @@ export const EventCreateForm = ({
   return (
     <Modal onClose={onCancel} contentClassName="max-w-4xl w-full">
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit as any)} className="relative w-full h-full">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="relative w-full h-full">
           {onCancel ? <CloseButton onClick={onCancel} ariaLabel="Zavřít formulář" /> : null}
 
           <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">

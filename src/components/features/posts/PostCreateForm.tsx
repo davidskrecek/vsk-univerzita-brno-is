@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
+import { z } from "zod";
 
 import { createPostAction } from "@/actions/admin/posts/create-post";
 import { updatePostAction } from "@/actions/admin/posts/update-post";
@@ -13,15 +14,18 @@ import { deletePostAction } from "@/actions/admin/posts/delete-post";
 import AppButton from "@/components/ui/Actions/AppButton";
 import CloseButton from "@/components/ui/Actions/CloseButton";
 import LabeledField from "@/components/ui/Forms/LabeledField";
+import { LinksSection, type LinkDraft } from "@/components/ui/Forms/LinksSection";
 import FormLabeledInput from "@/components/ui/Forms/FormLabeledInput";
 import FormLabeledTextarea from "@/components/ui/Forms/FormLabeledTextarea";
-import { LinksSection, type LinkDraft } from "@/components/ui/Forms/LinksSection";
 import { SportPicker } from "@/components/ui/Pickers/SportPicker";
 import { DatePicker } from "@/components/ui/Pickers/DatePicker";
 import Modal from "@/components/ui/Overlay/Modal";
-import { useToast } from "@/hooks/useToast";
 import { useConfirm } from "@/hooks/useConfirm";
+import { useToast } from "@/hooks/useToast";
 import { postFormSchema, type PostFormData } from "@/schemas/posts/postFormSchema";
+
+type PostFormInput = z.input<typeof postFormSchema>;
+type PostFormOutput = z.output<typeof postFormSchema>;
 
 interface SportOption {
   id: number;
@@ -70,13 +74,11 @@ export const PostCreateForm = ({
   const confirm = useConfirm();
   const isEditing = mode === "edit" && typeof initialValues?.id === "number";
 
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedImageName, setSelectedImageName] = useState<string>(initialValues?.imageUrl ? "Aktuální obrázek" : "");
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(initialValues?.imageUrl ?? null);
+  const previewUrlRef = useRef<string | null>(null);
 
-  const availableSports = useMemo(() => sports, [sports]);
-
-  const defaultValues: PostFormData = {
+  const defaultValues: PostFormInput = {
     id: initialValues?.id,
     sportId: initialValues?.sportId || (sports.length > 0 ? sports[0].id : 0),
     title: initialValues?.title || "",
@@ -85,8 +87,8 @@ export const PostCreateForm = ({
     links: initialValues?.links?.map((link) => ({ url: link.url, alias: link.alias ?? "" })) || [],
   };
 
-  const form = useForm<PostFormData>({
-    resolver: zodResolver(postFormSchema) as any,
+  const form = useForm<PostFormInput, undefined, PostFormOutput>({
+    resolver: zodResolver(postFormSchema),
     defaultValues,
     mode: "onChange",
   });
@@ -96,20 +98,30 @@ export const PostCreateForm = ({
   } = form;
 
   useEffect(() => {
-    if (selectedImage) {
-      const previewUrl = URL.createObjectURL(selectedImage);
-      setSelectedImagePreview(previewUrl);
-
-      return () => URL.revokeObjectURL(previewUrl);
-    }
-
-    setSelectedImagePreview(initialValues?.imageUrl ?? null);
-  }, [initialValues?.imageUrl, selectedImage]);
+    return () => {
+      if (previewUrlRef.current?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
-    setSelectedImage(file);
     setSelectedImageName(file?.name ?? "");
+
+    if (previewUrlRef.current?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      previewUrlRef.current = previewUrl;
+      setSelectedImagePreview(previewUrl);
+      return;
+    }
+
+    setSelectedImagePreview(initialValues?.imageUrl ?? null);
   };
 
   const handleDelete = async () => {
@@ -199,7 +211,7 @@ export const PostCreateForm = ({
   return (
     <Modal onClose={onCancel} contentClassName="max-w-4xl w-full">
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit as any)} className="relative w-full h-full">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="relative w-full h-full">
           {onCancel ? <CloseButton onClick={onCancel} ariaLabel="Zavřít formulář" /> : null}
 
           <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
@@ -216,11 +228,7 @@ export const PostCreateForm = ({
               className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 custom-scrollbar"
               style={{ scrollbarGutter: "stable both-edges" }}
             >
-              <FormLabeledInput
-                label="Titulek příspěvku"
-                name="title"
-                placeholder="Zadejte poutavý nadpis..."
-              />
+              <FormLabeledInput label="Titulek příspěvku" name="title" placeholder="Zadejte poutavý nadpis..." />
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <Controller
@@ -229,10 +237,10 @@ export const PostCreateForm = ({
                   render={({ field }) => (
                     <LabeledField label="Sportovní kategorie">
                       <SportPicker
-                        sports={availableSports}
+                        sports={sports}
                         selectedId={String(field.value)}
                         onSelect={(id) => field.onChange(Number(id))}
-                        disabled={availableSports.length <= 1}
+                        disabled={sports.length <= 1}
                       />
                       {errors.sportId && <p className="text-xs text-error mt-1">{errors.sportId.message}</p>}
                     </LabeledField>

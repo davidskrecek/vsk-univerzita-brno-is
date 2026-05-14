@@ -1,8 +1,8 @@
-import { Worker, Job } from "bullmq";
+// import { Worker, Job } from "bullmq";
 // import { redisConnection } from "../redis";
 import { sendInvitationEmail } from "../mailer";
 
-const QUEUE_NAME = "email-queue";
+// const QUEUE_NAME = "email-queue";
 
 // // Singleton for the queue
 // let emailQueue: Queue;

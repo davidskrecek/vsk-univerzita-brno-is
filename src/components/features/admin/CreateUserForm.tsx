@@ -2,8 +2,9 @@
 
 import { useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import AppButton from "@/components/ui/Actions/AppButton";
 import CloseButton from "@/components/ui/Actions/CloseButton";
@@ -22,6 +23,9 @@ import { BasicInfoFields } from "@/components/features/admin/UserForm/BasicInfoF
 import { TrainerFields } from "@/components/features/admin/UserForm/TrainerFields";
 import { EditorFields } from "@/components/features/admin/UserForm/EditorFields";
 import { AccountSecuritySection } from "@/components/features/admin/UserForm/AccountSecuritySection";
+
+type CreateUserFormInput = z.input<typeof createUserFormSchema>;
+type CreateUserFormOutput = z.output<typeof createUserFormSchema>;
 
 type CreateUserFormProps = {
   onResult: (error?: string) => void;
@@ -50,7 +54,7 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
     };
   }, [user]);
 
-  const defaultValues: CreateUserFormData = {
+  const defaultValues: CreateUserFormInput = {
     fullName: user ? `${user.firstName} ${user.lastName}` : "",
     email: user?.email || "",
     phone: user?.phone || "",
@@ -60,19 +64,19 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
     trainerCategory: user?.trainer?.category || "",
   };
 
-  const form = useForm<CreateUserFormData>({
-    resolver: zodResolver(createUserFormSchema) as any,
+  const form = useForm<CreateUserFormInput, undefined, CreateUserFormOutput>({
+    resolver: zodResolver(createUserFormSchema),
     defaultValues,
     mode: "onChange",
   });
 
   const {
     formState: { isSubmitting },
-    watch,
+    control,
     setValue,
   } = form;
 
-  const selectedSportId = watch("sportId");
+  const selectedSportId = useWatch({ control, name: "sportId" });
   const isActive = user?.isActive ?? true;
 
   useEffect(() => {
@@ -175,7 +179,7 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
   return (
     <Modal onClose={onCancel} contentClassName="max-w-4xl w-full">
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit as any)} className="relative w-full h-full">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="relative w-full h-full">
           {onCancel && <CloseButton onClick={onCancel} ariaLabel="Zavřít formulář" />}
 
           <div className="flex flex-col max-h-[calc(100vh-10rem)] bg-surface-container-low rounded-xl border border-outline-variant/10 overflow-hidden">
@@ -197,7 +201,7 @@ export default function CreateUserForm({ onResult, onCancel, roles, user }: Crea
                 <fieldset disabled={!selectedSportId || !isActive} className="space-y-4">
                   <TrainerFields defaultOpen={!!user?.trainer} disabled={!isActive} />
 
-                  <EditorFields sportId={selectedSportId as string | undefined} isActive={isActive} roles={roles} disabled={!isActive}>
+                  <EditorFields sportId={selectedSportId} isActive={isActive} disabled={!isActive}>
                     {user && (
                       <AccountSecuritySection
                         userId={user.id}

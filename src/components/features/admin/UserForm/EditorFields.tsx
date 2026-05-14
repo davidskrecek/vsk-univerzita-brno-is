@@ -7,17 +7,15 @@ import LabeledField from "@/components/ui/Forms/LabeledField";
 import { ActionDropdown } from "@/components/ui/Actions/ActionDropdown";
 import { CollapsibleSection } from "./CollapsibleSection";
 import { usePermission } from "@/hooks/usePermission";
-import { Role } from "@/lib/queries/roles";
 
 type EditorFieldsProps = {
   disabled?: boolean;
   sportId?: string;
   isActive?: boolean;
-  roles: Role[];
   children?: React.ReactNode;
 };
 
-export const EditorFields = ({ disabled, sportId, isActive, roles, children }: EditorFieldsProps) => {
+export const EditorFields = ({ disabled, sportId, isActive, children }: EditorFieldsProps) => {
   const { control, watch } = useFormContext();
   const { hasPermission } = usePermission();
   const canManageUsers = hasPermission("users:manage");

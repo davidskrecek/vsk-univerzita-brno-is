@@ -48,20 +48,12 @@ export const PartnerOrderForm = ({
   };
 
   const form = useForm<PartnerOrderFormData>({
-    resolver: zodResolver(partnerOrderFormSchema) as any,
+    resolver: zodResolver(partnerOrderFormSchema),
     defaultValues,
     mode: "onChange",
   });
 
-  const { formState: { isSubmitting: isFormSubmitting, errors } } = form;
-  const partnerId = form.watch("partnerId");
-  
-  const partnerLabel = partnerId ? partners.find((p) => p.id === partnerId)?.name ?? null : null;
-
-  const handlePartnerChange = (value: string) => {
-    form.setValue("partnerId", value);
-    onPartnerChange?.(value || null);
-  };
+  const { formState: { isSubmitting: isFormSubmitting }, control } = form;
 
   const handleFormSubmit = async (data: PartnerOrderFormData) => {
     await onSubmit?.(data);
@@ -71,40 +63,52 @@ export const PartnerOrderForm = ({
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(handleFormSubmit)} className="bg-surface-container-low rounded-xl border border-outline-variant/10 p-6 sm:p-8 space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <LabeledField label="Partner / Brand" className={errors.partnerId ? "border-red-500" : ""}>
-            <ActionDropdown
-              align="start"
-              contentClassName="min-w-[14rem] max-w-[calc(100vw-2rem)]"
-              items={partners.map((p) => ({
-                key: p.id,
-                label: p.name,
-                icon: (
-                  <span className="inline-flex h-5 w-8 shrink-0 items-center justify-center rounded-sm bg-surface-bright/90 px-1 text-[0.5rem] font-display font-bold uppercase text-on-surface/75">
-                    {getPartnerInitials(p.name)}
-                  </span>
-                ),
-                onSelect: () => handlePartnerChange(p.id),
-              }))}
-              trigger={
-                <button
-                  type="button"
-                  className={`btn-secondary w-full py-3 px-4 text-sm font-sans outline-none border transition-colors flex items-center justify-between gap-3 ${
-                    errors.partnerId
-                      ? "border-red-500"
-                      : "border-outline-variant/10 focus:border-primary/40"
-                  }`}
-                >
-                  <span className={partnerLabel ? "text-on-surface/70" : "text-on-surface/40"}>
-                    {partnerLabel ?? "Vyberte partnera"}
-                  </span>
-                  <IoChevronDown className="text-on-surface/40" size={16} />
-                </button>
-              }
-            />
-            {errors.partnerId && (
-              <p className="text-xs text-error mt-1">{errors.partnerId.message}</p>
-            )}
-          </LabeledField>
+          <Controller
+            name="partnerId"
+            control={control}
+            render={({ field, fieldState }) => {
+              const partnerLabel = field.value ? partners.find((p) => p.id === field.value)?.name ?? null : null;
+              return (
+              <LabeledField label="Partner / Brand">
+                <ActionDropdown
+                  align="start"
+                  contentClassName="min-w-[14rem] max-w-[calc(100vw-2rem)]"
+                  items={partners.map((p) => ({
+                    key: p.id,
+                    label: p.name,
+                    icon: (
+                      <span className="inline-flex h-5 w-8 shrink-0 items-center justify-center rounded-sm bg-surface-bright/90 px-1 text-[0.5rem] font-display font-bold uppercase text-on-surface/75">
+                        {getPartnerInitials(p.name)}
+                      </span>
+                    ),
+                    onSelect: () => {
+                      field.onChange(p.id);
+                      onPartnerChange?.(p.id || null);
+                    },
+                  }))}
+                  trigger={
+                    <button
+                      type="button"
+                      className={`btn-secondary w-full py-3 px-4 text-sm font-sans outline-none border transition-colors flex items-center justify-between gap-3 ${
+                        fieldState.error
+                          ? "border-red-500"
+                          : "border-outline-variant/10 focus:border-primary/40"
+                      }`}
+                    >
+                      <span className={partnerLabel ? "text-on-surface/70" : "text-on-surface/40"}>
+                        {partnerLabel ?? "Vyberte partnera"}
+                      </span>
+                      <IoChevronDown className="text-on-surface/40" size={16} />
+                    </button>
+                  }
+                />
+                {fieldState.error && (
+                  <p className="text-xs text-error mt-1">{fieldState.error.message}</p>
+                )}
+              </LabeledField>
+              );
+            }}
+          />
 
           <FormLabeledInput
             label="E-mail"

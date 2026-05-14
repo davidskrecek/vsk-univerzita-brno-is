@@ -41,7 +41,7 @@ export const DetailLayout = ({
           <div className="absolute top-4 right-4 z-[2000] flex items-center gap-2">
             {actions && <div className="flex-shrink-0">{actions}</div>}
             <div onClick={(e) => e.stopPropagation()}>
-              <CloseButton onClick={onClose} />
+              <CloseButton onClick={onClose} className="rounded-full bg-black/30 p-2 text-white transition-colors hover:bg-black/50" />
             </div>
           </div>
         )}
