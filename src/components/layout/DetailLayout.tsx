@@ -1,7 +1,8 @@
 "use client";
 
 import { ReactNode } from "react";
-import { IoClose, IoLinkOutline } from "react-icons/io5";
+import { IoLinkOutline } from "react-icons/io5";
+import CloseButton from "@/components/ui/Actions/CloseButton";
 
 export interface DetailLink {
   url: string;
@@ -33,53 +34,33 @@ export const DetailLayout = ({
 }: DetailLayoutProps) => {
   return (
     <div className={`${contentClassName} bg-surface-container-low flex flex-col w-full h-full min-h-0 overflow-hidden`}>
-      {/* HEADER SECTION (Image or Map) */}
       <div className="relative h-48 sm:h-56 md:h-64 bg-surface-container-high overflow-hidden flex-shrink-0">
         {headerContent}
 
         {onClose && (
           <div className="absolute top-4 right-4 z-[2000] flex items-center gap-2">
             {actions && <div className="flex-shrink-0">{actions}</div>}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              className="rounded-full p-2 text-white bg-black/30 hover:bg-black/50 transition-colors cursor-pointer"
-              type="button"
-            >
-              <IoClose size={20} />
-            </button>
+            <div onClick={(e) => e.stopPropagation()}>
+              <CloseButton onClick={onClose} />
+            </div>
           </div>
         )}
       </div>
 
-      {/* CONTENT SECTION */}
       <div className="p-6 sm:p-8 md:p-10 flex flex-col items-center text-center space-y-6 sm:space-y-8 overflow-y-auto flex-1 custom-scrollbar min-h-0">
-        <div className="meta-badge uppercase">
-          {category}
-        </div>
+        <div className="meta-badge uppercase">{category}</div>
 
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-on-surface tracking-display leading-tight uppercase">
           {title}
         </h2>
 
-        {metaContent && (
-          <div className="text-on-surface/60 font-sans">
-            {metaContent}
-          </div>
-        )}
+        {metaContent && <div className="text-on-surface/60 font-sans">{metaContent}</div>}
 
-        <div className="w-full text-left sm:text-center">
-          {children}
-        </div>
+        <div className="w-full text-left sm:text-center">{children}</div>
 
-        {/* LINKS SECTION */}
         <div className="pt-4 w-full border-t border-outline-variant/5">
           <div className="flex flex-col items-center gap-3">
-            <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-on-surface/20">
-              Odkazy
-            </span>
+            <span className="text-[10px] font-sans font-bold uppercase tracking-[0.2em] text-on-surface/20">Odkazy</span>
             <div className="flex flex-wrap items-center justify-center gap-2">
               {links.length > 0 ? (
                 links.map((l, i) => (
@@ -108,4 +89,3 @@ export const DetailLayout = ({
 };
 
 export default DetailLayout;
-
