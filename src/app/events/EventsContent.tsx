@@ -104,9 +104,9 @@ function EventsContentInner({ initialEvents, year, month }: EventsContentProps) 
               id: Number(pendingEditEvent.id),
               sportId: pendingEditEvent.sportId,
               title: pendingEditEvent.title,
-              description: pendingEditEvent.description ?? null,
-              location: pendingEditEvent.location ?? null,
-              startTime: pendingEditEvent.startTimeIso,
+              description: pendingEditEvent.description ?? "",
+              location: pendingEditEvent.location ?? "",
+              startTimeIso: pendingEditEvent.startTimeIso,
             }}
             onCancel={closeEditModal}
             onDeleted={closeEditModal}

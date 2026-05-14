@@ -1,27 +1,22 @@
 import React from "react";
 import { User as UserIcon } from "lucide-react";
-import LabeledInput from "@/components/ui/Forms/LabeledInput";
+import FormLabeledInput from "@/components/ui/Forms/FormLabeledInput";
 import { CollapsibleSection } from "@/components/features/admin/UserForm/CollapsibleSection";
 
 type TrainerFieldsProps = {
-    category: string;
-    setCategory: (val: string) => void;
     defaultOpen?: boolean;
     disabled?: boolean;
 };
 
 export const TrainerFields = ({
-    category,
-    setCategory,
     defaultOpen,
     disabled
 }: TrainerFieldsProps) => {
     return (
         <CollapsibleSection title="Trenér" icon={UserIcon} defaultOpen={defaultOpen}>
-            <LabeledInput
+            <FormLabeledInput
                 label="Kategorie trenéra"
-                value={category}
-                onChange={setCategory}
+                name="trainerCategory"
                 placeholder="Např. I. třída"
                 disabled={disabled}
             />

@@ -1,72 +1,59 @@
-import LabeledInput from "@/components/ui/Forms/LabeledInput";
+import React from "react";
+import { useFormContext, Controller } from "react-hook-form";
+import FormLabeledInput from "@/components/ui/Forms/FormLabeledInput";
 import LabeledField from "@/components/ui/Forms/LabeledField";
 import { SportPicker } from "@/components/ui/Pickers/SportPicker";
 import { Sport } from "@/lib/queries/sports";
 
 type BasicInfoFieldsProps = {
-    fullName: string;
-    setFullName: (val: string) => void;
-    email: string;
-    setEmail: (val: string) => void;
-    phone: string;
-    setPhone: (val: string) => void;
-    sportId: string;
-    setSportId: (val: string) => void;
-    sports: Sport[];
-    disabled?: boolean;
+  sports: Sport[];
+  disabled?: boolean;
 };
 
-export const BasicInfoFields = ({
-    fullName,
-    setFullName,
-    email,
-    setEmail,
-    phone,
-    setPhone,
-    sportId,
-    setSportId,
-    sports,
-    disabled
-}: BasicInfoFieldsProps) => {
-    return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <LabeledInput
-                    label="Celé jméno"
-                    value={fullName}
-                    onChange={setFullName}
-                    placeholder="Jan Novák"
-                    disabled={disabled}
-                />
-                <LabeledField label="Přiřazený sport">
-                    <SportPicker
-                        sports={sports}
-                        selectedId={sportId}
-                        onSelect={setSportId}
-                        disabled={disabled || sports.length === 1}
-                    />
-                </LabeledField>
-            </div>
+export const BasicInfoFields = ({ sports, disabled }: BasicInfoFieldsProps) => {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <LabeledInput
-                    label="E-mail"
-                    type="email"
-                    value={email}
-                    onChange={setEmail}
-                    placeholder="jan.novak@vskub.cz"
-                    disabled={disabled}
-                />
-                <LabeledInput
-                    label="Telefon"
-                    type="tel"
-                    value={phone}
-                    onChange={setPhone}
-                    placeholder="+420 123 456 789"
-                    disabled={disabled}
-                />
-            </div>
-        </div>
-    );
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormLabeledInput label="Celé jméno" name="fullName" placeholder="Jan Novák" disabled={disabled} />
+
+        <Controller
+          name="sportId"
+          control={control}
+          render={({ field }) => (
+            <LabeledField label="Přiřazený sport" className={errors.sportId ? "border-red-500" : ""}>
+              <SportPicker
+                sports={sports}
+                selectedId={String(field.value || "")}
+                onSelect={(id) => field.onChange(id)}
+                disabled={disabled || sports.length === 1}
+              />
+              {errors.sportId && <p className="text-xs text-error mt-1">{errors.sportId.message as string}</p>}
+            </LabeledField>
+          )}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormLabeledInput
+          label="E-mail"
+          type="email"
+          name="email"
+          placeholder="jan.novak@vskub.cz"
+          disabled={disabled}
+        />
+        <FormLabeledInput
+          label="Telefon"
+          type="tel"
+          name="phone"
+          placeholder="+420 123 456 789"
+          disabled={disabled}
+        />
+      </div>
+    </div>
+  );
 };
-
